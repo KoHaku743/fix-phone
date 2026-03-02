@@ -109,6 +109,7 @@ const TRANSLATIONS = {
     'admin.inventory':      'Inventory',
     'admin.settings':       'Settings',
     'admin.view-website':   '🏠 View Website',
+    'admin.logout':         '🚪 Sign Out',
 
     /* ── Admin topbar ── */
     'admin.subtitle':             'Manage your repair business',
@@ -433,6 +434,7 @@ const TRANSLATIONS = {
     'admin.inventory':      'Sklad',
     'admin.settings':       'Nastavenia',
     'admin.view-website':   '🏠 Zobraziť web',
+    'admin.logout':         '🚪 Odhlásiť sa',
 
     /* ── Admin topbar ── */
     'admin.subtitle':             'Spravujte svoj opravárenský biznis',

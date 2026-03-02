@@ -32,6 +32,13 @@ function clearCurrentUser() {
   try { localStorage.removeItem(USER_KEY); } catch (_) {}
 }
 
+function logout() {
+  clearToken();
+  clearCurrentUser();
+  loadLoginUsers();
+  showLoginOverlay();
+}
+
 /** Update topbar avatar and title based on logged-in user. */
 function updateUserDisplay() {
   const username = getCurrentUser();
@@ -1219,6 +1226,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Back button on login step 2
   const backBtn = document.getElementById('login-back-btn');
   if (backBtn) backBtn.addEventListener('click', () => showLoginStep(1));
+
+  // Logout button
+  document.getElementById('logout-btn')?.addEventListener('click', logout);
 
   // Sidebar navigation
   document.querySelectorAll('.sidebar-item').forEach(item => {
