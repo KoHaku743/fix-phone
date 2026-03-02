@@ -48,7 +48,15 @@ router.put('/appointments/:id', (req, res) => {
       prepare('UPDATE appointments SET quoted_price = ? WHERE id = ?').run(price, req.params.id);
     }
     if (assigned_to !== undefined) {
-      prepare('UPDATE appointments SET assigned_to = ? WHERE id = ?').run(assigned_to || null, req.params.id);
+      let newAssignedTo = null;
+      if (assigned_to !== null) {
+        const currentUser = req.adminUser && req.adminUser.username;
+        if (!currentUser || assigned_to !== currentUser) {
+          return res.status(403).json({ error: 'You may only assign appointments to yourself or unassign them.' });
+        }
+        newAssignedTo = currentUser;
+      }
+      prepare('UPDATE appointments SET assigned_to = ? WHERE id = ?').run(newAssignedTo, req.params.id);
     }
     const appointment = prepare('SELECT * FROM appointments WHERE id = ?').get(req.params.id);
     if (!appointment) return res.status(404).json({ error: 'Appointment not found' });
