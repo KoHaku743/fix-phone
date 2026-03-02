@@ -1,5 +1,5 @@
 /* ============================================================
-   main.js – FixPhone customer-facing page
+   main.js – SSStylish Repair customer-facing page
    ============================================================ */
 
 const API = '';  // Same-origin: backend serves frontend
@@ -52,11 +52,23 @@ document.addEventListener('DOMContentLoaded', () => {
 function getServiceIcon(typeName, serviceName) {
   const t = (typeName || '').toLowerCase();
   const s = (serviceName || '').toLowerCase();
-  if (t.includes('screen') || s.includes('screen'))   return '📱';
-  if (t.includes('battery') || s.includes('battery')) return '🔋';
-  if (t.includes('water') || s.includes('water'))     return '💧';
-  if (t.includes('software') || s.includes('software') || s.includes('restore')) return '💻';
+  if (t.includes('screen') || s.includes('screen') || t.includes('obrazovk') || s.includes('obrazovk')) return '📱';
+  if (t.includes('battery') || s.includes('battery') || t.includes('bater') || s.includes('bater')) return '🔋';
+  if (t.includes('water') || s.includes('water') || t.includes('vod') || s.includes('vod')) return '💧';
+  if (t.includes('software') || s.includes('software') || s.includes('restore') || s.includes('softvér')) return '💻';
   return '🔧';
+}
+
+// ─── Format price range ────────────────────────────────────
+function formatPriceRange(priceFrom, priceTo) {
+  const hasFrom = priceFrom != null && !isNaN(Number(priceFrom));
+  const hasTo   = priceTo   != null && !isNaN(Number(priceTo));
+  if (hasFrom && hasTo) {
+    return `${window.t('services.price-from')} ${Number(priceFrom).toFixed(0)} € – ${Number(priceTo).toFixed(0)} €`;
+  }
+  if (hasFrom) return `${window.t('services.price-from')} ${Number(priceFrom).toFixed(0)} €`;
+  if (hasTo)   return `${window.t('services.price-up-to')} ${Number(priceTo).toFixed(0)} €`;
+  return window.t('services.price-on-request');
 }
 
 // ─── Load & render services ───────────────────────────────
@@ -76,14 +88,13 @@ async function loadServices() {
     grid.innerHTML = services.map((s, i) => `
       <div class="service-card" style="animation-delay:${i * 0.08}s">
         <div class="service-card-content">
-          <span class="service-type-badge">${s.repair_type_name || 'General'}</span>
+          <span class="service-type-badge">${escapeHtml(s.repair_type_name || 'General')}</span>
           <div class="service-icon">${getServiceIcon(s.repair_type_name, s.name)}</div>
           <h3 class="service-name">${escapeHtml(s.name)}</h3>
-          <p class="service-description">${escapeHtml(s.description || 'Professional repair service with genuine parts.')}</p>
+          <p class="service-description">${escapeHtml(s.description || 'Profesionálna oprava s originálnymi dielmi.')}</p>
           <div class="service-footer">
-            <span class="service-price">$${Number(s.price).toFixed(2)}</span>
+            <span class="service-price service-price-range">${formatPriceRange(s.price_from, s.price_to)}</span>
             <div class="service-meta">
-              <span class="service-duration">⏱ ${s.duration_minutes} min</span>
               <span class="service-stock ${s.in_stock ? 'stock-in' : 'stock-out'}">
                 ${s.in_stock ? window.t('services.in-stock') : window.t('services.out-stock')}
               </span>
@@ -123,18 +134,10 @@ function populateServiceDropdown(services) {
   services.forEach(s => {
     const opt = document.createElement('option');
     opt.value = s.id;
-    opt.textContent = `${s.name} – $${Number(s.price).toFixed(2)}`;
+    const priceLabel = formatPriceRange(s.price_from, s.price_to);
+    opt.textContent = `${s.name} (${priceLabel})`;
     select.appendChild(opt);
   });
-}
-
-// ─── Set min date for appointment ─────────────────────────
-function setMinDate() {
-  const input = document.getElementById('appointment_date');
-  if (!input) return;
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  input.min = now.toISOString().slice(0, 16);
 }
 
 // ─── Form validation ──────────────────────────────────────
@@ -145,7 +148,7 @@ function validateForm(data) {
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.customer_email)) errors.push(window.t('val.email-invalid'));
   if (!data.customer_phone?.trim()) errors.push(window.t('val.phone-required'));
   if (!data.device_model?.trim())   errors.push(window.t('val.device-required'));
-  if (!data.appointment_date)       errors.push(window.t('val.date-required'));
+  if (!data.service_id)             errors.push(window.t('val.service-required'));
   return errors;
 }
 
@@ -163,7 +166,6 @@ async function handleBooking(e) {
     customer_phone:   form.customer_phone.value.trim(),
     device_model:     form.device_model.value.trim(),
     service_id:       form.service_id.value || null,
-    appointment_date: form.appointment_date.value,
     notes:            form.notes.value.trim() || null,
   };
 
@@ -188,7 +190,7 @@ async function handleBooking(e) {
 
     if (!res.ok) throw new Error(result.error || window.t('toast.something-wrong'));
 
-    showToast('success', window.t('toast.booked-title'), window.t('toast.booked-msg', { date: formatDate(data.appointment_date), email: data.customer_email }));
+    showToast('success', window.t('toast.booked-title'), window.t('toast.booked-msg', { email: data.customer_email }));
     form.reset();
 
   } catch (err) {
@@ -239,13 +241,12 @@ function escapeHtml(str) {
 function formatDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  return d.toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleDateString('sk-SK', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 // ─── Init ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   loadServices();
-  setMinDate();
 
   const form = document.getElementById('booking-form');
   if (form) form.addEventListener('submit', handleBooking);

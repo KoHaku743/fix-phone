@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" translate="no">
+<html lang="sk" translate="no">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FixPhone – Admin Panel</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>" />
+  <title>SSStylish Repair – Admin Panel</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -15,7 +15,7 @@
   <!-- ========== LOGIN OVERLAY ========== -->
   <div id="login-overlay" class="login-overlay" style="display:none;">
     <div class="login-card">
-      <div class="login-logo">🔧 FixPhone Admin</div>
+      <div class="login-logo">⚡ <span style="color:var(--teal);">SSS</span>tylish Admin</div>
       <h2 class="login-title" data-i18n="login.title">Sign In</h2>
       <p class="login-subtitle" data-i18n="login.subtitle">Enter your admin password to continue.</p>
       <form id="login-form" autocomplete="off">
@@ -33,8 +33,8 @@
   </div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <span class="sidebar-logo-icon">🔧</span>
-      <span class="sidebar-logo-text">FixPhone Admin</span>
+      <span class="sidebar-logo-icon">⚡</span>
+      <span class="sidebar-logo-text"><span style="color:var(--teal);">SSS</span>tylish Admin</span>
     </div>
 
     <div class="sidebar-label" data-i18n="admin.menu-label">Main Menu</div>
@@ -57,6 +57,10 @@
         <div class="sidebar-item-icon">🏷️</div>
         <span class="sidebar-item-text" data-i18n="admin.repair-types">Repair Types</span>
       </div>
+      <div class="sidebar-item" data-tab="settings">
+        <div class="sidebar-item-icon">⚙️</div>
+        <span class="sidebar-item-text" data-i18n="admin.settings">Settings</span>
+      </div>
     </nav>
 
     <div class="sidebar-footer">
@@ -75,7 +79,7 @@
         <div class="topbar-subtitle" data-i18n="admin.subtitle">Manage your repair business</div>
       </div>
       <div class="topbar-right">
-        <button class="lang-toggle" id="lang-toggle" aria-label="Switch language">SK</button>
+        <button class="lang-toggle" id="lang-toggle" aria-label="Switch language">EN</button>
         <div class="topbar-avatar">A</div>
       </div>
     </div>
@@ -128,12 +132,11 @@
                 <th data-i18n="admin.col.customer">Customer</th>
                 <th data-i18n="admin.col.device">Device</th>
                 <th data-i18n="admin.col.service">Service</th>
-                <th data-i18n="admin.col.date">Date</th>
                 <th data-i18n="admin.col.status">Status</th>
               </tr>
             </thead>
             <tbody id="recent-tbody">
-              <tr><td colspan="6"><div class="loading-spinner"></div></td></tr>
+              <tr><td colspan="5"><div class="loading-spinner"></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -169,13 +172,12 @@
                 <th data-i18n="admin.col.contact">Contact</th>
                 <th data-i18n="admin.col.device">Device</th>
                 <th data-i18n="admin.col.service">Service</th>
-                <th data-i18n="admin.col.date">Date</th>
                 <th data-i18n="admin.col.status">Status</th>
                 <th data-i18n="admin.col.actions">Actions</th>
               </tr>
             </thead>
             <tbody id="orders-tbody">
-              <tr><td colspan="8"><div class="loading-spinner"></div></td></tr>
+              <tr><td colspan="7"><div class="loading-spinner"></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -197,14 +199,13 @@
                 <th data-i18n="admin.col.num">#</th>
                 <th data-i18n="admin.col.name">Name</th>
                 <th data-i18n="admin.col.repair-type">Repair Type</th>
-                <th data-i18n="admin.col.price">Price</th>
-                <th data-i18n="admin.col.duration">Duration</th>
+                <th data-i18n="admin.col.price-range">Price Range</th>
                 <th data-i18n="admin.col.stock">Stock</th>
                 <th data-i18n="admin.col.actions">Actions</th>
               </tr>
             </thead>
             <tbody id="services-tbody">
-              <tr><td colspan="7"><div class="loading-spinner"></div></td></tr>
+              <tr><td colspan="6"><div class="loading-spinner"></div></td></tr>
             </tbody>
           </table>
         </div>
@@ -237,16 +238,66 @@
         </div>
       </div>
 
+      <!-- ========== SETTINGS TAB ========== -->
+      <div class="tab-pane" id="tab-settings">
+        <div class="section-header">
+          <div>
+            <div class="section-title" data-i18n="admin.settings">Settings</div>
+            <div class="section-count" data-i18n="admin.settings-subtitle">SMTP e-mail configuration</div>
+          </div>
+        </div>
+        <div class="table-container" style="padding:1.5rem;">
+          <div style="max-width:560px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:1.25rem;" data-i18n="admin.settings-desc">
+              Configure your Gmail SMTP to send booking confirmations and message notifications to customers.
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="modal.smtp-host">SMTP Host</label>
+              <input class="form-input" type="text" id="smtp-host" placeholder="smtp.gmail.com" />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" data-i18n="modal.smtp-port">SMTP Port</label>
+                <input class="form-input" type="number" id="smtp-port" placeholder="587" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" data-i18n="modal.smtp-secure">Secure (SSL/TLS)</label>
+                <select class="form-select" id="smtp-secure">
+                  <option value="false">No (STARTTLS, port 587)</option>
+                  <option value="true">Yes (SSL, port 465)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="modal.smtp-user">Gmail address</label>
+              <input class="form-input" type="email" id="smtp-user" placeholder="vas@gmail.com" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="modal.smtp-pass">App Password</label>
+              <input class="form-input" type="password" id="smtp-pass" placeholder="App password (not your Gmail password)" autocomplete="new-password" />
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="modal.smtp-from">From name / address</label>
+              <input class="form-input" type="text" id="smtp-from" placeholder='SSStylish Repair <vas@gmail.com>' />
+            </div>
+            <div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;">
+              <button class="btn btn-primary" id="save-settings-btn" data-i18n="admin.save-settings">Save Settings</button>
+              <button class="btn btn-ghost" id="test-smtp-btn" data-i18n="admin.test-smtp">Send Test E-mail</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /content-area -->
   </main>
 
   <!-- ========== MODALS ========== -->
 
-  <!-- Edit Order Status Modal -->
+  <!-- Edit Order Modal (status + quoted price + messages) -->
   <div class="modal-overlay" id="modal-order">
-    <div class="modal">
+    <div class="modal" style="max-width:640px;width:95%;">
       <div class="modal-header">
-        <span class="modal-title" data-i18n="modal.update-status">Update Appointment Status</span>
+        <span class="modal-title" data-i18n="modal.update-order">Manage Order</span>
         <button class="modal-close" data-modal="modal-order">✕</button>
       </div>
       <div class="modal-body">
@@ -255,14 +306,43 @@
           <label class="form-label" data-i18n="modal.customer">Customer</label>
           <div id="order-customer-info" style="font-size:0.875rem; color:var(--text-secondary); padding:0.5rem 0;"></div>
         </div>
-        <div class="form-group">
-          <label class="form-label" data-i18n="modal.status">Status</label>
-          <select class="form-select" id="order-status">
-            <option value="pending" data-i18n="status.pending">⏳ Pending</option>
-            <option value="confirmed" data-i18n="status.confirmed">🔵 Confirmed</option>
-            <option value="completed" data-i18n="status.completed">✅ Completed</option>
-            <option value="cancelled" data-i18n="status.cancelled">❌ Cancelled</option>
-          </select>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal.status">Status</label>
+            <select class="form-select" id="order-status">
+              <option value="pending" data-i18n="status.pending">⏳ Pending</option>
+              <option value="confirmed" data-i18n="status.confirmed">🔵 Confirmed</option>
+              <option value="completed" data-i18n="status.completed">✅ Completed</option>
+              <option value="cancelled" data-i18n="status.cancelled">❌ Cancelled</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal.quoted-price">Quoted Price (€)</label>
+            <input class="form-input" type="number" id="order-quoted-price" placeholder="0.00" min="0" step="0.01" />
+          </div>
+        </div>
+
+        <!-- Messages thread -->
+        <div style="margin-top:1rem;">
+          <label class="form-label" data-i18n="modal.messages">Messages</label>
+          <div id="admin-messages-list"
+               style="background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-sm);
+                      min-height:120px;max-height:260px;overflow-y:auto;padding:0.75rem;
+                      display:flex;flex-direction:column;gap:0.65rem;margin-bottom:0.65rem;">
+            <div style="text-align:center;color:var(--text-muted);font-size:0.85rem;padding:1rem 0;">Načítavam...</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;">
+            <input class="form-input" type="text" id="admin-msg-input" placeholder="Napísať správu zákazníkovi…" style="flex:1;" />
+            <button class="btn btn-primary btn-sm" id="admin-send-msg-btn" data-i18n="modal.send-msg">Odoslať</button>
+          </div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.4rem;" data-i18n="modal.msg-email-note">
+            Customer will receive an e-mail notification when you send a message.
+          </div>
+        </div>
+        <div id="order-conv-link" style="display:none;margin-top:0.75rem;">
+          <a id="order-conv-link-a" href="#" target="_blank" style="font-size:0.8rem;color:var(--teal);text-decoration:underline;">
+            🔗 <span data-i18n="modal.open-conv">Open customer conversation page</span>
+          </a>
         </div>
       </div>
       <div class="modal-footer">
@@ -297,12 +377,12 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label" data-i18n="modal.price">Price ($) *</label>
-            <input class="form-input" type="number" id="service-price" placeholder="99.99" min="0" step="0.01" />
+            <label class="form-label" data-i18n="modal.price-from">Price From (€)</label>
+            <input class="form-input" type="number" id="service-price-from" placeholder="50" min="0" step="0.01" />
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="modal.duration">Duration (minutes)</label>
-            <input class="form-input" type="number" id="service-duration" placeholder="60" min="1" />
+            <label class="form-label" data-i18n="modal.price-to">Price To (€)</label>
+            <input class="form-input" type="number" id="service-price-to" placeholder="150" min="0" step="0.01" />
           </div>
         </div>
         <div class="form-group">
