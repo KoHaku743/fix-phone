@@ -1,0 +1,14 @@
+services:
+  fix-phone:
+    image: ghcr.io/kohaku743/fix-phone:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - db-data:/app/backend/data
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DB_PATH=/app/backend/data/phone_repair.db
+
+volumes:
+  db-data:
