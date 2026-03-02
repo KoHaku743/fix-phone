@@ -222,6 +222,26 @@ ul { list-style: none; }
   color: var(--bg-primary) !important;
 }
 
+/* ===== Language Toggle ===== */
+.lang-toggle {
+  background: transparent;
+  border: 1px solid rgba(0, 212, 255, 0.4);
+  color: var(--teal);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.3rem 0.7rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+.lang-toggle:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: var(--teal);
+  transform: translateY(-1px);
+}
+
 /* ===== Hero Section ===== */
 .hero {
   min-height: 100vh;

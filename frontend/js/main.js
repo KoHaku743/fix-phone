@@ -36,6 +36,18 @@ const revealObserver = new IntersectionObserver(
 
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
+// ─── Language toggle ──────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.lang-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const next = window.currentLang() === 'en' ? 'sk' : 'en';
+      window.setLanguage(next);
+      // Re-render dynamic content with new language
+      loadServices();
+    });
+  });
+});
+
 // ─── Service icon mapping ──────────────────────────────────
 function getServiceIcon(typeName, serviceName) {
   const t = (typeName || '').toLowerCase();
@@ -57,7 +69,7 @@ async function loadServices() {
     const services = await res.json();
 
     if (!services.length) {
-      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">No services available yet.</div>`;
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">${window.t('services.empty')}</div>`;
       return;
     }
 
@@ -73,7 +85,7 @@ async function loadServices() {
             <div class="service-meta">
               <span class="service-duration">⏱ ${s.duration_minutes} min</span>
               <span class="service-stock ${s.in_stock ? 'stock-in' : 'stock-out'}">
-                ${s.in_stock ? '✓ In Stock' : '✗ Unavailable'}
+                ${s.in_stock ? window.t('services.in-stock') : window.t('services.out-stock')}
               </span>
             </div>
           </div>
@@ -99,13 +111,15 @@ async function loadServices() {
 
   } catch (err) {
     console.error('Failed to load services:', err);
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--text-muted);">Failed to load services. Please try again.</div>`;
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--text-muted);">${window.t('services.error')}</div>`;
   }
 }
 
 function populateServiceDropdown(services) {
   const select = document.getElementById('service_id');
   if (!select) return;
+  // Reset to default option
+  select.innerHTML = `<option value="">${window.t('booking.service-default')}</option>`;
   services.forEach(s => {
     const opt = document.createElement('option');
     opt.value = s.id;
@@ -126,12 +140,12 @@ function setMinDate() {
 // ─── Form validation ──────────────────────────────────────
 function validateForm(data) {
   const errors = [];
-  if (!data.customer_name?.trim()) errors.push('Full name is required.');
-  if (!data.customer_email?.trim()) errors.push('Email address is required.');
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.customer_email)) errors.push('Please enter a valid email address.');
-  if (!data.customer_phone?.trim()) errors.push('Phone number is required.');
-  if (!data.device_model?.trim()) errors.push('Device model is required.');
-  if (!data.appointment_date) errors.push('Appointment date is required.');
+  if (!data.customer_name?.trim())  errors.push(window.t('val.name-required'));
+  if (!data.customer_email?.trim()) errors.push(window.t('val.email-required'));
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.customer_email)) errors.push(window.t('val.email-invalid'));
+  if (!data.customer_phone?.trim()) errors.push(window.t('val.phone-required'));
+  if (!data.device_model?.trim())   errors.push(window.t('val.device-required'));
+  if (!data.appointment_date)       errors.push(window.t('val.date-required'));
   return errors;
 }
 
@@ -155,7 +169,7 @@ async function handleBooking(e) {
 
   const errors = validateForm(data);
   if (errors.length) {
-    errors.forEach(msg => showToast('error', 'Validation Error', msg));
+    errors.forEach(msg => showToast('error', window.t('toast.val-error'), msg));
     return;
   }
 
@@ -172,13 +186,13 @@ async function handleBooking(e) {
 
     const result = await res.json();
 
-    if (!res.ok) throw new Error(result.error || 'Booking failed');
+    if (!res.ok) throw new Error(result.error || window.t('toast.something-wrong'));
 
-    showToast('success', 'Appointment Booked!', `We'll see you on ${formatDate(data.appointment_date)}. Confirmation sent to ${data.customer_email}.`);
+    showToast('success', window.t('toast.booked-title'), window.t('toast.booked-msg', { date: formatDate(data.appointment_date), email: data.customer_email }));
     form.reset();
 
   } catch (err) {
-    showToast('error', 'Booking Failed', err.message || 'Something went wrong. Please try again.');
+    showToast('error', window.t('toast.book-fail'), err.message || window.t('toast.something-wrong'));
   } finally {
     btn.disabled = false;
     textEl.style.display = 'inline';

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -22,9 +22,10 @@
       FixPhone
     </a>
     <ul class="nav-links">
-      <li><a href="#services">Services</a></li>
-      <li><a href="#how-it-works">How It Works</a></li>
-      <li><a href="#booking" class="btn-nav">Book Now</a></li>
+      <li><a href="#services" data-i18n="nav.services">Services</a></li>
+      <li><a href="#how-it-works" data-i18n="nav.how-it-works">How It Works</a></li>
+      <li><a href="#booking" class="btn-nav" data-i18n="nav.book-now">Book Now</a></li>
+      <li><button class="lang-toggle" id="lang-toggle" aria-label="Switch language">SK</button></li>
     </ul>
   </nav>
 
@@ -40,23 +41,23 @@
       <div class="hero-content">
         <div class="hero-badge">
           <span class="hero-badge-dot"></span>
-          ✅ Same-Day Service Available
+          <span data-i18n="hero.badge">✅ Same-Day Service Available</span>
         </div>
 
         <h1 class="hero-title">
-          <span class="hero-title-line1">Expert Phone Repairs</span>
-          <span class="hero-title-gradient">You Can Trust</span>
+          <span class="hero-title-line1" data-i18n="hero.title1">Expert Phone Repairs</span>
+          <span class="hero-title-gradient" data-i18n="hero.title2">You Can Trust</span>
         </h1>
 
-        <p class="hero-subtitle">
+        <p class="hero-subtitle" data-i18n="hero.subtitle">
           From cracked screens to dead batteries, our certified technicians fix all major phone models quickly using genuine parts — with a satisfaction guarantee.
         </p>
 
         <div class="hero-ctas">
-          <a href="#booking" class="btn-primary">
+          <a href="#booking" class="btn-primary" data-i18n="hero.cta-book">
             📅 Book a Repair
           </a>
-          <a href="#services" class="btn-secondary">
+          <a href="#services" class="btn-secondary" data-i18n="hero.cta-services">
             🔍 View Services
           </a>
         </div>
@@ -64,15 +65,15 @@
         <div class="hero-stats">
           <div class="hero-stat-item">
             <span class="hero-stat-number">5,000+</span>
-            <span class="hero-stat-label">Devices Fixed</span>
+            <span class="hero-stat-label" data-i18n="hero.stat1-label">Devices Fixed</span>
           </div>
           <div class="hero-stat-item">
             <span class="hero-stat-number">4.9★</span>
-            <span class="hero-stat-label">Customer Rating</span>
+            <span class="hero-stat-label" data-i18n="hero.stat2-label">Customer Rating</span>
           </div>
           <div class="hero-stat-item">
             <span class="hero-stat-number">1hr</span>
-            <span class="hero-stat-label">Avg Repair Time</span>
+            <span class="hero-stat-label" data-i18n="hero.stat3-label">Avg Repair Time</span>
           </div>
         </div>
       </div>
@@ -80,7 +81,7 @@
       <!-- Animated Phone Graphic -->
       <div class="hero-visual">
         <div class="phone-wrapper">
-          <div class="phone-repair-badge phone-repair-badge-1">
+          <div class="phone-repair-badge phone-repair-badge-1" data-i18n="hero.phone-warranty">
             🛡️ 90-Day Warranty
           </div>
           <div class="phone-frame">
@@ -89,8 +90,8 @@
               <div class="phone-scan-line"></div>
               <div class="phone-screen-content">
                 <span class="phone-screen-icon">🔧</span>
-                <div class="phone-screen-title">Repair in Progress</div>
-                <div class="phone-screen-subtitle">Running diagnostics...</div>
+                <div class="phone-screen-title" data-i18n="hero.phone-title">Repair in Progress</div>
+                <div class="phone-screen-subtitle" data-i18n="hero.phone-subtitle">Running diagnostics...</div>
               </div>
               <div class="phone-indicators">
                 <div class="phone-indicator active"></div>
@@ -99,7 +100,7 @@
               </div>
             </div>
           </div>
-          <div class="phone-repair-badge phone-repair-badge-2">
+          <div class="phone-repair-badge phone-repair-badge-2" data-i18n="hero.phone-ready">
             ⚡ Ready in 60 min
           </div>
         </div>
@@ -111,9 +112,9 @@
   <section class="services" id="services">
     <div class="container">
       <div class="section-header reveal">
-        <span class="section-tag">Our Services</span>
-        <h2 class="section-title">Repairs for Every Problem</h2>
-        <p class="section-subtitle">We handle all major repairs with genuine parts and expert care. Browse our full range of services below.</p>
+        <span class="section-tag" data-i18n="services.tag">Our Services</span>
+        <h2 class="section-title" data-i18n="services.title">Repairs for Every Problem</h2>
+        <p class="section-subtitle" data-i18n="services.subtitle">We handle all major repairs with genuine parts and expert care. Browse our full range of services below.</p>
       </div>
 
       <div class="services-grid" id="services-grid">
@@ -132,9 +133,9 @@
   <section class="how-it-works" id="how-it-works">
     <div class="container">
       <div class="section-header reveal">
-        <span class="section-tag">Process</span>
-        <h2 class="section-title">How It Works</h2>
-        <p class="section-subtitle">Getting your phone fixed is simple. Three easy steps and you're back up and running.</p>
+        <span class="section-tag" data-i18n="how.tag">Process</span>
+        <h2 class="section-title" data-i18n="how.title">How It Works</h2>
+        <p class="section-subtitle" data-i18n="how.subtitle">Getting your phone fixed is simple. Three easy steps and you're back up and running.</p>
       </div>
 
       <div class="steps-grid">
@@ -144,8 +145,8 @@
             <div class="step-number">1</div>
           </div>
           <span class="step-icon">🛠️</span>
-          <h3 class="step-title">Choose a Service</h3>
-          <p class="step-description">Browse our repair options and select the service that matches your device's issue. We support all major brands and models.</p>
+          <h3 class="step-title" data-i18n="how.step1-title">Choose a Service</h3>
+          <p class="step-description" data-i18n="how.step1-desc">Browse our repair options and select the service that matches your device's issue. We support all major brands and models.</p>
         </div>
 
         <div class="step-card reveal">
@@ -154,8 +155,8 @@
             <div class="step-number">2</div>
           </div>
           <span class="step-icon">📅</span>
-          <h3 class="step-title">Book Appointment</h3>
-          <p class="step-description">Pick a convenient date and time. Fill in your contact details and device info — takes less than 2 minutes.</p>
+          <h3 class="step-title" data-i18n="how.step2-title">Book Appointment</h3>
+          <p class="step-description" data-i18n="how.step2-desc">Pick a convenient date and time. Fill in your contact details and device info — takes less than 2 minutes.</p>
         </div>
 
         <div class="step-card reveal">
@@ -164,8 +165,8 @@
             <div class="step-number">3</div>
           </div>
           <span class="step-icon">✅</span>
-          <h3 class="step-title">Get It Fixed</h3>
-          <p class="step-description">Bring your device to our shop. Our certified technicians will have it repaired and ready to go — often within the hour.</p>
+          <h3 class="step-title" data-i18n="how.step3-title">Get It Fixed</h3>
+          <p class="step-description" data-i18n="how.step3-desc">Bring your device to our shop. Our certified technicians will have it repaired and ready to go — often within the hour.</p>
         </div>
       </div>
     </div>
@@ -175,55 +176,55 @@
   <section class="booking" id="booking">
     <div class="booking-container">
       <div class="section-header reveal">
-        <span class="section-tag">Book Now</span>
-        <h2 class="section-title">Schedule a Repair</h2>
-        <p class="section-subtitle">Fill in the form below and we'll confirm your appointment within the hour.</p>
+        <span class="section-tag" data-i18n="booking.tag">Book Now</span>
+        <h2 class="section-title" data-i18n="booking.title">Schedule a Repair</h2>
+        <p class="section-subtitle" data-i18n="booking.subtitle">Fill in the form below and we'll confirm your appointment within the hour.</p>
       </div>
 
       <div class="booking-form-wrapper reveal">
         <form id="booking-form" novalidate>
           <div class="form-grid">
             <div class="form-group">
-              <label class="form-label" for="customer_name">Full Name <span>*</span></label>
-              <input class="form-input" type="text" id="customer_name" name="customer_name" placeholder="John Smith" required />
+              <label class="form-label" for="customer_name"><span data-i18n="booking.name-label">Full Name</span> <span>*</span></label>
+              <input class="form-input" type="text" id="customer_name" name="customer_name" data-i18n-placeholder="booking.name-ph" placeholder="John Smith" required />
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="customer_email">Email Address <span>*</span></label>
-              <input class="form-input" type="email" id="customer_email" name="customer_email" placeholder="john@example.com" required />
+              <label class="form-label" for="customer_email"><span data-i18n="booking.email-label">Email Address</span> <span>*</span></label>
+              <input class="form-input" type="email" id="customer_email" name="customer_email" data-i18n-placeholder="booking.email-ph" placeholder="john@example.com" required />
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="customer_phone">Phone Number <span>*</span></label>
-              <input class="form-input" type="tel" id="customer_phone" name="customer_phone" placeholder="+1 (555) 000-0000" required />
+              <label class="form-label" for="customer_phone"><span data-i18n="booking.phone-label">Phone Number</span> <span>*</span></label>
+              <input class="form-input" type="tel" id="customer_phone" name="customer_phone" data-i18n-placeholder="booking.phone-ph" placeholder="+1 (555) 000-0000" required />
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="device_model">Device Model <span>*</span></label>
-              <input class="form-input" type="text" id="device_model" name="device_model" placeholder="e.g. iPhone 14, Samsung S23" required />
+              <label class="form-label" for="device_model"><span data-i18n="booking.device-label">Device Model</span> <span>*</span></label>
+              <input class="form-input" type="text" id="device_model" name="device_model" data-i18n-placeholder="booking.device-ph" placeholder="e.g. iPhone 14, Samsung S23" required />
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="service_id">Service</label>
+              <label class="form-label" for="service_id" data-i18n="booking.service-label">Service</label>
               <select class="form-select" id="service_id" name="service_id">
-                <option value="">Select a service (optional)</option>
+                <option value="" data-i18n="booking.service-default">Select a service (optional)</option>
               </select>
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="appointment_date">Preferred Date <span>*</span></label>
+              <label class="form-label" for="appointment_date"><span data-i18n="booking.date-label">Preferred Date</span> <span>*</span></label>
               <input class="form-input" type="datetime-local" id="appointment_date" name="appointment_date" required />
             </div>
 
             <div class="form-group full-width">
-              <label class="form-label" for="notes">Additional Notes</label>
-              <textarea class="form-textarea" id="notes" name="notes" placeholder="Describe the issue or any other relevant details..."></textarea>
+              <label class="form-label" for="notes" data-i18n="booking.notes-label">Additional Notes</label>
+              <textarea class="form-textarea" id="notes" name="notes" data-i18n-placeholder="booking.notes-ph" placeholder="Describe the issue or any other relevant details..."></textarea>
             </div>
           </div>
 
           <button type="submit" class="form-submit" id="submit-btn">
-            <span id="submit-text">📅 Book My Appointment</span>
-            <span id="submit-loading" style="display:none">⏳ Booking...</span>
+            <span id="submit-text" data-i18n="booking.submit">📅 Book My Appointment</span>
+            <span id="submit-loading" style="display:none" data-i18n="booking.submitting">⏳ Booking...</span>
           </button>
         </form>
       </div>
@@ -235,7 +236,7 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="footer-logo">🔧 FixPhone</div>
-        <p class="footer-desc">
+        <p class="footer-desc" data-i18n="footer.desc">
           Professional phone repair services with a satisfaction guarantee. We fix all major brands with genuine parts and expert care.
         </p>
         <div class="footer-contact-item">
@@ -253,31 +254,31 @@
       </div>
 
       <div>
-        <div class="footer-heading">Quick Links</div>
+        <div class="footer-heading" data-i18n="footer.quick-links">Quick Links</div>
         <ul class="footer-links">
-          <li><a href="#services">Services</a></li>
-          <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="#booking">Book Appointment</a></li>
-          <li><a href="/admin">Admin Panel</a></li>
+          <li><a href="#services" data-i18n="nav.services">Services</a></li>
+          <li><a href="#how-it-works" data-i18n="nav.how-it-works">How It Works</a></li>
+          <li><a href="#booking" data-i18n="footer.book-appt">Book Appointment</a></li>
+          <li><a href="/admin" data-i18n="footer.admin">Admin Panel</a></li>
         </ul>
       </div>
 
       <div>
-        <div class="footer-heading">Services</div>
+        <div class="footer-heading" data-i18n="footer.svc-heading">Services</div>
         <ul class="footer-links">
-          <li><a href="#services">Screen Repair</a></li>
-          <li><a href="#services">Battery Replacement</a></li>
-          <li><a href="#services">Water Damage</a></li>
-          <li><a href="#services">Software Issues</a></li>
+          <li><a href="#services" data-i18n="footer.screen">Screen Repair</a></li>
+          <li><a href="#services" data-i18n="footer.battery">Battery Replacement</a></li>
+          <li><a href="#services" data-i18n="footer.water">Water Damage</a></li>
+          <li><a href="#services" data-i18n="footer.software">Software Issues</a></li>
         </ul>
       </div>
     </div>
 
     <div class="footer-bottom">
       <p class="footer-copy">
-        © 2025 <a href="#">FixPhone</a>. All rights reserved.
+        © 2025 <a href="#">FixPhone</a>. <span data-i18n="footer.rights">All rights reserved.</span>
       </p>
-      <p class="footer-copy">
+      <p class="footer-copy" data-i18n="footer.hours">
         Hours: Mon–Sat 9am–7pm · Sun 10am–5pm
       </p>
     </div>
@@ -286,6 +287,7 @@
   <!-- Toast Container -->
   <div class="toast-container" id="toast-container"></div>
 
+  <script src="js/i18n.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

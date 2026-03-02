@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" translate="no">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,30 +18,30 @@
       <span class="sidebar-logo-text">FixPhone Admin</span>
     </div>
 
-    <div class="sidebar-label">Main Menu</div>
+    <div class="sidebar-label" data-i18n="admin.menu-label">Main Menu</div>
 
     <nav class="sidebar-nav">
       <div class="sidebar-item active" data-tab="dashboard">
         <div class="sidebar-item-icon">📊</div>
-        <span class="sidebar-item-text">Dashboard</span>
+        <span class="sidebar-item-text" data-i18n="admin.dashboard">Dashboard</span>
       </div>
       <div class="sidebar-item" data-tab="orders">
         <div class="sidebar-item-icon">📋</div>
-        <span class="sidebar-item-text">Orders</span>
+        <span class="sidebar-item-text" data-i18n="admin.orders">Orders</span>
         <span class="sidebar-badge" id="pending-badge">0</span>
       </div>
       <div class="sidebar-item" data-tab="services">
         <div class="sidebar-item-icon">🛠️</div>
-        <span class="sidebar-item-text">Services</span>
+        <span class="sidebar-item-text" data-i18n="admin.services">Services</span>
       </div>
       <div class="sidebar-item" data-tab="repair-types">
         <div class="sidebar-item-icon">🏷️</div>
-        <span class="sidebar-item-text">Repair Types</span>
+        <span class="sidebar-item-text" data-i18n="admin.repair-types">Repair Types</span>
       </div>
     </nav>
 
     <div class="sidebar-footer">
-      <a href="/" class="sidebar-footer-link">
+      <a href="/" class="sidebar-footer-link" data-i18n="admin.view-website">
         🏠 View Website
       </a>
     </div>
@@ -52,10 +52,11 @@
     <!-- Topbar -->
     <div class="topbar">
       <div>
-        <div class="topbar-title" id="topbar-title">Dashboard</div>
-        <div class="topbar-subtitle">Manage your repair business</div>
+        <div class="topbar-title" id="topbar-title" data-i18n="admin.tab.dashboard">Dashboard</div>
+        <div class="topbar-subtitle" data-i18n="admin.subtitle">Manage your repair business</div>
       </div>
       <div class="topbar-right">
+        <button class="lang-toggle" id="lang-toggle" aria-label="Switch language">SK</button>
         <div class="topbar-avatar">A</div>
       </div>
     </div>
@@ -69,47 +70,47 @@
           <div class="stat-card stat-card-1">
             <div class="stat-icon stat-icon-1">📋</div>
             <div class="stat-value" id="stat-total">—</div>
-            <div class="stat-label">Total Orders</div>
-            <div class="stat-change">↑ All time</div>
+            <div class="stat-label" data-i18n="admin.total-orders">Total Orders</div>
+            <div class="stat-change" data-i18n="admin.all-time">↑ All time</div>
           </div>
           <div class="stat-card stat-card-2">
             <div class="stat-icon stat-icon-2">⏳</div>
             <div class="stat-value" id="stat-pending">—</div>
-            <div class="stat-label">Pending</div>
-            <div class="stat-change" style="color: var(--warning);">Needs attention</div>
+            <div class="stat-label" data-i18n="admin.pending">Pending</div>
+            <div class="stat-change" style="color: var(--warning);" data-i18n="admin.needs-attention">Needs attention</div>
           </div>
           <div class="stat-card stat-card-3">
             <div class="stat-icon stat-icon-3">✅</div>
             <div class="stat-value" id="stat-completed">—</div>
-            <div class="stat-label">Completed</div>
-            <div class="stat-change">↑ Great work!</div>
+            <div class="stat-label" data-i18n="admin.completed">Completed</div>
+            <div class="stat-change" data-i18n="admin.great-work">↑ Great work!</div>
           </div>
           <div class="stat-card stat-card-4">
             <div class="stat-icon stat-icon-4">💰</div>
             <div class="stat-value" id="stat-revenue">—</div>
-            <div class="stat-label">Revenue</div>
-            <div class="stat-change" style="color: var(--accent-light);">Completed orders</div>
+            <div class="stat-label" data-i18n="admin.revenue">Revenue</div>
+            <div class="stat-change" style="color: var(--accent-light);" data-i18n="admin.completed-orders">Completed orders</div>
           </div>
         </div>
 
         <!-- Recent Orders -->
         <div class="section-header">
           <div>
-            <div class="section-title">Recent Orders</div>
+            <div class="section-title" data-i18n="admin.recent-orders">Recent Orders</div>
             <div class="section-count" id="recent-count"></div>
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="switchTab('orders')">View All →</button>
+          <button class="btn btn-ghost btn-sm" onclick="switchTab('orders')" data-i18n="admin.view-all">View All →</button>
         </div>
         <div class="table-container">
           <table class="data-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Customer</th>
-                <th>Device</th>
-                <th>Service</th>
-                <th>Date</th>
-                <th>Status</th>
+                <th data-i18n="admin.col.num">#</th>
+                <th data-i18n="admin.col.customer">Customer</th>
+                <th data-i18n="admin.col.device">Device</th>
+                <th data-i18n="admin.col.service">Service</th>
+                <th data-i18n="admin.col.date">Date</th>
+                <th data-i18n="admin.col.status">Status</th>
               </tr>
             </thead>
             <tbody id="recent-tbody">
@@ -123,7 +124,7 @@
       <div class="tab-pane" id="tab-orders">
         <div class="section-header">
           <div>
-            <div class="section-title">All Appointments</div>
+            <div class="section-title" data-i18n="admin.all-appts">All Appointments</div>
             <div class="section-count" id="orders-count"></div>
           </div>
         </div>
@@ -131,27 +132,27 @@
           <div class="table-toolbar">
             <div class="table-search">
               <span class="table-search-icon">🔍</span>
-              <input class="table-search-input" type="text" placeholder="Search orders..." id="orders-search" />
+              <input class="table-search-input" type="text" data-i18n-placeholder="admin.search-orders-ph" placeholder="Search orders..." id="orders-search" />
             </div>
             <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-              <button class="btn btn-ghost btn-sm filter-btn active" data-filter="all">All</button>
-              <button class="btn btn-ghost btn-sm filter-btn" data-filter="pending">Pending</button>
-              <button class="btn btn-ghost btn-sm filter-btn" data-filter="confirmed">Confirmed</button>
-              <button class="btn btn-ghost btn-sm filter-btn" data-filter="completed">Completed</button>
-              <button class="btn btn-ghost btn-sm filter-btn" data-filter="cancelled">Cancelled</button>
+              <button class="btn btn-ghost btn-sm filter-btn active" data-filter="all" data-i18n="admin.filter.all">All</button>
+              <button class="btn btn-ghost btn-sm filter-btn" data-filter="pending" data-i18n="admin.filter.pending">Pending</button>
+              <button class="btn btn-ghost btn-sm filter-btn" data-filter="confirmed" data-i18n="admin.filter.confirmed">Confirmed</button>
+              <button class="btn btn-ghost btn-sm filter-btn" data-filter="completed" data-i18n="admin.filter.completed">Completed</button>
+              <button class="btn btn-ghost btn-sm filter-btn" data-filter="cancelled" data-i18n="admin.filter.cancelled">Cancelled</button>
             </div>
           </div>
           <table class="data-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Customer</th>
-                <th>Contact</th>
-                <th>Device</th>
-                <th>Service</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th data-i18n="admin.col.num">#</th>
+                <th data-i18n="admin.col.customer">Customer</th>
+                <th data-i18n="admin.col.contact">Contact</th>
+                <th data-i18n="admin.col.device">Device</th>
+                <th data-i18n="admin.col.service">Service</th>
+                <th data-i18n="admin.col.date">Date</th>
+                <th data-i18n="admin.col.status">Status</th>
+                <th data-i18n="admin.col.actions">Actions</th>
               </tr>
             </thead>
             <tbody id="orders-tbody">
@@ -165,22 +166,22 @@
       <div class="tab-pane" id="tab-services">
         <div class="section-header">
           <div>
-            <div class="section-title">Services</div>
+            <div class="section-title" data-i18n="admin.services">Services</div>
             <div class="section-count" id="services-count"></div>
           </div>
-          <button class="btn btn-primary btn-sm" id="add-service-btn">+ Add Service</button>
+          <button class="btn btn-primary btn-sm" id="add-service-btn" data-i18n="admin.add-service">+ Add Service</button>
         </div>
         <div class="table-container">
           <table class="data-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Repair Type</th>
-                <th>Price</th>
-                <th>Duration</th>
-                <th>Stock</th>
-                <th>Actions</th>
+                <th data-i18n="admin.col.num">#</th>
+                <th data-i18n="admin.col.name">Name</th>
+                <th data-i18n="admin.col.repair-type">Repair Type</th>
+                <th data-i18n="admin.col.price">Price</th>
+                <th data-i18n="admin.col.duration">Duration</th>
+                <th data-i18n="admin.col.stock">Stock</th>
+                <th data-i18n="admin.col.actions">Actions</th>
               </tr>
             </thead>
             <tbody id="services-tbody">
@@ -194,20 +195,20 @@
       <div class="tab-pane" id="tab-repair-types">
         <div class="section-header">
           <div>
-            <div class="section-title">Repair Types</div>
+            <div class="section-title" data-i18n="admin.repair-types">Repair Types</div>
             <div class="section-count" id="repair-types-count"></div>
           </div>
-          <button class="btn btn-primary btn-sm" id="add-repair-type-btn">+ Add Repair Type</button>
+          <button class="btn btn-primary btn-sm" id="add-repair-type-btn" data-i18n="admin.add-repair-type">+ Add Repair Type</button>
         </div>
         <div class="table-container">
           <table class="data-table">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Created</th>
-                <th>Actions</th>
+                <th data-i18n="admin.col.num">#</th>
+                <th data-i18n="admin.col.name">Name</th>
+                <th data-i18n="admin.col.description">Description</th>
+                <th data-i18n="admin.col.created">Created</th>
+                <th data-i18n="admin.col.actions">Actions</th>
               </tr>
             </thead>
             <tbody id="repair-types-tbody">
@@ -226,28 +227,28 @@
   <div class="modal-overlay" id="modal-order">
     <div class="modal">
       <div class="modal-header">
-        <span class="modal-title">Update Appointment Status</span>
+        <span class="modal-title" data-i18n="modal.update-status">Update Appointment Status</span>
         <button class="modal-close" data-modal="modal-order">✕</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="order-id" />
         <div class="form-group">
-          <label class="form-label">Customer</label>
+          <label class="form-label" data-i18n="modal.customer">Customer</label>
           <div id="order-customer-info" style="font-size:0.875rem; color:var(--text-secondary); padding:0.5rem 0;"></div>
         </div>
         <div class="form-group">
-          <label class="form-label">Status</label>
+          <label class="form-label" data-i18n="modal.status">Status</label>
           <select class="form-select" id="order-status">
-            <option value="pending">⏳ Pending</option>
-            <option value="confirmed">🔵 Confirmed</option>
-            <option value="completed">✅ Completed</option>
-            <option value="cancelled">❌ Cancelled</option>
+            <option value="pending" data-i18n="status.pending">⏳ Pending</option>
+            <option value="confirmed" data-i18n="status.confirmed">🔵 Confirmed</option>
+            <option value="completed" data-i18n="status.completed">✅ Completed</option>
+            <option value="cancelled" data-i18n="status.cancelled">❌ Cancelled</option>
           </select>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" data-modal="modal-order">Cancel</button>
-        <button class="btn btn-primary" id="save-order-btn">Save Changes</button>
+        <button class="btn btn-ghost" data-modal="modal-order" data-i18n="modal.cancel">Cancel</button>
+        <button class="btn btn-primary" id="save-order-btn" data-i18n="modal.save-changes">Save Changes</button>
       </div>
     </div>
   </div>
@@ -256,46 +257,46 @@
   <div class="modal-overlay" id="modal-service">
     <div class="modal">
       <div class="modal-header">
-        <span class="modal-title" id="modal-service-title">Add Service</span>
+        <span class="modal-title" id="modal-service-title" data-i18n="modal.add-service">Add Service</span>
         <button class="modal-close" data-modal="modal-service">✕</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="service-id" />
         <div class="form-group">
-          <label class="form-label">Service Name *</label>
-          <input class="form-input" type="text" id="service-name" placeholder="e.g. iPhone 15 Screen Replacement" />
+          <label class="form-label" data-i18n="modal.service-name">Service Name *</label>
+          <input class="form-input" type="text" id="service-name" data-i18n-placeholder="admin.svc-name-ph" placeholder="e.g. iPhone 15 Screen Replacement" />
         </div>
         <div class="form-group">
-          <label class="form-label">Repair Type</label>
+          <label class="form-label" data-i18n="modal.repair-type">Repair Type</label>
           <select class="form-select" id="service-repair-type">
-            <option value="">— Select repair type —</option>
+            <option value="" data-i18n="modal.select-repair-type">— Select repair type —</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea class="form-textarea" id="service-description" placeholder="Brief description of the service..."></textarea>
+          <label class="form-label" data-i18n="modal.description">Description</label>
+          <textarea class="form-textarea" id="service-description" data-i18n-placeholder="admin.svc-desc-ph" placeholder="Brief description of the service..."></textarea>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Price ($) *</label>
+            <label class="form-label" data-i18n="modal.price">Price ($) *</label>
             <input class="form-input" type="number" id="service-price" placeholder="99.99" min="0" step="0.01" />
           </div>
           <div class="form-group">
-            <label class="form-label">Duration (minutes)</label>
+            <label class="form-label" data-i18n="modal.duration">Duration (minutes)</label>
             <input class="form-input" type="number" id="service-duration" placeholder="60" min="1" />
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Stock Status</label>
+          <label class="form-label" data-i18n="modal.stock-status">Stock Status</label>
           <select class="form-select" id="service-stock">
-            <option value="1">✅ In Stock</option>
-            <option value="0">❌ Out of Stock</option>
+            <option value="1" data-i18n="modal.in-stock">✅ In Stock</option>
+            <option value="0" data-i18n="modal.out-of-stock">❌ Out of Stock</option>
           </select>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" data-modal="modal-service">Cancel</button>
-        <button class="btn btn-primary" id="save-service-btn">Save Service</button>
+        <button class="btn btn-ghost" data-modal="modal-service" data-i18n="modal.cancel">Cancel</button>
+        <button class="btn btn-primary" id="save-service-btn" data-i18n="modal.save-service">Save Service</button>
       </div>
     </div>
   </div>
@@ -304,23 +305,23 @@
   <div class="modal-overlay" id="modal-repair-type">
     <div class="modal">
       <div class="modal-header">
-        <span class="modal-title" id="modal-repair-type-title">Add Repair Type</span>
+        <span class="modal-title" id="modal-repair-type-title" data-i18n="modal.add-repair-type">Add Repair Type</span>
         <button class="modal-close" data-modal="modal-repair-type">✕</button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="repair-type-id" />
         <div class="form-group">
-          <label class="form-label">Name *</label>
-          <input class="form-input" type="text" id="repair-type-name" placeholder="e.g. Screen Repair" />
+          <label class="form-label" data-i18n="modal.name">Name *</label>
+          <input class="form-input" type="text" id="repair-type-name" data-i18n-placeholder="admin.rt-name-ph" placeholder="e.g. Screen Repair" />
         </div>
         <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea class="form-textarea" id="repair-type-description" placeholder="Brief description..."></textarea>
+          <label class="form-label" data-i18n="modal.description">Description</label>
+          <textarea class="form-textarea" id="repair-type-description" data-i18n-placeholder="admin.rt-desc-ph" placeholder="Brief description..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" data-modal="modal-repair-type">Cancel</button>
-        <button class="btn btn-primary" id="save-repair-type-btn">Save</button>
+        <button class="btn btn-ghost" data-modal="modal-repair-type" data-i18n="modal.cancel">Cancel</button>
+        <button class="btn btn-primary" id="save-repair-type-btn" data-i18n="modal.save">Save</button>
       </div>
     </div>
   </div>
@@ -328,6 +329,7 @@
   <!-- Toast Container -->
   <div id="toast-container" style="position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;"></div>
 
+  <script src="js/i18n.js"></script>
   <script src="js/admin.js"></script>
 </body>
 </html>

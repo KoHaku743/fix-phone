@@ -42,13 +42,13 @@ function statusBadge(status) {
     completed: 'badge-completed',
     cancelled: 'badge-cancelled',
   };
-  const labels = {
-    pending:   '⏳ Pending',
-    confirmed: '🔵 Confirmed',
-    completed: '✅ Completed',
-    cancelled: '❌ Cancelled',
+  const keys = {
+    pending:   'status.pending',
+    confirmed: 'status.confirmed',
+    completed: 'status.completed',
+    cancelled: 'status.cancelled',
   };
-  return `<span class="badge ${map[status] || 'badge-pending'}">${labels[status] || status}</span>`;
+  return `<span class="badge ${map[status] || 'badge-pending'}">${window.t(keys[status] || 'status.pending')}</span>`;
 }
 
 function showToast(type, title, message = '', duration = 4000) {
@@ -96,9 +96,14 @@ function switchTab(tabName) {
   document.querySelectorAll('.tab-pane').forEach(pane => {
     pane.classList.toggle('active', pane.id === `tab-${tabName}`);
   });
-  const titles = { dashboard: 'Dashboard', orders: 'All Appointments', services: 'Services', 'repair-types': 'Repair Types' };
+  const titleKeys = {
+    dashboard:    'admin.tab.dashboard',
+    orders:       'admin.tab.orders',
+    services:     'admin.tab.services',
+    'repair-types': 'admin.tab.repair-types',
+  };
   const topTitle = document.getElementById('topbar-title');
-  if (topTitle) topTitle.textContent = titles[tabName] || tabName;
+  if (topTitle) topTitle.textContent = window.t(titleKeys[tabName] || 'admin.tab.dashboard');
 
   if (tabName === 'dashboard')     loadDashboard();
   if (tabName === 'orders')        renderOrders();
@@ -124,7 +129,7 @@ async function loadAllData() {
 
     loadDashboard();
   } catch (err) {
-    showToast('error', 'Load Error', 'Failed to load data from the server.');
+    showToast('error', window.t('admin.toast.load-error'), window.t('admin.toast.load-error-msg'));
     console.error(err);
   }
 }
@@ -144,13 +149,13 @@ function loadDashboard() {
   setText('stat-revenue',   formatCurrency(revenue));
 
   const recent = allAppointments.slice(0, 8);
-  setText('recent-count', `Showing ${recent.length} of ${total} total`);
+  setText('recent-count', window.t('count.showing', { n: recent.length, total }));
 
   const tbody = document.getElementById('recent-tbody');
   if (!tbody) return;
 
   if (!recent.length) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No appointments yet</div></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">${window.t('empty.no-appts')}</div></div></td></tr>`;
     return;
   }
 
@@ -191,13 +196,14 @@ function getFilteredOrders() {
 
 function renderOrders() {
   const filtered = getFilteredOrders();
-  setText('orders-count', `${filtered.length} appointment${filtered.length !== 1 ? 's' : ''}`);
+  const n = filtered.length;
+  setText('orders-count', n === 1 ? window.t('count.appts', { n }) : window.t('count.appts-plural', { n }));
 
   const tbody = document.getElementById('orders-tbody');
   if (!tbody) return;
 
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">No orders found</div><div class="empty-state-sub">Try adjusting filters or search terms</div></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">${window.t('empty.no-orders')}</div><div class="empty-state-sub">${window.t('empty.no-orders-sub')}</div></div></td></tr>`;
     return;
   }
 
@@ -217,7 +223,7 @@ function renderOrders() {
       <td style="white-space:nowrap;">${formatDate(a.appointment_date)}</td>
       <td>${statusBadge(a.status)}</td>
       <td>
-        <button class="btn btn-ghost btn-sm btn-icon" title="Edit status" onclick="openOrderModal(${a.id})">✏️</button>
+        <button class="btn btn-ghost btn-sm btn-icon" title="${window.t('admin.action.edit')}" onclick="openOrderModal(${a.id})">✏️</button>
       </td>
     </tr>
   `).join('');
@@ -225,13 +231,14 @@ function renderOrders() {
 
 // ─── Services ─────────────────────────────────────────────
 function renderServices() {
-  setText('services-count', `${allServices.length} service${allServices.length !== 1 ? 's' : ''}`);
+  const n = allServices.length;
+  setText('services-count', n === 1 ? window.t('count.services', { n }) : window.t('count.services-plural', { n }));
 
   const tbody = document.getElementById('services-tbody');
   if (!tbody) return;
 
   if (!allServices.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">🛠️</div><div class="empty-state-text">No services yet</div><div class="empty-state-sub">Click "Add Service" to create your first service</div></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">🛠️</div><div class="empty-state-text">${window.t('empty.no-services')}</div><div class="empty-state-sub">${window.t('empty.no-services-sub')}</div></div></td></tr>`;
     return;
   }
 
@@ -244,13 +251,13 @@ function renderServices() {
       <td>${s.duration_minutes} min</td>
       <td>
         <span class="badge ${s.in_stock ? 'badge-in-stock' : 'badge-out-of-stock'}">
-          ${s.in_stock ? '✓ In Stock' : '✗ Out of Stock'}
+          ${s.in_stock ? window.t('stock.in') : window.t('stock.out')}
         </span>
       </td>
       <td>
         <div style="display:flex;gap:0.4rem;">
-          <button class="btn btn-ghost btn-sm btn-icon" title="Edit" onclick="openServiceModal(${s.id})">✏️</button>
-          <button class="btn btn-danger btn-sm btn-icon" title="Delete" onclick="deleteService(${s.id})">🗑️</button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="${window.t('admin.action.edit')}" onclick="openServiceModal(${s.id})">✏️</button>
+          <button class="btn btn-danger btn-sm btn-icon" title="${window.t('admin.action.delete')}" onclick="deleteService(${s.id})">🗑️</button>
         </div>
       </td>
     </tr>
@@ -259,13 +266,14 @@ function renderServices() {
 
 // ─── Repair Types ─────────────────────────────────────────
 function renderRepairTypes() {
-  setText('repair-types-count', `${allRepairTypes.length} type${allRepairTypes.length !== 1 ? 's' : ''}`);
+  const n = allRepairTypes.length;
+  setText('repair-types-count', n === 1 ? window.t('count.types', { n }) : window.t('count.types-plural', { n }));
 
   const tbody = document.getElementById('repair-types-tbody');
   if (!tbody) return;
 
   if (!allRepairTypes.length) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">🏷️</div><div class="empty-state-text">No repair types yet</div></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">🏷️</div><div class="empty-state-text">${window.t('empty.no-types')}</div></div></td></tr>`;
     return;
   }
 
@@ -277,8 +285,8 @@ function renderRepairTypes() {
       <td style="white-space:nowrap;">${formatDate(rt.created_at)}</td>
       <td>
         <div style="display:flex;gap:0.4rem;">
-          <button class="btn btn-ghost btn-sm btn-icon" title="Edit" onclick="openRepairTypeModal(${rt.id})">✏️</button>
-          <button class="btn btn-danger btn-sm btn-icon" title="Delete" onclick="deleteRepairType(${rt.id})">🗑️</button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="${window.t('admin.action.edit')}" onclick="openRepairTypeModal(${rt.id})">✏️</button>
+          <button class="btn btn-danger btn-sm btn-icon" title="${window.t('admin.action.delete')}" onclick="deleteRepairType(${rt.id})">🗑️</button>
         </div>
       </td>
     </tr>
@@ -340,9 +348,9 @@ async function saveOrderStatus() {
     loadDashboard();
     const badge = document.getElementById('pending-badge');
     if (badge) badge.textContent = allAppointments.filter(a => a.status === 'pending').length;
-    showToast('success', 'Status Updated', `Appointment #${id} set to "${status}".`);
+    showToast('success', window.t('admin.toast.status-updated'), `#${id} → "${window.t('status.' + status)}"`);
   } catch (err) {
-    showToast('error', 'Update Failed', err.message);
+    showToast('error', window.t('admin.toast.update-failed'), err.message);
   }
 }
 
@@ -350,7 +358,7 @@ async function saveOrderStatus() {
 function populateRepairTypeDropdown(selectedId = '') {
   const select = document.getElementById('service-repair-type');
   if (!select) return;
-  select.innerHTML = '<option value="">— Select repair type —</option>';
+  select.innerHTML = `<option value="">${window.t('modal.select-repair-type')}</option>`;
   allRepairTypes.forEach(rt => {
     const opt = document.createElement('option');
     opt.value = rt.id;
@@ -367,7 +375,7 @@ function openServiceModal(id = null) {
   if (id) {
     const svc = allServices.find(s => s.id === id);
     if (!svc) return;
-    titleEl.textContent = 'Edit Service';
+    titleEl.textContent = window.t('modal.edit-service');
     document.getElementById('service-id').value          = svc.id;
     document.getElementById('service-name').value        = svc.name;
     document.getElementById('service-description').value = svc.description || '';
@@ -376,7 +384,7 @@ function openServiceModal(id = null) {
     document.getElementById('service-stock').value       = svc.in_stock ? '1' : '0';
     populateRepairTypeDropdown(svc.repair_type_id);
   } else {
-    titleEl.textContent = 'Add Service';
+    titleEl.textContent = window.t('modal.add-service');
     document.getElementById('service-id').value          = '';
     document.getElementById('service-name').value        = '';
     document.getElementById('service-description').value = '';
@@ -396,8 +404,8 @@ async function saveService() {
   const duration     = parseInt(document.getElementById('service-duration').value) || 60;
   const inStock      = parseInt(document.getElementById('service-stock').value);
 
-  if (!name) { showToast('error', 'Validation', 'Service name is required.'); return; }
-  if (isNaN(price) || price < 0) { showToast('error', 'Validation', 'Valid price is required.'); return; }
+  if (!name) { showToast('error', window.t('admin.toast.val'), window.t('admin.toast.val-name')); return; }
+  if (isNaN(price) || price < 0) { showToast('error', window.t('admin.toast.val'), window.t('admin.toast.val-price')); return; }
 
   const body = { repair_type_id: repairTypeId, name, description: description || null, price, duration_minutes: duration, in_stock: inStock };
 
@@ -420,25 +428,25 @@ async function saveService() {
 
     closeModal('modal-service');
     renderServices();
-    showToast('success', id ? 'Service Updated' : 'Service Created', `"${saved.name}" saved successfully.`);
+    showToast('success', window.t(id ? 'admin.toast.svc-updated' : 'admin.toast.svc-created'), `"${saved.name}"`);
   } catch (err) {
-    showToast('error', 'Save Failed', err.message);
+    showToast('error', window.t('admin.toast.save-failed'), err.message);
   }
 }
 
 async function deleteService(id) {
   const svc = allServices.find(s => s.id === id);
   if (!svc) return;
-  if (!confirm(`Delete service "${svc.name}"? This action cannot be undone.`)) return;
+  if (!confirm(window.t('confirm.delete-service', { name: svc.name }))) return;
 
   try {
     const res = await fetch(`${API}/api/admin/services/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error((await res.json()).error);
     allServices = allServices.filter(s => s.id !== id);
     renderServices();
-    showToast('success', 'Service Deleted', `"${svc.name}" has been removed.`);
+    showToast('success', window.t('admin.toast.svc-deleted'), `"${svc.name}"`);
   } catch (err) {
-    showToast('error', 'Delete Failed', err.message);
+    showToast('error', window.t('admin.toast.delete-failed'), err.message);
   }
 }
 
@@ -449,12 +457,12 @@ function openRepairTypeModal(id = null) {
   if (id) {
     const rt = allRepairTypes.find(r => r.id === id);
     if (!rt) return;
-    titleEl.textContent = 'Edit Repair Type';
+    titleEl.textContent = window.t('modal.edit-repair-type');
     document.getElementById('repair-type-id').value          = rt.id;
     document.getElementById('repair-type-name').value        = rt.name;
     document.getElementById('repair-type-description').value = rt.description || '';
   } else {
-    titleEl.textContent = 'Add Repair Type';
+    titleEl.textContent = window.t('modal.add-repair-type');
     document.getElementById('repair-type-id').value          = '';
     document.getElementById('repair-type-name').value        = '';
     document.getElementById('repair-type-description').value = '';
@@ -467,7 +475,7 @@ async function saveRepairType() {
   const name        = document.getElementById('repair-type-name').value.trim();
   const description = document.getElementById('repair-type-description').value.trim();
 
-  if (!name) { showToast('error', 'Validation', 'Repair type name is required.'); return; }
+  if (!name) { showToast('error', window.t('admin.toast.val'), window.t('admin.toast.val-type-name')); return; }
 
   const body = { name, description: description || null };
 
@@ -487,25 +495,25 @@ async function saveRepairType() {
 
     closeModal('modal-repair-type');
     renderRepairTypes();
-    showToast('success', id ? 'Type Updated' : 'Type Created', `"${saved.name}" saved.`);
+    showToast('success', window.t(id ? 'admin.toast.type-updated' : 'admin.toast.type-created'), `"${saved.name}"`);
   } catch (err) {
-    showToast('error', 'Save Failed', err.message);
+    showToast('error', window.t('admin.toast.save-failed'), err.message);
   }
 }
 
 async function deleteRepairType(id) {
   const rt = allRepairTypes.find(r => r.id === id);
   if (!rt) return;
-  if (!confirm(`Delete repair type "${rt.name}"? This action cannot be undone.`)) return;
+  if (!confirm(window.t('confirm.delete-type', { name: rt.name }))) return;
 
   try {
     const res = await fetch(`${API}/api/admin/repair-types/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error((await res.json()).error);
     allRepairTypes = allRepairTypes.filter(r => r.id !== id);
     renderRepairTypes();
-    showToast('success', 'Type Deleted', `"${rt.name}" has been removed.`);
+    showToast('success', window.t('admin.toast.type-deleted'), `"${rt.name}"`);
   } catch (err) {
-    showToast('error', 'Delete Failed', err.message);
+    showToast('error', window.t('admin.toast.delete-failed'), err.message);
   }
 }
 
@@ -543,6 +551,19 @@ document.addEventListener('DOMContentLoaded', () => {
       renderOrders();
     });
   }
+
+  // Language toggle
+  document.querySelectorAll('.lang-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const next = window.currentLang() === 'en' ? 'sk' : 'en';
+      window.setLanguage(next);
+      // Re-render dynamic content with new language
+      loadDashboard();
+      renderOrders();
+      renderServices();
+      renderRepairTypes();
+    });
+  });
 
   // Load data
   loadAllData();
