@@ -73,6 +73,7 @@ const TRANSLATIONS = {
     'footer.quick-links':     'Quick Links',
     'footer.svc-heading':     'Services',
     'footer.book-appt':       'Send for Repair',
+    'footer.track-order':     'Track Order',
     'footer.admin':           'Admin Panel',
     'footer.screen':          'Screen Repair',
     'footer.battery':         'Battery Replacement',
@@ -101,16 +102,18 @@ const TRANSLATIONS = {
     'admin.orders':         'Orders',
     'admin.services':       'Services',
     'admin.repair-types':   'Repair Types',
+    'admin.inventory':      'Inventory',
     'admin.settings':       'Settings',
     'admin.view-website':   '🏠 View Website',
 
     /* ── Admin topbar ── */
-    'admin.subtitle':           'Manage your repair business',
-    'admin.tab.dashboard':      'Dashboard',
-    'admin.tab.orders':         'All Appointments',
-    'admin.tab.services':       'Services',
-    'admin.tab.repair-types':   'Repair Types',
-    'admin.tab.settings':       'Settings',
+    'admin.subtitle':             'Manage your repair business',
+    'admin.tab.dashboard':        'Dashboard',
+    'admin.tab.orders':           'All Appointments',
+    'admin.tab.services':         'Services',
+    'admin.tab.repair-types':     'Repair Types',
+    'admin.tab.inventory':        'Inventory',
+    'admin.tab.settings':         'Settings',
 
     /* ── Admin stats ── */
     'admin.total-orders':   'Total Orders',
@@ -121,6 +124,12 @@ const TRANSLATIONS = {
     'admin.great-work':     '↑ Great work!',
     'admin.revenue':        'Revenue',
     'admin.completed-orders':'Completed orders',
+    'admin.today-orders':   "Today's Orders",
+    'admin.today-desc':     'New today',
+    'admin.monthly-revenue':'Monthly Revenue',
+    'admin.this-month':     'This month',
+    'admin.top-models':     'Top Device Models',
+    'admin.top-models-sub': 'Most frequent repairs',
 
     /* ── Admin dashboard table ── */
     'admin.recent-orders':  'Recent Orders',
@@ -166,6 +175,18 @@ const TRANSLATIONS = {
     'admin.col.description': 'Description',
     'admin.col.created':     'Created',
 
+    /* ── Admin inventory tab ── */
+    'admin.add-inventory':   '+ Add Part',
+    'admin.edit-inventory':  'Edit Part',
+    'admin.inv.part-name':   'Part Name',
+    'admin.inv.model':       'Device Model',
+    'admin.inv.quantity':    'Quantity',
+    'admin.inv.min-qty':     'Min. Stock',
+    'admin.inv.price':       'Unit Price',
+
+    /* ── Admin modal receipt ── */
+    'modal.print-receipt':   '🖨️ Receipt',
+
     /* ── Admin modals ── */
     'modal.update-order':     'Manage Order',
     'modal.update-status':    'Update Appointment Status',
@@ -202,10 +223,12 @@ const TRANSLATIONS = {
     'modal.smtp-from':        'From name / address',
 
     /* ── Admin status badges ── */
-    'status.pending':   '⏳ Pending',
-    'status.confirmed': '🔵 Confirmed',
-    'status.completed': '✅ Completed',
-    'status.cancelled': '❌ Cancelled',
+    'status.pending':       '⏳ Pending',
+    'status.confirmed':     '🔵 Confirmed',
+    'status.diagnostics':   '🔬 Diagnostics',
+    'status.waiting_parts': '⏸️ Waiting for Parts',
+    'status.completed':     '✅ Completed',
+    'status.cancelled':     '❌ Cancelled',
 
     /* ── Admin stock ── */
     'stock.in':  '✓ In Stock',
@@ -218,15 +241,19 @@ const TRANSLATIONS = {
     'empty.no-services':    'No services yet',
     'empty.no-services-sub':'Click "Add Service" to create your first service',
     'empty.no-types':       'No repair types yet',
+    'empty.no-inventory':   'No inventory items yet',
+    'empty.no-inventory-sub':'Click "+ Add Part" to track your first spare part',
 
     /* ── Admin count labels ── */
-    'count.showing':      'Showing {n} of {total} total',
-    'count.appts':        '{n} appointment',
-    'count.appts-plural': '{n} appointments',
-    'count.services':     '{n} service',
-    'count.services-plural':'{n} services',
-    'count.types':        '{n} type',
-    'count.types-plural': '{n} types',
+    'count.showing':          'Showing {n} of {total} total',
+    'count.appts':            '{n} appointment',
+    'count.appts-plural':     '{n} appointments',
+    'count.services':         '{n} service',
+    'count.services-plural':  '{n} services',
+    'count.types':            '{n} type',
+    'count.types-plural':     '{n} types',
+    'count.inv-items':        '{n} item',
+    'count.inv-items-plural': '{n} items',
 
     /* ── Admin toasts ── */
     'admin.toast.load-error':       'Load Error',
@@ -239,6 +266,7 @@ const TRANSLATIONS = {
     'admin.toast.val-name':         'Service name is required.',
     'admin.toast.val-price':        'Valid price is required.',
     'admin.toast.val-type-name':    'Repair type name is required.',
+    'admin.toast.val-inv-name':     'Part name and device model are required.',
     'admin.toast.svc-updated':      'Service Updated',
     'admin.toast.svc-created':      'Service Created',
     'admin.toast.svc-deleted':      'Service Deleted',
@@ -250,10 +278,14 @@ const TRANSLATIONS = {
     'admin.toast.smtp-ok':          'SMTP Test OK',
     'admin.toast.smtp-ok-msg':      'Test e-mail sent successfully.',
     'admin.toast.smtp-fail':        'SMTP Test Failed',
+    'admin.toast.inv-updated':      'Part Updated',
+    'admin.toast.inv-created':      'Part Added',
+    'admin.toast.inv-deleted':      'Part Deleted',
 
     /* ── Admin confirm dialogs ── */
     'confirm.delete-service':    'Delete service "{name}"? This action cannot be undone.',
     'confirm.delete-type':       'Delete repair type "{name}"? This action cannot be undone.',
+    'confirm.delete-inventory':  'Delete part "{name}"? This action cannot be undone.',
 
     /* ── Admin service description placeholders ── */
     'admin.svc-name-ph':    'e.g. iPhone 15 Screen Replacement',
@@ -339,6 +371,7 @@ const TRANSLATIONS = {
     'footer.quick-links':     'Rýchle odkazy',
     'footer.svc-heading':     'Služby',
     'footer.book-appt':       'Odoslať na opravu',
+    'footer.track-order':     'Sledovať zákazku',
     'footer.admin':           'Administrácia',
     'footer.screen':          'Oprava obrazovky',
     'footer.battery':         'Výmena batérie',
@@ -367,16 +400,18 @@ const TRANSLATIONS = {
     'admin.orders':         'Objednávky',
     'admin.services':       'Služby',
     'admin.repair-types':   'Typy opráv',
+    'admin.inventory':      'Sklad',
     'admin.settings':       'Nastavenia',
     'admin.view-website':   '🏠 Zobraziť web',
 
     /* ── Admin topbar ── */
-    'admin.subtitle':           'Spravujte svoj opravárenský biznis',
-    'admin.tab.dashboard':      'Prehľad',
-    'admin.tab.orders':         'Všetky rezervácie',
-    'admin.tab.services':       'Služby',
-    'admin.tab.repair-types':   'Typy opráv',
-    'admin.tab.settings':       'Nastavenia',
+    'admin.subtitle':             'Spravujte svoj opravárenský biznis',
+    'admin.tab.dashboard':        'Prehľad',
+    'admin.tab.orders':           'Všetky rezervácie',
+    'admin.tab.services':         'Služby',
+    'admin.tab.repair-types':     'Typy opráv',
+    'admin.tab.inventory':        'Sklad',
+    'admin.tab.settings':         'Nastavenia',
 
     /* ── Admin stats ── */
     'admin.total-orders':    'Celkové objednávky',
@@ -387,6 +422,12 @@ const TRANSLATIONS = {
     'admin.great-work':      '↑ Skvelá práca!',
     'admin.revenue':         'Tržby',
     'admin.completed-orders':'Dokončené objednávky',
+    'admin.today-orders':    'Dnešné objednávky',
+    'admin.today-desc':      'Nové dnes',
+    'admin.monthly-revenue': 'Mesačné tržby',
+    'admin.this-month':      'Tento mesiac',
+    'admin.top-models':      'Top modely zariadení',
+    'admin.top-models-sub':  'Najčastejšie opravy',
 
     /* ── Admin dashboard table ── */
     'admin.recent-orders':  'Nedávne objednávky',
@@ -432,6 +473,18 @@ const TRANSLATIONS = {
     'admin.col.description': 'Popis',
     'admin.col.created':     'Vytvorené',
 
+    /* ── Admin inventory tab ── */
+    'admin.add-inventory':   '+ Pridať diel',
+    'admin.edit-inventory':  'Upraviť diel',
+    'admin.inv.part-name':   'Názov dielu',
+    'admin.inv.model':       'Model zariadenia',
+    'admin.inv.quantity':    'Množstvo',
+    'admin.inv.min-qty':     'Min. zásoby',
+    'admin.inv.price':       'Jednotková cena',
+
+    /* ── Admin modal receipt ── */
+    'modal.print-receipt':   '🖨️ Potvrdenka',
+
     /* ── Admin modals ── */
     'modal.update-order':     'Spravovať objednávku',
     'modal.update-status':    'Aktualizovať stav rezervácie',
@@ -468,10 +521,12 @@ const TRANSLATIONS = {
     'modal.smtp-from':        'Meno / adresa odosielateľa',
 
     /* ── Admin status badges ── */
-    'status.pending':   '⏳ Čakajúce',
-    'status.confirmed': '🔵 Potvrdené',
-    'status.completed': '✅ Dokončené',
-    'status.cancelled': '❌ Zrušené',
+    'status.pending':       '⏳ Čakajúce',
+    'status.confirmed':     '🔵 Potvrdené',
+    'status.diagnostics':   '🔬 Diagnostika',
+    'status.waiting_parts': '⏸️ Čaká na diely',
+    'status.completed':     '✅ Dokončené',
+    'status.cancelled':     '❌ Zrušené',
 
     /* ── Admin stock ── */
     'stock.in':  '✓ Dostupné',
@@ -484,15 +539,19 @@ const TRANSLATIONS = {
     'empty.no-services':     'Zatiaľ žiadne služby',
     'empty.no-services-sub': 'Kliknite na „Pridať službu" a vytvorte prvú službu',
     'empty.no-types':        'Zatiaľ žiadne typy opráv',
+    'empty.no-inventory':    'Zatiaľ žiadne skladové položky',
+    'empty.no-inventory-sub':'Kliknite na „+ Pridať diel" pre sledovanie zásob',
 
     /* ── Admin count labels ── */
-    'count.showing':         'Zobrazujem {n} z {total} celkových',
-    'count.appts':           '{n} rezervácia',
-    'count.appts-plural':    '{n} rezervácií',
-    'count.services':        '{n} služba',
-    'count.services-plural': '{n} služieb',
-    'count.types':           '{n} typ',
-    'count.types-plural':    '{n} typov',
+    'count.showing':          'Zobrazujem {n} z {total} celkových',
+    'count.appts':            '{n} rezervácia',
+    'count.appts-plural':     '{n} rezervácií',
+    'count.services':         '{n} služba',
+    'count.services-plural':  '{n} služieb',
+    'count.types':            '{n} typ',
+    'count.types-plural':     '{n} typov',
+    'count.inv-items':        '{n} položka',
+    'count.inv-items-plural': '{n} položiek',
 
     /* ── Admin toasts ── */
     'admin.toast.load-error':       'Chyba načítania',
@@ -505,6 +564,7 @@ const TRANSLATIONS = {
     'admin.toast.val-name':         'Názov služby je povinný.',
     'admin.toast.val-price':        'Vyžaduje sa platná cena.',
     'admin.toast.val-type-name':    'Názov typu opravy je povinný.',
+    'admin.toast.val-inv-name':     'Názov dielu a model zariadenia sú povinné.',
     'admin.toast.svc-updated':      'Služba aktualizovaná',
     'admin.toast.svc-created':      'Služba vytvorená',
     'admin.toast.svc-deleted':      'Služba odstránená',
@@ -516,10 +576,14 @@ const TRANSLATIONS = {
     'admin.toast.smtp-ok':          'SMTP test OK',
     'admin.toast.smtp-ok-msg':      'Testovací e-mail odoslaný úspešne.',
     'admin.toast.smtp-fail':        'SMTP test zlyhal',
+    'admin.toast.inv-updated':      'Diel aktualizovaný',
+    'admin.toast.inv-created':      'Diel pridaný',
+    'admin.toast.inv-deleted':      'Diel odstránený',
 
     /* ── Admin confirm dialogs ── */
     'confirm.delete-service': 'Odstrániť službu „{name}"? Túto akciu nie je možné vrátiť späť.',
     'confirm.delete-type':    'Odstrániť typ opravy „{name}"? Túto akciu nie je možné vrátiť späť.',
+    'confirm.delete-inventory': 'Odstrániť diel „{name}"? Túto akciu nie je možné vrátiť späť.',
 
     /* ── Admin placeholders ── */
     'admin.svc-name-ph':     'napr. Výmena obrazovky iPhone 15',

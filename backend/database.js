@@ -141,6 +141,18 @@ function initializeSchema() {
     );
   `);
 
+  db.run(`
+    CREATE TABLE IF NOT EXISTS inventory (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      part_name TEXT NOT NULL,
+      model_name TEXT NOT NULL,
+      quantity INTEGER DEFAULT 0,
+      min_quantity INTEGER DEFAULT 1,
+      unit_price REAL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
   saveDb();
 
   // Seed data if empty

@@ -53,6 +53,7 @@ app.use('/api/services',     require('./routes/services'));
 app.use('/api/appointments', appointmentLimiter, require('./routes/appointments'));
 app.use('/api/admin',        require('./routes/admin'));
 app.use('/api/conversations', require('./routes/messages'));
+app.use('/api/track',        require('./routes/track'));
 
 // Frontend routes
 app.get('/', (req, res) => {
@@ -65,6 +66,10 @@ app.get('/admin', (req, res) => {
 
 app.get('/conversation/:token', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/conversation.html'));
+});
+
+app.get('/track', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/track.html'));
 });
 
 // 404 – serve custom page for HTML requests, JSON for API

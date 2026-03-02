@@ -87,6 +87,7 @@ async function handleLogin(e) {
 let allAppointments = [];
 let allServices = [];
 let allRepairTypes = [];
+let allInventory = [];
 let currentOrderFilter = 'all';
 let ordersSearchTerm = '';
 
@@ -125,16 +126,20 @@ function formatPriceRange(priceFrom, priceTo) {
 
 function statusBadge(status) {
   const map = {
-    pending:   'badge-pending',
-    confirmed: 'badge-confirmed',
-    completed: 'badge-completed',
-    cancelled: 'badge-cancelled',
+    pending:       'badge-pending',
+    confirmed:     'badge-confirmed',
+    diagnostics:   'badge-confirmed',
+    waiting_parts: 'badge-pending',
+    completed:     'badge-completed',
+    cancelled:     'badge-cancelled',
   };
   const keys = {
-    pending:   'status.pending',
-    confirmed: 'status.confirmed',
-    completed: 'status.completed',
-    cancelled: 'status.cancelled',
+    pending:       'status.pending',
+    confirmed:     'status.confirmed',
+    diagnostics:   'status.diagnostics',
+    waiting_parts: 'status.waiting_parts',
+    completed:     'status.completed',
+    cancelled:     'status.cancelled',
   };
   return `<span class="badge ${map[status] || 'badge-pending'}">${window.t(keys[status] || 'status.pending')}</span>`;
 }
@@ -189,6 +194,7 @@ function switchTab(tabName) {
     orders:       'admin.tab.orders',
     services:     'admin.tab.services',
     'repair-types': 'admin.tab.repair-types',
+    inventory:    'admin.tab.inventory',
     settings:     'admin.tab.settings',
   };
   const topTitle = document.getElementById('topbar-title');
@@ -198,24 +204,39 @@ function switchTab(tabName) {
   if (tabName === 'orders')        renderOrders();
   if (tabName === 'services')      renderServices();
   if (tabName === 'repair-types')  renderRepairTypes();
+  if (tabName === 'inventory')     renderInventory();
   if (tabName === 'settings')      loadSettings();
 }
 
 // ─── Load all data ────────────────────────────────────────
 async function loadAllData() {
   try {
-    const [apptRes, svcRes, rtRes] = await Promise.all([
+    const [apptRes, svcRes, rtRes, invRes] = await Promise.all([
       authFetch(`${API}/api/admin/appointments`),
       authFetch(`${API}/api/admin/services`),
       authFetch(`${API}/api/admin/repair-types`),
+      authFetch(`${API}/api/admin/inventory`),
     ]);
     allAppointments = await apptRes.json();
     allServices     = await svcRes.json();
     allRepairTypes  = await rtRes.json();
+    allInventory    = await invRes.json();
 
     const pending = allAppointments.filter(a => a.status === 'pending').length;
     const badge = document.getElementById('pending-badge');
     if (badge) badge.textContent = pending;
+
+    // Low-stock badge
+    const lowStockItems = allInventory.filter(i => i.quantity <= i.min_quantity);
+    const lowBadge = document.getElementById('low-stock-badge');
+    if (lowBadge) {
+      if (lowStockItems.length > 0) {
+        lowBadge.textContent = lowStockItems.length;
+        lowBadge.style.display = 'inline-flex';
+      } else {
+        lowBadge.style.display = 'none';
+      }
+    }
 
     loadDashboard();
   } catch (err) {
@@ -235,10 +256,51 @@ function loadDashboard() {
     .filter(a => a.status === 'completed')
     .reduce((sum, a) => sum + (parseFloat(a.quoted_price) || 0), 0);
 
-  setText('stat-total',     total);
-  setText('stat-pending',   pending);
-  setText('stat-completed', completed);
-  setText('stat-revenue',   formatCurrency(revenue));
+  // Today's orders
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayCount = allAppointments.filter(a => (a.created_at || '').slice(0, 10) === todayStr).length;
+
+  // Monthly revenue (current month)
+  const nowYM = new Date().toISOString().slice(0, 7);
+  const monthlyRevenue = allAppointments
+    .filter(a => a.status === 'completed' && (a.created_at || '').slice(0, 7) === nowYM)
+    .reduce((sum, a) => sum + (parseFloat(a.quoted_price) || 0), 0);
+
+  setText('stat-total',            total);
+  setText('stat-pending',          pending);
+  setText('stat-completed',        completed);
+  setText('stat-revenue',          formatCurrency(revenue));
+  setText('stat-today',            todayCount);
+  setText('stat-monthly-revenue',  formatCurrency(monthlyRevenue));
+
+  // Top 3 device models
+  const modelCounts = {};
+  allAppointments.forEach(a => {
+    if (a.device_model) {
+      const key = a.device_model.trim();
+      modelCounts[key] = (modelCounts[key] || 0) + 1;
+    }
+  });
+  const top3 = Object.entries(modelCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3);
+
+  const topEl = document.getElementById('top-models-list');
+  if (topEl) {
+    if (!top3.length) {
+      topEl.innerHTML = `<span style="color:var(--text-muted);font-size:0.85rem;">${window.t('empty.no-appts')}</span>`;
+    } else {
+      topEl.innerHTML = top3.map(([model, count], i) => `
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0.65rem 1rem;display:flex;align-items:center;gap:0.6rem;min-width:180px;">
+          <span style="font-size:1.1rem;">${['🥇','🥈','🥉'][i]}</span>
+          <div>
+            <div style="font-size:0.88rem;font-weight:700;color:var(--text-primary);">${escapeHtml(model)}</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);">${count} ${window.t(count === 1 ? 'count.appts' : 'count.appts-plural', { n: count })}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
 
   const recent = allAppointments.slice(0, 8);
   setText('recent-count', window.t('count.showing', { n: recent.length, total }));
@@ -732,6 +794,207 @@ async function testSmtp() {
   }
 }
 
+// ─── Inventory ────────────────────────────────────────────
+function renderInventory() {
+  const n = allInventory.length;
+  setText('inventory-count', n === 1 ? window.t('count.inv-items', { n }) : window.t('count.inv-items-plural', { n }));
+
+  const tbody = document.getElementById('inventory-tbody');
+  if (!tbody) return;
+
+  if (!allInventory.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📦</div><div class="empty-state-text">${window.t('empty.no-inventory')}</div><div class="empty-state-sub">${window.t('empty.no-inventory-sub')}</div></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = allInventory.map(item => {
+    const isLow = item.quantity <= item.min_quantity;
+    return `
+      <tr>
+        <td class="td-mono">#${item.id}</td>
+        <td class="td-primary">${escapeHtml(item.part_name)}</td>
+        <td>${escapeHtml(item.model_name)}</td>
+        <td>
+          <span style="font-weight:700;color:${isLow ? 'var(--danger)' : 'var(--success)'};">${item.quantity}</span>
+          ${isLow ? ' <span style="font-size:0.7rem;color:var(--danger);">⚠️ Low</span>' : ''}
+        </td>
+        <td>${item.min_quantity}</td>
+        <td style="color:var(--teal);">${item.unit_price != null ? formatCurrency(item.unit_price) : '—'}</td>
+        <td>
+          <div style="display:flex;gap:0.4rem;">
+            <button class="btn btn-ghost btn-sm btn-icon" title="${window.t('admin.action.edit')}" onclick="openInventoryModal(${item.id})">✏️</button>
+            <button class="btn btn-danger btn-sm btn-icon" title="${window.t('admin.action.delete')}" onclick="deleteInventoryItem(${item.id})">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openInventoryModal(id = null) {
+  const titleEl = document.getElementById('modal-inventory-title');
+
+  if (id) {
+    const item = allInventory.find(i => i.id === id);
+    if (!item) return;
+    titleEl.textContent = window.t('admin.edit-inventory');
+    document.getElementById('inventory-id').value      = item.id;
+    document.getElementById('inv-part-name').value     = item.part_name;
+    document.getElementById('inv-model-name').value    = item.model_name;
+    document.getElementById('inv-quantity').value      = item.quantity;
+    document.getElementById('inv-min-quantity').value  = item.min_quantity;
+    document.getElementById('inv-unit-price').value    = item.unit_price != null ? item.unit_price : '';
+  } else {
+    titleEl.textContent = window.t('admin.add-inventory');
+    document.getElementById('inventory-id').value      = '';
+    document.getElementById('inv-part-name').value     = '';
+    document.getElementById('inv-model-name').value    = '';
+    document.getElementById('inv-quantity').value      = '0';
+    document.getElementById('inv-min-quantity').value  = '1';
+    document.getElementById('inv-unit-price').value    = '';
+  }
+  openModal('modal-inventory');
+}
+
+async function saveInventory() {
+  const id          = document.getElementById('inventory-id').value;
+  const part_name   = document.getElementById('inv-part-name').value.trim();
+  const model_name  = document.getElementById('inv-model-name').value.trim();
+  const quantity    = document.getElementById('inv-quantity').value;
+  const min_qty     = document.getElementById('inv-min-quantity').value;
+  const unit_price  = document.getElementById('inv-unit-price').value;
+
+  if (!part_name || !model_name) {
+    showToast('error', window.t('admin.toast.val'), window.t('admin.toast.val-inv-name'));
+    return;
+  }
+
+  const body = {
+    part_name, model_name,
+    quantity: quantity !== '' ? parseInt(quantity, 10) : 0,
+    min_quantity: min_qty !== '' ? parseInt(min_qty, 10) : 1,
+    unit_price: unit_price !== '' ? parseFloat(unit_price) : null,
+  };
+
+  try {
+    const url    = id ? `${API}/api/admin/inventory/${id}` : `${API}/api/admin/inventory`;
+    const method = id ? 'PUT' : 'POST';
+    const res    = await authFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error((await res.json()).error);
+
+    const saved = await res.json();
+    if (id) {
+      const idx = allInventory.findIndex(i => i.id === saved.id);
+      if (idx !== -1) allInventory[idx] = saved;
+    } else {
+      allInventory.push(saved);
+    }
+
+    // Update low-stock badge
+    const lowStockItems = allInventory.filter(i => i.quantity <= i.min_quantity);
+    const lowBadge = document.getElementById('low-stock-badge');
+    if (lowBadge) {
+      if (lowStockItems.length > 0) {
+        lowBadge.textContent = lowStockItems.length;
+        lowBadge.style.display = 'inline-flex';
+      } else {
+        lowBadge.style.display = 'none';
+      }
+    }
+
+    closeModal('modal-inventory');
+    renderInventory();
+    showToast('success', window.t(id ? 'admin.toast.inv-updated' : 'admin.toast.inv-created'), `"${saved.part_name}"`);
+  } catch (err) {
+    showToast('error', window.t('admin.toast.save-failed'), err.message);
+  }
+}
+
+async function deleteInventoryItem(id) {
+  const item = allInventory.find(i => i.id === id);
+  if (!item) return;
+  if (!confirm(window.t('confirm.delete-inventory', { name: item.part_name }))) return;
+
+  try {
+    const res = await authFetch(`${API}/api/admin/inventory/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error((await res.json()).error);
+    allInventory = allInventory.filter(i => i.id !== id);
+    renderInventory();
+    showToast('success', window.t('admin.toast.inv-deleted'), `"${item.part_name}"`);
+  } catch (err) {
+    showToast('error', window.t('admin.toast.delete-failed'), err.message);
+  }
+}
+
+// ─── Receipt ──────────────────────────────────────────────
+function printReceipt() {
+  const id = parseInt(document.getElementById('order-id').value, 10);
+  if (!id) return;
+  const appt = allAppointments.find(a => a.id === id);
+  if (!appt) return;
+
+  const esc = str => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const fmtDate = d => d ? new Date(d).toLocaleString('sk-SK') : '—';
+  const statusLabels = {
+    pending: 'Prijaté', confirmed: 'Potvrdené', diagnostics: 'Diagnostika',
+    waiting_parts: 'Čaká na diely', completed: 'Opravené', cancelled: 'Zrušené',
+  };
+
+  const html = `<!DOCTYPE html>
+<html lang="sk"><head><meta charset="UTF-8"/>
+<title>Potvrdenka #${appt.id}</title>
+<style>
+  body{font-family:Arial,sans-serif;max-width:700px;margin:40px auto;padding:0 20px;color:#1a1a2e;}
+  .header{text-align:center;border-bottom:2px solid #00d4ff;padding-bottom:20px;margin-bottom:24px;}
+  .logo{font-size:1.8rem;font-weight:900;} .logo span{color:#00d4ff;}
+  .receipt-title{font-size:1.1rem;color:#555;margin-top:6px;}
+  .receipt-id{font-size:1.3rem;font-weight:700;color:#00d4ff;margin-top:4px;}
+  .section{margin-bottom:20px;}
+  .section-title{font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:10px;border-bottom:1px solid #eee;padding-bottom:4px;}
+  .row{display:flex;margin-bottom:8px;}
+  .label{width:200px;font-size:0.88rem;color:#555;flex-shrink:0;}
+  .value{font-size:0.88rem;font-weight:600;color:#1a1a2e;}
+  .footer{border-top:1px solid #eee;margin-top:30px;padding-top:16px;font-size:0.8rem;color:#888;text-align:center;}
+  .status-badge{display:inline-block;background:#e8f4ff;color:#3b82f6;padding:4px 12px;border-radius:20px;font-weight:700;font-size:0.85rem;}
+  .price{color:#00d4ff;font-size:1rem;font-weight:700;}
+  @media print{button{display:none!important;}}
+</style></head><body>
+<div class="header">
+  <div class="logo">⚡ <span>SSS</span>tylish Repair</div>
+  <div class="receipt-title">Potvrdenka o prevzatí zariadenia do opravy</div>
+  <div class="receipt-id">Zákazka #${appt.id}</div>
+</div>
+<div class="section">
+  <div class="section-title">Zákazník</div>
+  <div class="row"><div class="label">Meno</div><div class="value">${esc(appt.customer_name)}</div></div>
+  <div class="row"><div class="label">E-mail</div><div class="value">${esc(appt.customer_email)}</div></div>
+  <div class="row"><div class="label">Telefón</div><div class="value">${esc(appt.customer_phone)}</div></div>
+</div>
+<div class="section">
+  <div class="section-title">Zariadenie &amp; Oprava</div>
+  <div class="row"><div class="label">Model</div><div class="value">${esc(appt.device_model)}</div></div>
+  <div class="row"><div class="label">Typ opravy</div><div class="value">${esc(appt.service_name || '—')}</div></div>
+  <div class="row"><div class="label">Popis problému</div><div class="value">${esc(appt.notes || '—')}</div></div>
+  <div class="row"><div class="label">Stav</div><div class="value"><span class="status-badge">${esc(statusLabels[appt.status] || appt.status)}</span></div></div>
+  ${appt.quoted_price != null ? `<div class="row"><div class="label">Cena opravy</div><div class="value price">${Number(appt.quoted_price).toFixed(2)} €</div></div>` : ''}
+</div>
+<div class="section">
+  <div class="section-title">Dátum</div>
+  <div class="row"><div class="label">Prevzaté</div><div class="value">${fmtDate(appt.created_at)}</div></div>
+</div>
+<div class="footer">
+  <p>SSStylish Repair · info@ssstylish.sk</p>
+  <p>Zariadenie bolo prevzaté na opravu. Zákazník bude kontaktovaný e-mailom po diagnostike.</p>
+</div>
+<br/><div style="text-align:center;">
+  <button onclick="window.print()" style="padding:10px 28px;background:#00d4ff;color:#0a0e1a;border:none;border-radius:8px;font-weight:700;font-size:1rem;cursor:pointer;">🖨️ Tlačiť / Uložiť PDF</button>
+</div>
+</body></html>`;
+
+  const w = window.open('', '_blank');
+  if (w) { w.document.write(html); w.document.close(); }
+}
+
 // ─── Event Listeners ──────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // Login form
@@ -747,6 +1010,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('save-order-btn')?.addEventListener('click', saveOrderStatus);
   document.getElementById('save-service-btn')?.addEventListener('click', saveService);
   document.getElementById('save-repair-type-btn')?.addEventListener('click', saveRepairType);
+  document.getElementById('save-inventory-btn')?.addEventListener('click', saveInventory);
+  document.getElementById('print-receipt-btn')?.addEventListener('click', printReceipt);
 
   // Admin message send
   document.getElementById('admin-send-msg-btn')?.addEventListener('click', sendAdminMessage);
@@ -760,6 +1025,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add buttons
   document.getElementById('add-service-btn')?.addEventListener('click', () => openServiceModal());
   document.getElementById('add-repair-type-btn')?.addEventListener('click', () => openRepairTypeModal());
+  document.getElementById('add-inventory-btn')?.addEventListener('click', () => openInventoryModal());
 
   // Settings
   document.getElementById('save-settings-btn')?.addEventListener('click', saveSettings);
@@ -793,6 +1059,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderOrders();
       renderServices();
       renderRepairTypes();
+      renderInventory();
     });
   });
 
