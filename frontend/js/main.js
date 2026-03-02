@@ -252,6 +252,11 @@ async function handleBooking(e) {
     showToast('success', window.t('toast.booked-title'), window.t('toast.booked-msg', { email: data.customer_email }));
     form.reset();
 
+    // Reset service picker after successful submission
+    document.querySelectorAll('.picker-card').forEach(c => c.classList.remove('selected'));
+    const selInfo = document.getElementById('booking-selected-service');
+    if (selInfo) selInfo.style.display = 'none';
+
   } catch (err) {
     showToast('error', window.t('toast.book-fail'), err.message || window.t('toast.something-wrong'));
   } finally {

@@ -6,6 +6,7 @@ const API = '';
 
 // ─── Auth helpers ─────────────────────────────────────────
 const TOKEN_KEY = 'fixphone-admin-token';
+const USER_KEY  = 'fixphone-admin-user';
 
 function getToken() {
   try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
@@ -19,6 +20,28 @@ function clearToken() {
   try { localStorage.removeItem(TOKEN_KEY); } catch (_) {}
 }
 
+function getCurrentUser() {
+  try { return localStorage.getItem(USER_KEY) || 'owner'; } catch { return 'owner'; }
+}
+
+function saveCurrentUser(username) {
+  try { localStorage.setItem(USER_KEY, username); } catch (_) {}
+}
+
+function clearCurrentUser() {
+  try { localStorage.removeItem(USER_KEY); } catch (_) {}
+}
+
+/** Update topbar avatar and title based on logged-in user. */
+function updateUserDisplay() {
+  const username = getCurrentUser();
+  const avatar = document.getElementById('topbar-avatar');
+  if (avatar) {
+    avatar.textContent = username === 'staff' ? 'S' : 'O';
+    avatar.title = username === 'staff' ? window.t('login.staff-label') : window.t('login.owner-label');
+  }
+}
+
 /** Authenticated fetch wrapper – adds Bearer token header. */
 async function authFetch(url, options = {}) {
   const token = getToken();
@@ -30,6 +53,7 @@ async function authFetch(url, options = {}) {
   const res = await fetch(url, { ...options, headers });
   if (res.status === 401) {
     clearToken();
+    clearCurrentUser();
     showLoginOverlay();
     throw new Error('Session expired. Please sign in again.');
   }
@@ -40,6 +64,7 @@ async function authFetch(url, options = {}) {
 function showLoginOverlay() {
   const overlay = document.getElementById('login-overlay');
   if (overlay) overlay.style.display = 'flex';
+  showLoginStep(1);
 }
 
 function hideLoginOverlay() {
@@ -47,9 +72,90 @@ function hideLoginOverlay() {
   if (overlay) overlay.style.display = 'none';
 }
 
+function showLoginStep(step) {
+  const step1 = document.getElementById('login-step1');
+  const step2 = document.getElementById('login-step2');
+  if (step1) step1.style.display = step === 1 ? 'block' : 'none';
+  if (step2) step2.style.display = step === 2 ? 'block' : 'none';
+  if (step === 1) {
+    const errEl = document.getElementById('login-error');
+    if (errEl) errEl.style.display = 'none';
+    const pwInput = document.getElementById('admin-password');
+    if (pwInput) pwInput.value = '';
+  }
+  if (step === 2) {
+    setTimeout(() => {
+      const pwInput = document.getElementById('admin-password');
+      if (pwInput) pwInput.focus();
+    }, 50);
+  }
+}
+
+async function loadLoginUsers() {
+  const container = document.getElementById('login-user-buttons');
+  if (!container) return;
+  try {
+    const res = await fetch(`${API}/api/auth/users`);
+    const data = await res.json();
+    const users = data.users || [];
+    if (!users.length) {
+      container.innerHTML = `<div style="text-align:center;color:var(--danger);font-size:0.85rem;padding:1rem 0;">${window.t('login.no-users')}</div>`;
+      return;
+    }
+    const avatarGradients = {
+      owner: 'linear-gradient(135deg,#00d4ff,#7c3aed)',
+      staff: 'linear-gradient(135deg,#7c3aed,#ec4899)',
+    };
+    container.innerHTML = users.map(u => `
+      <button class="btn btn-ghost" data-username="${escapeHtml(u.username)}"
+        style="justify-content:flex-start;gap:0.75rem;padding:0.875rem 1.1rem;text-align:left;">
+        <div style="width:2.1rem;height:2.1rem;border-radius:50%;background:${avatarGradients[u.username] || avatarGradients.owner};
+          display:flex;align-items:center;justify-content:center;font-weight:800;color:#0a0e1a;font-size:1rem;flex-shrink:0;">
+          ${escapeHtml(u.displayName.charAt(0).toUpperCase())}
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">${escapeHtml(u.displayName)}</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);">
+            ${u.username === 'owner' ? window.t('login.owner-access') : window.t('login.staff-access')}
+          </div>
+        </div>
+      </button>
+    `).join('');
+
+    container.querySelectorAll('button[data-username]').forEach(btn => {
+      btn.addEventListener('click', () => selectLoginUser(btn.dataset.username, users));
+    });
+  } catch (err) {
+    container.innerHTML = `<div style="text-align:center;color:var(--danger);font-size:0.85rem;padding:1rem 0;">${escapeHtml(err.message)}</div>`;
+  }
+}
+
+function selectLoginUser(username, users) {
+  const user = users ? users.find(u => u.username === username) : null;
+  const displayName = user ? user.displayName : (username === 'owner' ? window.t('login.owner-label') : window.t('login.staff-label'));
+
+  const hiddenInput = document.getElementById('login-username');
+  if (hiddenInput) hiddenInput.value = username;
+
+  const avatarEl = document.getElementById('login-user-avatar-badge');
+  if (avatarEl) {
+    avatarEl.textContent = displayName.charAt(0).toUpperCase();
+    avatarEl.style.background = username === 'staff'
+      ? 'linear-gradient(135deg,#7c3aed,#ec4899)'
+      : 'linear-gradient(135deg,#00d4ff,#7c3aed)';
+    avatarEl.style.color = username === 'staff' ? '#fff' : '#0a0e1a';
+  }
+
+  const nameEl = document.getElementById('login-user-display');
+  if (nameEl) nameEl.textContent = displayName;
+
+  showLoginStep(2);
+}
+
 async function handleLogin(e) {
   e.preventDefault();
   const password   = document.getElementById('admin-password').value;
+  const username   = document.getElementById('login-username')?.value || 'owner';
   const btn        = document.getElementById('login-btn');
   const btnText    = document.getElementById('login-btn-text');
   const btnLoading = document.getElementById('login-btn-loading');
@@ -64,14 +170,16 @@ async function handleLogin(e) {
     const res = await fetch(`${API}/api/auth/login`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ password }),
+      body:    JSON.stringify({ username, password }),
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Login failed');
 
     saveToken(data.token);
+    saveCurrentUser(data.username || username);
     hideLoginOverlay();
     document.getElementById('admin-password').value = '';
+    updateUserDisplay();
     loadAllData();
   } catch (err) {
     errorEl.textContent  = err.message;
@@ -265,26 +373,29 @@ function loadDashboard() {
   const total     = allAppointments.length;
   const pending   = allAppointments.filter(a => a.status === 'pending').length;
   const completed = allAppointments.filter(a => a.status === 'completed').length;
-  const revenue   = allAppointments
-    .filter(a => a.status === 'completed')
+
+  // Revenue filtered by current staff member
+  const currentUser = getCurrentUser();
+  const myRevenue = allAppointments
+    .filter(a => a.status === 'completed' && a.assigned_to === currentUser)
     .reduce((sum, a) => sum + (parseFloat(a.quoted_price) || 0), 0);
 
   // Today's orders
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayCount = allAppointments.filter(a => (a.created_at || '').slice(0, 10) === todayStr).length;
 
-  // Monthly revenue (current month)
+  // My monthly revenue (current month, current user)
   const nowYM = new Date().toISOString().slice(0, 7);
-  const monthlyRevenue = allAppointments
-    .filter(a => a.status === 'completed' && (a.created_at || '').slice(0, 7) === nowYM)
+  const myMonthlyRevenue = allAppointments
+    .filter(a => a.status === 'completed' && a.assigned_to === currentUser && (a.created_at || '').slice(0, 7) === nowYM)
     .reduce((sum, a) => sum + (parseFloat(a.quoted_price) || 0), 0);
 
   setText('stat-total',            total);
   setText('stat-pending',          pending);
   setText('stat-completed',        completed);
-  setText('stat-revenue',          formatCurrency(revenue));
+  setText('stat-revenue',          formatCurrency(myRevenue));
   setText('stat-today',            todayCount);
-  setText('stat-monthly-revenue',  formatCurrency(monthlyRevenue));
+  setText('stat-monthly-revenue',  formatCurrency(myMonthlyRevenue));
 
   // Top 3 device models
   const modelCounts = {};
@@ -846,6 +957,8 @@ function renderInventory() {
 
 // ─── Staff Tab ────────────────────────────────────────────
 function renderStaffTab() {
+  const currentUser = getCurrentUser();
+
   // Open orders: status === 'pending'
   const openOrders = allAppointments.filter(a => a.status === 'pending');
   const openTbody = document.getElementById('staff-open-tbody');
@@ -868,9 +981,11 @@ function renderStaffTab() {
     }
   }
 
-  // Active orders: status in [confirmed, diagnostics, waiting_parts]
+  // My active orders: assigned to current user and status in [confirmed, diagnostics, waiting_parts]
   const activeStatuses = ['confirmed', 'diagnostics', 'waiting_parts'];
-  const activeOrders = allAppointments.filter(a => activeStatuses.includes(a.status));
+  const activeOrders = allAppointments.filter(a =>
+    activeStatuses.includes(a.status) && a.assigned_to === currentUser
+  );
   const activeTbody = document.getElementById('staff-active-tbody');
   if (activeTbody) {
     if (!activeOrders.length) {
@@ -897,12 +1012,12 @@ async function staffTakeOrder(id) {
     const res = await authFetch(`${API}/api/admin/appointments/${id}`, {
       method:  'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ status: 'confirmed' }),
+      body:    JSON.stringify({ status: 'confirmed', assigned_to: getCurrentUser() }),
     });
     if (!res.ok) throw new Error((await res.json()).error);
     const updated = await res.json();
     const idx = allAppointments.findIndex(a => a.id === updated.id);
-    if (idx !== -1) allAppointments[idx] = { ...allAppointments[idx], status: updated.status };
+    if (idx !== -1) allAppointments[idx] = { ...allAppointments[idx], status: updated.status, assigned_to: updated.assigned_to };
 
     // Refresh badges
     const pending = allAppointments.filter(a => a.status === 'pending').length;
@@ -1091,6 +1206,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('login-form');
   if (loginForm) loginForm.addEventListener('submit', handleLogin);
 
+  // Back button on login step 2
+  const backBtn = document.getElementById('login-back-btn');
+  if (backBtn) backBtn.addEventListener('click', () => showLoginStep(1));
+
   // Sidebar navigation
   document.querySelectorAll('.sidebar-item').forEach(item => {
     item.addEventListener('click', () => switchTab(item.dataset.tab));
@@ -1156,8 +1275,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Check auth
   if (!getToken()) {
+    loadLoginUsers();
     showLoginOverlay();
   } else {
+    updateUserDisplay();
     loadAllData();
   }
 });
