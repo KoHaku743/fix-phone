@@ -51,12 +51,12 @@
         </h1>
 
         <p class="hero-subtitle" data-i18n="hero.subtitle">
-          Vrátime vášmu mobilu štýlové SSS-rank nabíjanie. Posielate nám telefón poštou – rýchlo, pohodlne a s originálnymi dielmi.
+          Vrátime vášmu mobilu štýlové SSS-rank nabíjanie. Prineste zariadenie osobne – rýchlo, pohodlne a s originálnymi dielmi.
         </p>
 
         <div class="hero-ctas">
           <a href="#booking" class="btn-primary" data-i18n="hero.cta-book">
-            📦 Odoslať na opravu
+            🛠️ Rezervovať opravu
           </a>
           <a href="#services" class="btn-secondary" data-i18n="hero.cta-services">
             🔍 Zobraziť služby
@@ -102,7 +102,7 @@
             </div>
           </div>
           <div class="phone-repair-badge phone-repair-badge-2" data-i18n="hero.phone-ready">
-            📦 Odoslanie poštou
+            🤝 Z ruky do ruky
           </div>
         </div>
       </div>
@@ -147,7 +147,7 @@
           </div>
           <span class="step-icon">🛠️</span>
           <h3 class="step-title" data-i18n="how.step1-title">Vyberte opravu</h3>
-          <p class="step-description" data-i18n="how.step1-desc">Prezrite si naše opravy a vyberte tú, ktorá zodpovedá problému vášho zariadenia. Cenu stanovíme po obdržaní telefónu.</p>
+          <p class="step-description" data-i18n="how.step1-desc">Prezrite si naše opravy a vyberte tú, ktorá zodpovedá problému vášho zariadenia. Cenu stanovíme po prehliadke telefónu.</p>
         </div>
 
         <div class="step-card reveal">
@@ -155,9 +155,9 @@
             <div class="step-ripple"></div>
             <div class="step-number">2</div>
           </div>
-          <span class="step-icon">📦</span>
-          <h3 class="step-title" data-i18n="how.step2-title">Pošlite telefón</h3>
-          <p class="step-description" data-i18n="how.step2-desc">Vyplňte formulár a pošlite nám zariadenie cez Packeta alebo iného dopravcu. Adresu dostanete e-mailom po potvrdení.</p>
+          <span class="step-icon">🤝</span>
+          <h3 class="step-title" data-i18n="how.step2-title">Prineste telefón</h3>
+          <p class="step-description" data-i18n="how.step2-desc">Vyplňte formulár a prineste zariadenie osobne. Dohodneme sa na čase a mieste, ktoré vám vyhovuje.</p>
         </div>
 
         <div class="step-card reveal">
@@ -167,7 +167,7 @@
           </div>
           <span class="step-icon">✅</span>
           <h3 class="step-title" data-i18n="how.step3-title">Dostanete späť opraveného</h3>
-          <p class="step-description" data-i18n="how.step3-desc">Po oprave vám zariadenie pošleme späť. Celý priebeh sledujete cez konverzáciu, kde vám naši technici odpíšu.</p>
+          <p class="step-description" data-i18n="how.step3-desc">Po oprave vám zariadenie odovzdáme priamo z ruky do ruky. Celý priebeh sledujete cez konverzáciu, kde vám naši technici odpíšu.</p>
         </div>
       </div>
     </div>
@@ -177,13 +177,32 @@
   <section class="booking" id="booking">
     <div class="booking-container">
       <div class="section-header reveal">
-        <span class="section-tag" data-i18n="booking.tag">Odoslať na opravu</span>
+        <span class="section-tag" data-i18n="booking.tag">Rezervovať opravu</span>
         <h2 class="section-title" data-i18n="booking.title">Požiadať o opravu</h2>
-        <p class="section-subtitle" data-i18n="booking.subtitle">Vyplňte formulár nižšie. Po obdržaní zariadenia vám pošleme presnú cenu a ďalšie pokyny e-mailom.</p>
+        <p class="section-subtitle" data-i18n="booking.subtitle">Vyberte opravu nižšie a vyplňte kontaktné údaje. Ozveme sa vám pre dohodu na čase a mieste.</p>
       </div>
 
-      <div class="booking-form-wrapper reveal">
+      <!-- Step 1: Service picker -->
+      <div class="booking-step reveal" id="service-picker-step">
+        <div class="booking-step-label" data-i18n="booking.pick-service">Krok 1 – Vyberte opravu</div>
+        <div class="service-picker-grid" id="service-picker-grid">
+          <!-- Skeleton placeholders -->
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+          <div class="skeleton skeleton-card"></div>
+        </div>
+      </div>
+
+      <!-- Step 2: Contact form (shown after service selection) -->
+      <div class="booking-form-wrapper reveal" id="booking-form-step">
+        <div class="booking-step-label" data-i18n="booking.your-details">Krok 2 – Vaše údaje</div>
+        <div class="booking-selected-service" id="booking-selected-service" style="display:none;">
+          <span data-i18n="booking.selected">✓ Vybrané:</span>
+          <strong id="selected-service-name"></strong>
+          <button type="button" class="btn-change-service" id="change-service-btn" data-i18n="booking.change">Zmeniť</button>
+        </div>
         <form id="booking-form" novalidate>
+          <input type="hidden" id="service_id" name="service_id" />
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label" for="customer_name"><span data-i18n="booking.name-label">Celé meno</span> <span>*</span></label>
@@ -206,20 +225,13 @@
             </div>
 
             <div class="form-group full-width">
-              <label class="form-label" for="service_id"><span data-i18n="booking.service-label">Typ opravy</span> <span>*</span></label>
-              <select class="form-select" id="service_id" name="service_id" required>
-                <option value="" data-i18n="booking.service-default">Vyberte typ opravy</option>
-              </select>
-            </div>
-
-            <div class="form-group full-width">
               <label class="form-label" for="notes" data-i18n="booking.notes-label">Popis problému</label>
               <textarea class="form-textarea" id="notes" name="notes" data-i18n-placeholder="booking.notes-ph" placeholder="Opíšte problém alebo iné relevantné detaily..."></textarea>
             </div>
           </div>
 
           <button type="submit" class="form-submit" id="submit-btn">
-            <span id="submit-text" data-i18n="booking.submit">📦 Odoslať žiadosť o opravu</span>
+            <span id="submit-text" data-i18n="booking.submit">✅ Odoslať žiadosť o opravu</span>
             <span id="submit-loading" style="display:none" data-i18n="booking.submitting">⏳ Odosielam...</span>
           </button>
         </form>
@@ -246,7 +258,7 @@
         <ul class="footer-links">
           <li><a href="#services" data-i18n="nav.services">Služby</a></li>
           <li><a href="#how-it-works" data-i18n="nav.how-it-works">Ako to funguje</a></li>
-          <li><a href="#booking" data-i18n="footer.book-appt">Odoslať na opravu</a></li>
+          <li><a href="#booking" data-i18n="footer.book-appt">Rezervovať opravu</a></li>
           <li><a href="/track" data-i18n="footer.track-order">Sledovať zákazku</a></li>
           <li><a href="/admin" data-i18n="footer.admin">Admin Panel</a></li>
         </ul>

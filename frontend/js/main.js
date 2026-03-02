@@ -82,6 +82,7 @@ async function loadServices() {
 
     if (!services.length) {
       grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">${window.t('services.empty')}</div>`;
+      renderServicePicker([]);
       return;
     }
 
@@ -117,8 +118,8 @@ async function loadServices() {
       cardObserver.observe(card);
     });
 
-    // Populate service dropdown in booking form
-    populateServiceDropdown(services);
+    // Render picker in booking section
+    renderServicePicker(services);
 
   } catch (err) {
     console.error('Failed to load services:', err);
@@ -126,18 +127,77 @@ async function loadServices() {
   }
 }
 
-function populateServiceDropdown(services) {
-  const select = document.getElementById('service_id');
-  if (!select) return;
-  // Reset to default option
-  select.innerHTML = `<option value="">${window.t('booking.service-default')}</option>`;
-  services.forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s.id;
-    const priceLabel = formatPriceRange(s.price_from, s.price_to);
-    opt.textContent = `${s.name} (${priceLabel})`;
-    select.appendChild(opt);
+// ─── Service picker (Booking Step 1) ─────────────────────
+let _allServices = [];
+
+function renderServicePicker(services) {
+  _allServices = services;
+  const pickerGrid = document.getElementById('service-picker-grid');
+  if (!pickerGrid) return;
+
+  if (!services.length) {
+    pickerGrid.innerHTML = `<div style="color:var(--text-muted);font-size:0.88rem;padding:1rem 0;">${window.t('services.empty')}</div>`;
+    return;
+  }
+
+  pickerGrid.innerHTML = services.map(s => `
+    <div class="picker-card ${!s.in_stock ? 'picker-card-unavailable' : ''}"
+         data-service-id="${s.id}"
+         data-service-name="${escapeHtml(s.name)}"
+         role="button" tabindex="0"
+         style="${!s.in_stock ? 'opacity:0.55;cursor:not-allowed;' : ''}">
+      <div class="picker-card-icon">${getServiceIcon(s.repair_type_name, s.name)}</div>
+      <div class="picker-card-name">${escapeHtml(s.name)}</div>
+      <div class="picker-card-type">${escapeHtml(s.repair_type_name || '')}</div>
+      <div class="picker-card-price">${formatPriceRange(s.price_from, s.price_to)}</div>
+      <div class="picker-card-stock ${s.in_stock ? 'stock-in' : 'stock-out'}">
+        ${s.in_stock ? window.t('services.in-stock') : window.t('services.out-stock')}
+      </div>
+    </div>
+  `).join('');
+
+  pickerGrid.querySelectorAll('.picker-card').forEach(card => {
+    const svcId = card.dataset.serviceId;
+    const svc = services.find(s => String(s.id) === String(svcId));
+    if (!svc || !svc.in_stock) return;
+
+    card.addEventListener('click', () => selectService(svcId, card.dataset.serviceName));
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectService(svcId, card.dataset.serviceName); }
+    });
   });
+
+  // Re-apply current selection if any
+  const currentId = document.getElementById('service_id')?.value;
+  if (currentId) {
+    const svc = services.find(s => String(s.id) === String(currentId));
+    if (svc) selectService(currentId, svc.name);
+  }
+}
+
+function selectService(id, name) {
+  const hiddenInput  = document.getElementById('service_id');
+  const selectedInfo = document.getElementById('booking-selected-service');
+  const selectedName = document.getElementById('selected-service-name');
+
+  if (hiddenInput) hiddenInput.value = id;
+
+  // Update checkmark on picker cards
+  document.querySelectorAll('.picker-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.serviceId === String(id));
+  });
+
+  // Show selected service banner
+  if (selectedInfo && selectedName) {
+    selectedName.textContent = name;
+    selectedInfo.style.display = 'flex';
+  }
+
+  // Scroll smoothly to the form
+  const formStep = document.getElementById('booking-form-step');
+  if (formStep) {
+    setTimeout(() => formStep.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  }
 }
 
 // ─── Form validation ──────────────────────────────────────
@@ -250,4 +310,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const form = document.getElementById('booking-form');
   if (form) form.addEventListener('submit', handleBooking);
+
+  // "Change service" button scrolls back to picker
+  const changeBtn = document.getElementById('change-service-btn');
+  if (changeBtn) {
+    changeBtn.addEventListener('click', () => {
+      const pickerStep = document.getElementById('service-picker-step');
+      if (pickerStep) pickerStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
 });
