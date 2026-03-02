@@ -226,6 +226,10 @@
             <div class="conv-meta-label" data-label="status">Stav</div>
             <div class="conv-meta-value"><span id="order-status-badge"></span></div>
           </div>
+          <div class="conv-meta-item" id="order-appt-date-item" style="display:none;">
+            <div class="conv-meta-label" data-label="appt-date">Dátum stretnutia</div>
+            <div class="conv-meta-value" id="order-appt-date">—</div>
+          </div>
         </div>
         <div id="order-quoted-price" class="conv-quoted-price" style="display:none;"></div>
       </div>
@@ -261,6 +265,7 @@
         device_label:     'Device',
         repair_label:     'Repair',
         status_label:     'Status',
+        appt_date_label:  'Appointment Date',
         msg_header:       '💬 Conversation with technician',
         empty_msgs:       "No messages yet. Write to us!",
         reply_ph:         'Type a message…',
@@ -287,6 +292,7 @@
         device_label:     'Zariadenie',
         repair_label:     'Oprava',
         status_label:     'Stav',
+        appt_date_label:  'Dátum stretnutia',
         msg_header:       '💬 Konverzácia s technikom',
         empty_msgs:       'Zatiaľ žiadne správy. Napíšte nám!',
         reply_ph:         'Napíšte správu…',
@@ -374,6 +380,21 @@
         document.querySelector('[data-label="status"]').textContent = t('status_label');
         document.getElementById('order-device').textContent  = appt.device_model || '—';
         document.getElementById('order-service').textContent = appt.service_name || t('unknown_repair');
+
+        // Show appointment date if set by staff
+        const apptDateItem = document.getElementById('order-appt-date-item');
+        const apptDateEl   = document.getElementById('order-appt-date');
+        if (appt.appointment_date && apptDateItem && apptDateEl) {
+          document.querySelector('[data-label="appt-date"]').textContent = t('appt_date_label');
+          const locale = LANG === 'en' ? 'en-GB' : 'sk-SK';
+          apptDateEl.textContent = new Date(appt.appointment_date).toLocaleString(locale, {
+            weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+            hour: '2-digit', minute: '2-digit',
+          });
+          apptDateItem.style.display = '';
+        } else if (apptDateItem) {
+          apptDateItem.style.display = 'none';
+        }
 
         const statusLabels = (CONV_I18N[LANG] || CONV_I18N.sk).status_labels;
         const statusBadge = document.getElementById('order-status-badge');

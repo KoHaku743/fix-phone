@@ -613,6 +613,16 @@ function openOrderModal(id) {
   document.getElementById('order-id').value = appt.id;
   document.getElementById('order-status').value = appt.status;
   document.getElementById('order-quoted-price').value = appt.quoted_price != null ? appt.quoted_price : '';
+  // Format appointment_date for datetime-local input (needs "YYYY-MM-DDTHH:MM")
+  const apptDateEl = document.getElementById('order-appointment-date');
+  if (apptDateEl) {
+    if (appt.appointment_date) {
+      // Normalise to "YYYY-MM-DDTHH:MM" expected by datetime-local
+      apptDateEl.value = appt.appointment_date.slice(0, 16).replace(' ', 'T');
+    } else {
+      apptDateEl.value = '';
+    }
+  }
   document.getElementById('order-customer-info').innerHTML =
     `<strong>${escapeHtml(appt.customer_name)}</strong> &bull; ${escapeHtml(appt.device_model)} &bull; ${escapeHtml(appt.customer_email)}`;
 
@@ -690,10 +700,13 @@ async function saveOrderStatus() {
   const status      = document.getElementById('order-status').value;
   const quotedRaw   = document.getElementById('order-quoted-price').value;
   const quoted_price = quotedRaw !== '' ? parseFloat(quotedRaw) : null;
+  const apptDateEl  = document.getElementById('order-appointment-date');
+  const appointment_date = apptDateEl && apptDateEl.value ? apptDateEl.value : null;
 
   try {
     const body = { status };
     if (quotedRaw !== '') body.quoted_price = quoted_price;
+    body.appointment_date = appointment_date;
 
     const res = await authFetch(`${API}/api/admin/appointments/${id}`, {
       method:  'PUT',
@@ -704,7 +717,7 @@ async function saveOrderStatus() {
 
     const updated = await res.json();
     const idx = allAppointments.findIndex(a => a.id === updated.id);
-    if (idx !== -1) allAppointments[idx] = { ...allAppointments[idx], status: updated.status, quoted_price: updated.quoted_price };
+    if (idx !== -1) allAppointments[idx] = { ...allAppointments[idx], status: updated.status, quoted_price: updated.quoted_price, appointment_date: updated.appointment_date };
 
     closeModal('modal-order');
     renderOrders();

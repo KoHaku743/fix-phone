@@ -35,7 +35,7 @@ router.get('/appointments', (req, res) => {
 router.put('/appointments/:id', async (req, res) => {
   try {
     const { prepare } = getDb();
-    const { status, quoted_price, assigned_to } = req.body;
+    const { status, quoted_price, assigned_to, appointment_date } = req.body;
     const validStatuses = ['pending', 'confirmed', 'diagnostics', 'waiting_parts', 'completed', 'cancelled'];
     if (status !== undefined && !validStatuses.includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
@@ -62,6 +62,10 @@ router.put('/appointments/:id', async (req, res) => {
         newAssignedTo = currentUser;
       }
       prepare('UPDATE appointments SET assigned_to = ? WHERE id = ?').run(newAssignedTo, req.params.id);
+    }
+    if (appointment_date !== undefined) {
+      const date = appointment_date === null || appointment_date === '' ? null : appointment_date;
+      prepare('UPDATE appointments SET appointment_date = ? WHERE id = ?').run(date, req.params.id);
     }
 
     const appointment = prepare('SELECT * FROM appointments WHERE id = ?').get(req.params.id);

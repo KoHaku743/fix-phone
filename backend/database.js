@@ -125,6 +125,37 @@ function initializeSchema() {
   try { db.run(`ALTER TABLE appointments ADD COLUMN assigned_to TEXT`); } catch (_) {}
   try { db.run(`ALTER TABLE appointments ADD COLUMN customer_lang TEXT DEFAULT 'sk'`); } catch (_) {}
 
+  // Migrate: remove NOT NULL constraint from appointment_date if present (old schema)
+  try {
+    const tableInfo = db.exec(`PRAGMA table_info(appointments)`);
+    const cols = tableInfo[0]?.values || [];
+    const apptDateCol = cols.find(r => r[1] === 'appointment_date');
+    if (apptDateCol && apptDateCol[3] === 1) {
+      db.run(`CREATE TABLE appointments_v2 (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        customer_name TEXT NOT NULL,
+        customer_email TEXT NOT NULL,
+        customer_phone TEXT NOT NULL,
+        device_model TEXT NOT NULL,
+        service_id INTEGER,
+        appointment_date TEXT,
+        notes TEXT,
+        status TEXT DEFAULT 'pending',
+        quoted_price REAL,
+        conversation_token TEXT,
+        assigned_to TEXT,
+        customer_lang TEXT DEFAULT 'sk',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (service_id) REFERENCES services(id)
+      )`);
+      db.run(`INSERT INTO appointments_v2 (id, customer_name, customer_email, customer_phone, device_model, service_id, appointment_date, notes, status, quoted_price, conversation_token, assigned_to, customer_lang, created_at) SELECT id, customer_name, customer_email, customer_phone, device_model, service_id, appointment_date, notes, status, quoted_price, conversation_token, assigned_to, customer_lang, created_at FROM appointments`);
+      db.run(`DROP TABLE appointments`);
+      db.run(`ALTER TABLE appointments_v2 RENAME TO appointments`);
+    }
+  } catch (e) {
+    console.error('Migration (appointment_date nullable):', e.message);
+  }
+
   db.run(`
     CREATE TABLE IF NOT EXISTS messages (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
