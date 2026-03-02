@@ -708,6 +708,13 @@ async function saveOrderStatus() {
     if (quotedRaw !== '') body.quoted_price = quoted_price;
     body.appointment_date = appointment_date;
 
+    // Auto-assign to current user when moving to an active status and the order is unassigned
+    const activeStatuses = ['confirmed', 'diagnostics', 'waiting_parts'];
+    const apptCurrent = allAppointments.find(a => a.id === parseInt(id, 10));
+    if (activeStatuses.includes(status) && apptCurrent && !apptCurrent.assigned_to) {
+      body.assigned_to = getCurrentUser();
+    }
+
     const res = await authFetch(`${API}/api/admin/appointments/${id}`, {
       method:  'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -717,10 +724,11 @@ async function saveOrderStatus() {
 
     const updated = await res.json();
     const idx = allAppointments.findIndex(a => a.id === updated.id);
-    if (idx !== -1) allAppointments[idx] = { ...allAppointments[idx], status: updated.status, quoted_price: updated.quoted_price, appointment_date: updated.appointment_date };
+    if (idx !== -1) allAppointments[idx] = { ...allAppointments[idx], status: updated.status, quoted_price: updated.quoted_price, appointment_date: updated.appointment_date, assigned_to: updated.assigned_to };
 
     closeModal('modal-order');
     renderOrders();
+    renderStaffTab();
     loadDashboard();
     const badge = document.getElementById('pending-badge');
     if (badge) badge.textContent = allAppointments.filter(a => a.status === 'pending').length;
@@ -1011,10 +1019,10 @@ function renderStaffTab() {
     }
   }
 
-  // My active orders: assigned to current user OR unassigned (null) – displayed as a shared queue
+  // My active orders: only orders explicitly assigned to the current user
   const activeStatuses = ['confirmed', 'diagnostics', 'waiting_parts'];
   const activeOrders = allAppointments.filter(a =>
-    activeStatuses.includes(a.status) && (a.assigned_to === currentUser || a.assigned_to === null)
+    activeStatuses.includes(a.status) && a.assigned_to === currentUser
   );
   const activeTbody = document.getElementById('staff-active-tbody');
   if (activeTbody) {
