@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getDb } = require('../database');
 const { requireAuth } = require('../middleware/auth');
-const { sendMessageNotification } = require('../mailer');
+const { sendMessageNotification, sendStatusUpdateNotification } = require('../mailer');
 
 // All admin routes require a valid token
 router.use(requireAuth);
@@ -32,7 +32,7 @@ router.get('/appointments', (req, res) => {
 });
 
 // PUT /api/admin/appointments/:id  – update status and/or quoted_price and/or assigned_to
-router.put('/appointments/:id', (req, res) => {
+router.put('/appointments/:id', async (req, res) => {
   try {
     const { prepare } = getDb();
     const { status, quoted_price, assigned_to } = req.body;
@@ -40,6 +40,11 @@ router.put('/appointments/:id', (req, res) => {
     if (status !== undefined && !validStatuses.includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
+
+    // Fetch appointment before updating so we have old status + customer info
+    const apptBefore = prepare('SELECT * FROM appointments WHERE id = ?').get(req.params.id);
+    if (!apptBefore) return res.status(404).json({ error: 'Appointment not found' });
+
     if (status !== undefined) {
       prepare('UPDATE appointments SET status = ? WHERE id = ?').run(status, req.params.id);
     }
@@ -48,10 +53,39 @@ router.put('/appointments/:id', (req, res) => {
       prepare('UPDATE appointments SET quoted_price = ? WHERE id = ?').run(price, req.params.id);
     }
     if (assigned_to !== undefined) {
-      prepare('UPDATE appointments SET assigned_to = ? WHERE id = ?').run(assigned_to || null, req.params.id);
+      let newAssignedTo = null;
+      if (assigned_to !== null) {
+        const currentUser = req.adminUser && req.adminUser.username;
+        if (!currentUser || assigned_to !== currentUser) {
+          return res.status(403).json({ error: 'You may only assign appointments to yourself or unassign them.' });
+        }
+        newAssignedTo = currentUser;
+      }
+      prepare('UPDATE appointments SET assigned_to = ? WHERE id = ?').run(newAssignedTo, req.params.id);
     }
+
     const appointment = prepare('SELECT * FROM appointments WHERE id = ?').get(req.params.id);
-    if (!appointment) return res.status(404).json({ error: 'Appointment not found' });
+
+    // Notify customer by email when status actually changed and email is available
+    if (status !== undefined && status !== apptBefore.status && appointment.customer_email) {
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+      const conversationUrl = appointment.conversation_token
+        ? `${baseUrl}/conversation/${appointment.conversation_token}`
+        : null;
+      const newQuotedPrice = quoted_price !== undefined
+        ? (quoted_price === null ? null : parseFloat(quoted_price))
+        : appointment.quoted_price;
+      sendStatusUpdateNotification({
+        to: appointment.customer_email,
+        customerName: appointment.customer_name,
+        orderNumber: appointment.id,
+        newStatus: status,
+        quotedPrice: newQuotedPrice,
+        conversationUrl,
+        lang: appointment.customer_lang || 'sk',
+      }).catch(err => console.warn('⚠️  Could not send status update email:', err.message));
+    }
+
     res.json(appointment);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -93,7 +127,7 @@ router.post('/appointments/:id/messages', async (req, res) => {
     const msg = prepare('SELECT * FROM messages WHERE id = ?').get(result.lastInsertRowid);
 
     // Send email notification to customer (non-blocking)
-    if (appt.conversation_token) {
+    if (appt.conversation_token && appt.customer_email) {
       const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
       const conversationUrl = `${baseUrl}/conversation/${appt.conversation_token}`;
       sendMessageNotification({
@@ -102,6 +136,7 @@ router.post('/appointments/:id/messages', async (req, res) => {
         orderNumber: appt.id,
         adminMessage: content.trim(),
         conversationUrl,
+        lang: appt.customer_lang || 'sk',
       }).catch(err => console.warn('⚠️  Could not send message notification:', err.message));
     }
 

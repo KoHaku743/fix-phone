@@ -123,6 +123,7 @@ function initializeSchema() {
   try { db.run(`ALTER TABLE appointments ADD COLUMN quoted_price REAL`); } catch (_) {}
   try { db.run(`ALTER TABLE appointments ADD COLUMN conversation_token TEXT`); } catch (_) {}
   try { db.run(`ALTER TABLE appointments ADD COLUMN assigned_to TEXT`); } catch (_) {}
+  try { db.run(`ALTER TABLE appointments ADD COLUMN customer_lang TEXT DEFAULT 'sk'`); } catch (_) {}
 
   db.run(`
     CREATE TABLE IF NOT EXISTS messages (

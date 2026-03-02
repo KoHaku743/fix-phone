@@ -32,6 +32,13 @@ function clearCurrentUser() {
   try { localStorage.removeItem(USER_KEY); } catch (_) {}
 }
 
+function logout() {
+  clearToken();
+  clearCurrentUser();
+  loadLoginUsers();
+  showLoginOverlay();
+}
+
 /** Update topbar avatar and title based on logged-in user. */
 function updateUserDisplay() {
   const username = getCurrentUser();
@@ -369,25 +376,35 @@ async function loadAllData() {
 }
 
 // ─── Dashboard ────────────────────────────────────────────
+
+/**
+ * Returns true if the appointment counts as belonging to `user` for revenue.
+ * Appointments created before the assigned_to column existed (null) are
+ * attributed to the owner for backward compatibility.
+ */
+function isAssignedToUser(appt, user) {
+  return appt.assigned_to === user || (appt.assigned_to === null && user === 'owner');
+}
+
 function loadDashboard() {
   const total     = allAppointments.length;
   const pending   = allAppointments.filter(a => a.status === 'pending').length;
   const completed = allAppointments.filter(a => a.status === 'completed').length;
 
-  // Revenue filtered by current staff member
+  // Revenue filtered by current staff member (null assigned_to treated as 'owner' for backward compatibility)
   const currentUser = getCurrentUser();
   const myRevenue = allAppointments
-    .filter(a => a.status === 'completed' && a.assigned_to === currentUser)
+    .filter(a => a.status === 'completed' && isAssignedToUser(a, currentUser))
     .reduce((sum, a) => sum + (parseFloat(a.quoted_price) || 0), 0);
 
   // Today's orders
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayCount = allAppointments.filter(a => (a.created_at || '').slice(0, 10) === todayStr).length;
 
-  // My monthly revenue (current month, current user)
+  // My monthly revenue (current month, current user; null assigned_to treated as 'owner')
   const nowYM = new Date().toISOString().slice(0, 7);
   const myMonthlyRevenue = allAppointments
-    .filter(a => a.status === 'completed' && a.assigned_to === currentUser && (a.created_at || '').slice(0, 7) === nowYM)
+    .filter(a => a.status === 'completed' && isAssignedToUser(a, currentUser) && (a.created_at || '').slice(0, 7) === nowYM)
     .reduce((sum, a) => sum + (parseFloat(a.quoted_price) || 0), 0);
 
   setText('stat-total',            total);
@@ -981,10 +998,10 @@ function renderStaffTab() {
     }
   }
 
-  // My active orders: assigned to current user and status in [confirmed, diagnostics, waiting_parts]
+  // My active orders: assigned to current user OR unassigned (null) – displayed as a shared queue
   const activeStatuses = ['confirmed', 'diagnostics', 'waiting_parts'];
   const activeOrders = allAppointments.filter(a =>
-    activeStatuses.includes(a.status) && a.assigned_to === currentUser
+    activeStatuses.includes(a.status) && (a.assigned_to === currentUser || a.assigned_to === null)
   );
   const activeTbody = document.getElementById('staff-active-tbody');
   if (activeTbody) {
@@ -1209,6 +1226,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Back button on login step 2
   const backBtn = document.getElementById('login-back-btn');
   if (backBtn) backBtn.addEventListener('click', () => showLoginStep(1));
+
+  // Logout button
+  document.getElementById('logout-btn')?.addEventListener('click', logout);
 
   // Sidebar navigation
   document.querySelectorAll('.sidebar-item').forEach(item => {

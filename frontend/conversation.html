@@ -205,25 +205,25 @@
   <div class="conv-container">
     <div id="conv-loading" class="conv-loading">
       <div class="loading-spinner" style="margin: 0 auto 1rem;"></div>
-      Načítavam konverzáciu…
+      <span id="loading-text">Načítavam konverzáciu…</span>
     </div>
     <div id="conv-error" class="conv-error" style="display:none;"></div>
 
     <div id="conv-content" style="display:none;">
       <!-- Order info card -->
       <div class="conv-order-card">
-        <div class="conv-order-title">📦 Objednávka <span id="order-number" style="color:var(--teal);"></span></div>
+        <div class="conv-order-title">📦 <span id="order-number" style="color:var(--teal);"></span></div>
         <div class="conv-order-meta">
           <div class="conv-meta-item">
-            <div class="conv-meta-label">Zariadenie</div>
+            <div class="conv-meta-label" data-label="device">Zariadenie</div>
             <div class="conv-meta-value" id="order-device">—</div>
           </div>
           <div class="conv-meta-item">
-            <div class="conv-meta-label">Oprava</div>
+            <div class="conv-meta-label" data-label="repair">Oprava</div>
             <div class="conv-meta-value" id="order-service">—</div>
           </div>
           <div class="conv-meta-item">
-            <div class="conv-meta-label">Stav</div>
+            <div class="conv-meta-label" data-label="status">Stav</div>
             <div class="conv-meta-value"><span id="order-status-badge"></span></div>
           </div>
         </div>
@@ -252,6 +252,66 @@
     const token = location.pathname.split('/conversation/')[1];
     let appointmentId = null;
 
+    // ── i18n strings for customer dashboard ──────────────────
+    const CONV_I18N = {
+      en: {
+        loading:          'Loading conversation…',
+        not_found:        'Conversation not found.',
+        order_title:      '📦 Order',
+        device_label:     'Device',
+        repair_label:     'Repair',
+        status_label:     'Status',
+        msg_header:       '💬 Conversation with technician',
+        empty_msgs:       "No messages yet. Write to us!",
+        reply_ph:         'Type a message…',
+        send_btn:         'Send',
+        sending:          '⏳',
+        status_labels: {
+          pending:        '⏳ Pending',
+          confirmed:      '🔵 Confirmed',
+          diagnostics:    '🔬 Diagnostics',
+          waiting_parts:  '⏸️ Waiting for parts',
+          completed:      '✅ Completed',
+          cancelled:      '❌ Cancelled',
+        },
+        price_label:      '💰 Price quote from technician:',
+        msg_by_admin:     '🔧 Technician',
+        msg_by_you:       '👤 You',
+        err_send:         'Error',
+        unknown_repair:   'To be confirmed',
+      },
+      sk: {
+        loading:          'Načítavam konverzáciu…',
+        not_found:        'Konverzácia nebola nájdená.',
+        order_title:      '📦 Objednávka',
+        device_label:     'Zariadenie',
+        repair_label:     'Oprava',
+        status_label:     'Stav',
+        msg_header:       '💬 Konverzácia s technikom',
+        empty_msgs:       'Zatiaľ žiadne správy. Napíšte nám!',
+        reply_ph:         'Napíšte správu…',
+        send_btn:         'Odoslať',
+        sending:          '⏳',
+        status_labels: {
+          pending:        '⏳ Čaká na spracovanie',
+          confirmed:      '🔵 Potvrdená',
+          diagnostics:    '🔬 Diagnostika',
+          waiting_parts:  '⏸️ Čaká na diely',
+          completed:      '✅ Dokončená',
+          cancelled:      '❌ Zrušená',
+        },
+        price_label:      '💰 Cenová ponuka technika:',
+        msg_by_admin:     '🔧 Technik',
+        msg_by_you:       '👤 Vy',
+        err_send:         'Chyba',
+        unknown_repair:   'Neurčená',
+      },
+    };
+
+    // Lang is set after the API response; default to Slovak while loading
+    let LANG = 'sk';
+    function t(key) { return (CONV_I18N[LANG] || CONV_I18N.sk)[key]; }
+
     function escHtml(str) {
       if (typeof str !== 'string') return '';
       return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -260,33 +320,30 @@
     function formatTime(ts) {
       if (!ts) return '';
       const d = new Date(ts);
-      return d.toLocaleString('sk-SK', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      const locale = LANG === 'en' ? 'en-GB' : 'sk-SK';
+      return d.toLocaleString(locale, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
     }
 
-    const STATUS_LABELS = {
-      pending:   '⏳ Čaká na spracovanie',
-      confirmed: '🔵 Potvrdená',
-      completed: '✅ Dokončená',
-      cancelled: '❌ Zrušená',
-    };
     const STATUS_CLASSES = {
-      pending: 'conv-status-pending',
-      confirmed: 'conv-status-confirmed',
-      completed: 'conv-status-completed',
-      cancelled: 'conv-status-cancelled',
+      pending:        'conv-status-pending',
+      confirmed:      'conv-status-confirmed',
+      diagnostics:    'conv-status-pending',
+      waiting_parts:  'conv-status-pending',
+      completed:      'conv-status-completed',
+      cancelled:      'conv-status-cancelled',
     };
 
     function renderMessages(messages) {
       const list = document.getElementById('messages-list');
       if (!messages.length) {
-        list.innerHTML = '<div class="conv-empty-msgs">Zatiaľ žiadne správy. Napíšte nám!</div>';
+        list.innerHTML = `<div class="conv-empty-msgs">${t('empty_msgs')}</div>`;
         return;
       }
       list.innerHTML = messages.map(m => `
         <div class="conv-msg conv-msg-${m.sender}">
           <div class="conv-msg-bubble">${escHtml(m.content)}</div>
           <div class="conv-msg-meta">
-            ${m.sender === 'admin' ? '🔧 Technik' : '👤 Vy'} · ${formatTime(m.created_at)}
+            ${m.sender === 'admin' ? t('msg_by_admin') : t('msg_by_you')} · ${formatTime(m.created_at)}
           </div>
         </div>
       `).join('');
@@ -296,23 +353,37 @@
     async function loadConversation() {
       try {
         const res = await fetch(`/api/conversations/${token}`);
-        if (!res.ok) throw new Error('Konverzácia nebola nájdená.');
+        if (!res.ok) throw new Error(t('not_found'));
         const data = await res.json();
         const appt = data.appointment;
         appointmentId = appt.id;
 
-        document.getElementById('order-number').textContent = '#' + appt.id;
-        document.getElementById('order-device').textContent  = appt.device_model || '—';
-        document.getElementById('order-service').textContent = appt.service_name || 'Neurčená';
+        // Apply customer language
+        LANG = appt.customer_lang === 'en' ? 'en' : 'sk';
+        document.documentElement.lang = LANG;
 
+        // Update dynamic labels
+        document.getElementById('loading-text').textContent = '';
+        document.querySelector('.conv-messages-header').textContent = t('msg_header');
+        document.getElementById('reply-input').placeholder = t('reply_ph');
+        document.getElementById('reply-btn').textContent = t('send_btn');
+
+        document.getElementById('order-number').textContent = '#' + appt.id;
+        document.querySelector('[data-label="device"]').textContent = t('device_label');
+        document.querySelector('[data-label="repair"]').textContent = t('repair_label');
+        document.querySelector('[data-label="status"]').textContent = t('status_label');
+        document.getElementById('order-device').textContent  = appt.device_model || '—';
+        document.getElementById('order-service').textContent = appt.service_name || t('unknown_repair');
+
+        const statusLabels = (CONV_I18N[LANG] || CONV_I18N.sk).status_labels;
         const statusBadge = document.getElementById('order-status-badge');
-        statusBadge.textContent = STATUS_LABELS[appt.status] || appt.status;
+        statusBadge.textContent = statusLabels[appt.status] || appt.status;
         statusBadge.className = 'conv-status ' + (STATUS_CLASSES[appt.status] || 'conv-status-pending');
 
         if (appt.quoted_price != null) {
           const qp = document.getElementById('order-quoted-price');
           qp.style.display = 'block';
-          qp.textContent = `💰 Cenová ponuka technika: ${Number(appt.quoted_price).toFixed(2)} €`;
+          qp.textContent = `${t('price_label')} ${Number(appt.quoted_price).toFixed(2)} €`;
         }
 
         renderMessages(data.messages);
@@ -322,7 +393,7 @@
       } catch (err) {
         document.getElementById('conv-loading').style.display = 'none';
         document.getElementById('conv-error').style.display = 'block';
-        document.getElementById('conv-error').textContent = '❌ ' + (err.message || 'Nastala chyba.');
+        document.getElementById('conv-error').textContent = '❌ ' + (err.message || t('not_found'));
       }
     }
 
@@ -333,7 +404,7 @@
       if (!content) return;
 
       btn.disabled = true;
-      btn.textContent = '⏳';
+      btn.textContent = t('sending');
 
       try {
         const res = await fetch(`/api/conversations/${token}/messages`, {
@@ -341,7 +412,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ content }),
         });
-        if (!res.ok) throw new Error((await res.json()).error || 'Nastala chyba.');
+        if (!res.ok) throw new Error((await res.json()).error || t('not_found'));
         const msg = await res.json();
         input.value = '';
 
@@ -354,15 +425,15 @@
         div.className = 'conv-msg conv-msg-customer';
         div.innerHTML = `
           <div class="conv-msg-bubble">${escHtml(msg.content)}</div>
-          <div class="conv-msg-meta">👤 Vy · ${formatTime(msg.created_at)}</div>
+          <div class="conv-msg-meta">${t('msg_by_you')} · ${formatTime(msg.created_at)}</div>
         `;
         list.appendChild(div);
         list.scrollTop = list.scrollHeight;
       } catch (err) {
-        showToast('error', 'Chyba', err.message);
+        showToast('error', t('err_send'), err.message);
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Odoslať';
+        btn.textContent = t('send_btn');
       }
     }
 

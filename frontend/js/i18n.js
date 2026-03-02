@@ -61,8 +61,6 @@ const TRANSLATIONS = {
     'booking.phone-ph':         '+421 900 000 000',
     'booking.device-label':     'Device Model',
     'booking.device-ph':        'e.g. iPhone 14, Samsung S23',
-    'booking.service-label':    'Repair Type',
-    'booking.service-default':  'Select repair type',
     'booking.notes-label':      'Problem Description',
     'booking.notes-ph':         'Describe the issue or any other relevant details...',
     'booking.submit':           '✅ Submit Repair Request',
@@ -96,7 +94,7 @@ const TRANSLATIONS = {
     /* ── Toasts (main) ── */
     'toast.val-error':      'Validation Error',
     'toast.booked-title':   'Request Submitted!',
-    'toast.booked-msg':     "Thank you! We'll be in touch via {email} once we receive your device.",
+    'toast.booked-msg':     "Thank you! A confirmation has been sent to {email}.",
     'toast.book-fail':      'Submission Failed',
     'toast.something-wrong':'Something went wrong. Please try again.',
 
@@ -109,6 +107,7 @@ const TRANSLATIONS = {
     'admin.inventory':      'Inventory',
     'admin.settings':       'Settings',
     'admin.view-website':   '🏠 View Website',
+    'admin.logout':         '🚪 Sign Out',
 
     /* ── Admin topbar ── */
     'admin.subtitle':             'Manage your repair business',
@@ -385,8 +384,6 @@ const TRANSLATIONS = {
     'booking.phone-ph':         '+421 900 000 000',
     'booking.device-label':     'Model zariadenia',
     'booking.device-ph':        'napr. iPhone 14, Samsung S23',
-    'booking.service-label':    'Typ opravy',
-    'booking.service-default':  'Vyberte typ opravy',
     'booking.notes-label':      'Popis problému',
     'booking.notes-ph':         'Opíšte problém alebo iné relevantné detaily...',
     'booking.submit':           '✅ Odoslať žiadosť o opravu',
@@ -420,7 +417,7 @@ const TRANSLATIONS = {
     /* ── Toasts (main) ── */
     'toast.val-error':      'Chyba validácie',
     'toast.booked-title':   'Žiadosť odoslaná!',
-    'toast.booked-msg':     'Ďakujeme! Ozveme sa vám na {email} hneď ako obdržíme vaše zariadenie.',
+    'toast.booked-msg':     'Ďakujeme! Potvrdenie sme odoslali na {email}.',
     'toast.book-fail':      'Odoslanie zlyhalo',
     'toast.something-wrong':'Niečo sa pokazilo. Skúste to prosím znova.',
 
@@ -433,6 +430,7 @@ const TRANSLATIONS = {
     'admin.inventory':      'Sklad',
     'admin.settings':       'Nastavenia',
     'admin.view-website':   '🏠 Zobraziť web',
+    'admin.logout':         '🚪 Odhlásiť sa',
 
     /* ── Admin topbar ── */
     'admin.subtitle':             'Spravujte svoj opravárenský biznis',

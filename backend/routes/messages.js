@@ -13,7 +13,7 @@ router.get('/:token', (req, res) => {
     const { prepare } = getDb();
     const appt = prepare(`
       SELECT a.id, a.customer_name, a.customer_email, a.device_model, a.status, a.quoted_price,
-             a.notes, a.created_at, s.name as service_name
+             a.notes, a.created_at, a.customer_lang, s.name as service_name
       FROM appointments a
       LEFT JOIN services s ON a.service_id = s.id
       WHERE a.conversation_token = ?

@@ -20,7 +20,7 @@ function getSecret() {
   return s;
 }
 
-/** Create a signed token valid for 48 hours, carrying the staff username. */
+/** Create a signed token valid for 24 hours, carrying the staff username. */
 function createToken(username = 'owner') {
   const exp     = Date.now() + TOKEN_TTL_MS;
   const payload = Buffer.from(JSON.stringify({ exp, username })).toString('base64url');

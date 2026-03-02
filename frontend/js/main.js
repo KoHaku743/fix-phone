@@ -226,6 +226,7 @@ async function handleBooking(e) {
     device_model:     form.device_model.value.trim(),
     service_id:       form.service_id.value || null,
     notes:            form.notes.value.trim() || null,
+    customer_lang:    (window.currentLang ? window.currentLang() : null) || localStorage.getItem('fixphone-lang') || 'sk',
   };
 
   const errors = validateForm(data);

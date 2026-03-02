@@ -195,6 +195,14 @@ body {
 
 .sidebar-footer-link:hover { color: var(--teal); background: rgba(0,212,255,0.05); }
 
+button.sidebar-footer-link {
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+}
+
 /* ===== Main Content ===== */
 .admin-main {
   margin-left: var(--sidebar-width);
