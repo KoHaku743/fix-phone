@@ -31,11 +31,11 @@ router.get('/appointments', (req, res) => {
   }
 });
 
-// PUT /api/admin/appointments/:id  – update status and/or quoted_price
+// PUT /api/admin/appointments/:id  – update status and/or quoted_price and/or assigned_to
 router.put('/appointments/:id', (req, res) => {
   try {
     const { prepare } = getDb();
-    const { status, quoted_price } = req.body;
+    const { status, quoted_price, assigned_to } = req.body;
     const validStatuses = ['pending', 'confirmed', 'diagnostics', 'waiting_parts', 'completed', 'cancelled'];
     if (status !== undefined && !validStatuses.includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
@@ -46,6 +46,9 @@ router.put('/appointments/:id', (req, res) => {
     if (quoted_price !== undefined) {
       const price = quoted_price === null ? null : parseFloat(quoted_price);
       prepare('UPDATE appointments SET quoted_price = ? WHERE id = ?').run(price, req.params.id);
+    }
+    if (assigned_to !== undefined) {
+      prepare('UPDATE appointments SET assigned_to = ? WHERE id = ?').run(assigned_to || null, req.params.id);
     }
     const appointment = prepare('SELECT * FROM appointments WHERE id = ?').get(req.params.id);
     if (!appointment) return res.status(404).json({ error: 'Appointment not found' });

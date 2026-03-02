@@ -20,15 +20,19 @@ function getSecret() {
   return s;
 }
 
-/** Create a signed token valid for 24 hours. */
-function createToken() {
+/** Create a signed token valid for 48 hours, carrying the staff username. */
+function createToken(username = 'owner') {
   const exp     = Date.now() + TOKEN_TTL_MS;
-  const payload = Buffer.from(JSON.stringify({ exp })).toString('base64url');
+  const payload = Buffer.from(JSON.stringify({ exp, username })).toString('base64url');
   const sig     = crypto.createHmac('sha256', getSecret()).update(payload).digest('base64url');
   return `${payload}.${sig}`;
 }
 
-/** Return true when the token is valid and not expired. */
+/**
+ * Verify a token.
+ * Returns { valid: true, username } when the token is valid and not expired.
+ * Returns false otherwise.
+ */
 function verifyToken(token) {
   if (typeof token !== 'string') return false;
   const dot = token.lastIndexOf('.');
@@ -42,8 +46,9 @@ function verifyToken(token) {
     // Constant-time comparison to prevent timing attacks
     if (sig.length !== expected.length) return false;
     if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return false;
-    const { exp } = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
-    return typeof exp === 'number' && Date.now() < exp;
+    const { exp, username } = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+    if (typeof exp !== 'number' || Date.now() >= exp) return false;
+    return { valid: true, username: username || 'owner' };
   } catch {
     return false;
   }
@@ -53,9 +58,11 @@ function verifyToken(token) {
 function requireAuth(req, res, next) {
   const authHeader = req.headers['authorization'] || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (!verifyToken(token)) {
+  const result = verifyToken(token);
+  if (!result) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+  req.adminUser = { username: result.username };
   next();
 }
 

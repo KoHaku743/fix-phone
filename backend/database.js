@@ -122,6 +122,7 @@ function initializeSchema() {
   // Migrate: add new appointment columns if upgrading from old schema
   try { db.run(`ALTER TABLE appointments ADD COLUMN quoted_price REAL`); } catch (_) {}
   try { db.run(`ALTER TABLE appointments ADD COLUMN conversation_token TEXT`); } catch (_) {}
+  try { db.run(`ALTER TABLE appointments ADD COLUMN assigned_to TEXT`); } catch (_) {}
 
   db.run(`
     CREATE TABLE IF NOT EXISTS messages (

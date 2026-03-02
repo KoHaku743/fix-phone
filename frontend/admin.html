@@ -16,19 +16,40 @@
   <div id="login-overlay" class="login-overlay" style="display:none;">
     <div class="login-card">
       <div class="login-logo">⚡ <span style="color:var(--teal);">SSS</span>tylish Admin</div>
-      <h2 class="login-title" data-i18n="login.title">Sign In</h2>
-      <p class="login-subtitle" data-i18n="login.subtitle">Enter your admin password to continue.</p>
-      <form id="login-form" autocomplete="off">
-        <div class="form-group" style="margin-bottom:1rem;">
-          <label class="form-label" for="admin-password" data-i18n="login.password-label">Password</label>
-          <input class="form-input" type="password" id="admin-password" data-i18n-placeholder="login.password-ph" placeholder="Admin password" autocomplete="current-password" required />
+
+      <!-- Step 1: Select staff account -->
+      <div id="login-step1">
+        <h2 class="login-title" data-i18n="login.select-title">Who are you?</h2>
+        <p class="login-subtitle" data-i18n="login.select-sub">Select your account to continue.</p>
+        <div id="login-user-buttons" style="display:flex;flex-direction:column;gap:0.65rem;margin-top:1.1rem;">
+          <!-- Populated dynamically by admin.js -->
+          <div data-i18n="admin.loading" style="text-align:center;color:var(--text-muted);font-size:0.85rem;padding:1rem 0;">Loading…</div>
         </div>
-        <div id="login-error" style="display:none;color:var(--danger);font-size:0.85rem;margin-bottom:0.75rem;"></div>
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" id="login-btn">
-          <span id="login-btn-text" data-i18n="login.submit">Sign In →</span>
-          <span id="login-btn-loading" style="display:none;" data-i18n="login.submitting">Signing in…</span>
-        </button>
-      </form>
+      </div>
+
+      <!-- Step 2: Enter password for the selected user -->
+      <div id="login-step2" style="display:none;">
+        <button id="login-back-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:0.82rem;margin-bottom:0.9rem;padding:0;display:flex;align-items:center;gap:0.3rem;">← <span data-i18n="login.back">Back</span></button>
+        <div style="display:flex;align-items:center;gap:0.65rem;margin-bottom:1rem;">
+          <div id="login-user-avatar-badge" style="width:2.1rem;height:2.1rem;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#7c3aed);display:flex;align-items:center;justify-content:center;font-weight:800;color:#0a0e1a;font-size:1rem;flex-shrink:0;">O</div>
+          <div>
+            <div id="login-user-display" style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">Owner</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);" data-i18n="login.enter-password">Enter your password</div>
+          </div>
+        </div>
+        <form id="login-form" autocomplete="off">
+          <input type="hidden" id="login-username" value="owner" />
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label class="form-label" for="admin-password" data-i18n="login.password-label">Password</label>
+            <input class="form-input" type="password" id="admin-password" data-i18n-placeholder="login.password-ph" placeholder="Password" autocomplete="current-password" required />
+          </div>
+          <div id="login-error" style="display:none;color:var(--danger);font-size:0.85rem;margin-bottom:0.75rem;"></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" id="login-btn">
+            <span id="login-btn-text" data-i18n="login.submit">Sign In →</span>
+            <span id="login-btn-loading" style="display:none;" data-i18n="login.submitting">Signing in…</span>
+          </button>
+        </form>
+      </div>
     </div>
   </div>
   <aside class="sidebar" id="sidebar">
@@ -90,7 +111,7 @@
       </div>
       <div class="topbar-right">
         <button class="lang-toggle" id="lang-toggle" aria-label="Switch language">EN</button>
-        <div class="topbar-avatar">A</div>
+        <div class="topbar-avatar" id="topbar-avatar" title="Logged in user">A</div>
       </div>
     </div>
 
@@ -121,7 +142,7 @@
           <div class="stat-card stat-card-4">
             <div class="stat-icon stat-icon-4">💰</div>
             <div class="stat-value" id="stat-revenue">—</div>
-            <div class="stat-label" data-i18n="admin.revenue">Revenue</div>
+            <div class="stat-label" data-i18n="admin.my-revenue">My Revenue</div>
             <div class="stat-change" style="color: var(--accent-light);" data-i18n="admin.completed-orders">Completed orders</div>
           </div>
           <div class="stat-card stat-card-1">
@@ -133,7 +154,7 @@
           <div class="stat-card stat-card-4">
             <div class="stat-icon stat-icon-4">📆</div>
             <div class="stat-value" id="stat-monthly-revenue">—</div>
-            <div class="stat-label" data-i18n="admin.monthly-revenue">Monthly Revenue</div>
+            <div class="stat-label" data-i18n="admin.my-monthly-revenue">My Monthly Revenue</div>
             <div class="stat-change" style="color: var(--accent-light);" data-i18n="admin.this-month">This month</div>
           </div>
         </div>

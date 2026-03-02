@@ -124,6 +124,11 @@ async function sendBookingConfirmation({ to, customerName, deviceModel, serviceN
   const cfg = getSmtpSettings();
   if (!cfg) return;
 
+  const shopAddress = process.env.SHOP_ADDRESS || '';
+  const mapsLink = shopAddress
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shopAddress)}`
+    : null;
+
   const subject = `Potvrdenie rezervácie #${orderNumber} – SSStylish Repair`;
   const preheader = `Vaša oprava zariadenia ${deviceModel} bola prijatá.`;
   const bodyHtml = `
@@ -150,7 +155,19 @@ async function sendBookingConfirmation({ to, customerName, deviceModel, serviceN
     </table>
 
     <p>Naši technici si vašu žiadosť preštudujú a <strong style="color:#00d4ff;">stanovia cenu opravy</strong>. O všetkom vás budeme informovať cez konverzáciu nižšie.</p>
-    <p>Zariadenie nám prosím zašlite na adresu, ktorú obdržíte v ďalšej správe.</p>
+    ${mapsLink ? `
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;">
+      <tr>
+        <td style="background:#0f1629;border-left:3px solid #00d4ff;border-radius:0 8px 8px 0;padding:16px 20px;">
+          <p style="margin:0 0 8px;font-size:13px;color:#8892a4;text-transform:uppercase;letter-spacing:0.5px;">📍 Adresa servisu</p>
+          <p style="margin:0 0 10px;font-size:14px;color:#e8eaf0;font-weight:600;">${escHtml(shopAddress)}</p>
+          <a href="${mapsLink}" style="display:inline-block;background:linear-gradient(135deg,#00d4ff,#7c3aed);color:#0a0e1a;font-size:13px;font-weight:700;text-decoration:none;padding:9px 20px;border-radius:8px;">
+            🗺️ Otvoriť v Google Maps
+          </a>
+        </td>
+      </tr>
+    </table>
+    ` : '<p>Zariadenie nám prosím zašlite na adresu, ktorú obdržíte v ďalšej správe.</p>'}
   `;
 
   const transport = createTransport(cfg);
