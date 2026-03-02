@@ -9,26 +9,31 @@ const TRANSLATIONS = {
     'nav.how-it-works':'How It Works',
     'nav.book-now':    'Book Now',
 
+    /* ── Services prices ── */
+    'services.price-from':       'From',
+    'services.price-up-to':      'Up to',
+    'services.price-on-request': 'Price on request',
+
     /* ── Hero ── */
-    'hero.badge':            '✅ Same-Day Service Available',
+    'hero.badge':            '⚡ SSS-rank quality service',
     'hero.title1':           'Expert Phone Repairs',
-    'hero.title2':           'You Can Trust',
-    'hero.subtitle':         'From cracked screens to dead batteries, our certified technicians fix all major phone models quickly using genuine parts — with a satisfaction guarantee.',
-    'hero.cta-book':         '📅 Book a Repair',
+    'hero.title2':           'SSS-rank Style',
+    'hero.subtitle':         "We return SSS-rank charging to your phone. Send your device by post – fast, convenient, with genuine parts.",
+    'hero.cta-book':         '📦 Send for Repair',
     'hero.cta-services':     '🔍 View Services',
-    'hero.stat1-label':      'Devices Fixed',
-    'hero.stat2-label':      'Customer Rating',
-    'hero.stat3-label':      'Avg Repair Time',
+    'hero.stat1-label':      'SSS-rank quality',
+    'hero.stat2-label':      'Certified technicians',
+    'hero.stat3-label':      'Fast turnaround',
     'hero.phone-warranty':   '🛡️ 90-Day Warranty',
     'hero.phone-title':      'Repair in Progress',
-    'hero.phone-subtitle':   'Running diagnostics...',
-    'hero.phone-ready':      '⚡ Ready in 60 min',
+    'hero.phone-subtitle':   'SSS-rank service...',
+    'hero.phone-ready':      '📦 Ship by post',
 
     /* ── Services section ── */
     'services.tag':       'Our Services',
     'services.title':     'Repairs for Every Problem',
-    'services.subtitle':  'We handle all major repairs with genuine parts and expert care. Browse our full range of services below.',
-    'services.in-stock':  '✓ In Stock',
+    'services.subtitle':  'We handle all major repairs with genuine parts. Prices are estimates – exact price is set after receiving your device.',
+    'services.in-stock':  '✓ Available',
     'services.out-stock': '✗ Unavailable',
     'services.empty':     'No services available yet.',
     'services.error':     'Failed to load services. Please try again.',
@@ -36,46 +41,44 @@ const TRANSLATIONS = {
     /* ── How It Works ── */
     'how.tag':         'Process',
     'how.title':       'How It Works',
-    'how.subtitle':    "Getting your phone fixed is simple. Three easy steps and you're back up and running.",
-    'how.step1-title': 'Choose a Service',
-    'how.step1-desc':  "Browse our repair options and select the service that matches your device's issue. We support all major brands and models.",
-    'how.step2-title': 'Book Appointment',
-    'how.step2-desc':  'Pick a convenient date and time. Fill in your contact details and device info — takes less than 2 minutes.',
-    'how.step3-title': 'Get It Fixed',
-    'how.step3-desc':  'Bring your device to our shop. Our certified technicians will have it repaired and ready to go — often within the hour.',
+    'how.subtitle':    "Getting your phone fixed is simple. Fill in the form and ship your device – we handle the rest.",
+    'how.step1-title': 'Choose a Repair',
+    'how.step1-desc':  "Browse our repair options and select the service that matches your device's issue. Exact price is set after we receive your phone.",
+    'how.step2-title': 'Ship Your Phone',
+    'how.step2-desc':  'Fill in the form and ship your device via Packeta or other courier. You will receive the shipping address by e-mail.',
+    'how.step3-title': 'Get It Back Fixed',
+    'how.step3-desc':  "After the repair, we'll ship your device back to you. Track everything via the conversation link sent to your e-mail.",
 
     /* ── Booking form ── */
-    'booking.tag':              'Book Now',
-    'booking.title':            'Schedule a Repair',
-    'booking.subtitle':         "Fill in the form below and we'll confirm your appointment within the hour.",
+    'booking.tag':              'Send for Repair',
+    'booking.title':            'Request a Repair',
+    'booking.subtitle':         "Fill in the form below. After receiving your device, we'll send you the exact price and instructions.",
     'booking.name-label':       'Full Name',
     'booking.name-ph':          'John Smith',
     'booking.email-label':      'Email Address',
     'booking.email-ph':         'john@example.com',
     'booking.phone-label':      'Phone Number',
-    'booking.phone-ph':         '+1 (555) 000-0000',
+    'booking.phone-ph':         '+421 900 000 000',
     'booking.device-label':     'Device Model',
     'booking.device-ph':        'e.g. iPhone 14, Samsung S23',
-    'booking.service-label':    'Service',
-    'booking.service-default':  'Select a service (optional)',
-    'booking.date-label':       'Preferred Date',
-    'booking.notes-label':      'Additional Notes',
+    'booking.service-label':    'Repair Type',
+    'booking.service-default':  'Select repair type',
+    'booking.notes-label':      'Problem Description',
     'booking.notes-ph':         'Describe the issue or any other relevant details...',
-    'booking.submit':           '📅 Book My Appointment',
-    'booking.submitting':       '⏳ Booking...',
+    'booking.submit':           '📦 Submit Repair Request',
+    'booking.submitting':       '⏳ Submitting...',
 
     /* ── Footer ── */
-    'footer.desc':            'Professional phone repair services with a satisfaction guarantee. We fix all major brands with genuine parts and expert care.',
+    'footer.desc':            'We return SSS-rank charging to your phone. Professional repairs with genuine parts and satisfaction guarantee.',
     'footer.quick-links':     'Quick Links',
     'footer.svc-heading':     'Services',
-    'footer.book-appt':       'Book Appointment',
+    'footer.book-appt':       'Send for Repair',
     'footer.admin':           'Admin Panel',
     'footer.screen':          'Screen Repair',
     'footer.battery':         'Battery Replacement',
     'footer.water':           'Water Damage',
     'footer.software':        'Software Issues',
     'footer.rights':          'All rights reserved.',
-    'footer.hours':           'Hours: Mon–Sat 9am–7pm · Sun 10am–5pm',
 
     /* ── Form validation ── */
     'val.name-required':    'Full name is required.',
@@ -83,13 +86,13 @@ const TRANSLATIONS = {
     'val.email-invalid':    'Please enter a valid email address.',
     'val.phone-required':   'Phone number is required.',
     'val.device-required':  'Device model is required.',
-    'val.date-required':    'Appointment date is required.',
+    'val.service-required': 'Please select a repair type.',
 
     /* ── Toasts (main) ── */
     'toast.val-error':      'Validation Error',
-    'toast.booked-title':   'Appointment Booked!',
-    'toast.booked-msg':     "We'll see you on {date}. Confirmation sent to {email}.",
-    'toast.book-fail':      'Booking Failed',
+    'toast.booked-title':   'Request Submitted!',
+    'toast.booked-msg':     "Thank you! We'll be in touch via {email} once we receive your device.",
+    'toast.book-fail':      'Submission Failed',
     'toast.something-wrong':'Something went wrong. Please try again.',
 
     /* ── Admin sidebar ── */
@@ -98,6 +101,7 @@ const TRANSLATIONS = {
     'admin.orders':         'Orders',
     'admin.services':       'Services',
     'admin.repair-types':   'Repair Types',
+    'admin.settings':       'Settings',
     'admin.view-website':   '🏠 View Website',
 
     /* ── Admin topbar ── */
@@ -106,6 +110,7 @@ const TRANSLATIONS = {
     'admin.tab.orders':         'All Appointments',
     'admin.tab.services':       'Services',
     'admin.tab.repair-types':   'Repair Types',
+    'admin.tab.settings':       'Settings',
 
     /* ── Admin stats ── */
     'admin.total-orders':   'Total Orders',
@@ -141,12 +146,20 @@ const TRANSLATIONS = {
     'admin.filter.cancelled': 'Cancelled',
 
     /* ── Admin services tab ── */
-    'admin.add-service':    '+ Add Service',
-    'admin.col.name':       'Name',
-    'admin.col.repair-type':'Repair Type',
-    'admin.col.price':      'Price',
-    'admin.col.duration':   'Duration',
-    'admin.col.stock':      'Stock',
+    'admin.add-service':     '+ Add Service',
+    'admin.col.name':        'Name',
+    'admin.col.repair-type': 'Repair Type',
+    'admin.col.price':       'Price',
+    'admin.col.price-range': 'Price Range',
+    'admin.col.duration':    'Duration',
+    'admin.col.stock':       'Stock',
+
+    /* ── Admin settings ── */
+    'admin.settings':          'Settings',
+    'admin.settings-subtitle': 'SMTP e-mail configuration',
+    'admin.settings-desc':     'Configure your Gmail SMTP to send booking confirmations and message notifications to customers.',
+    'admin.save-settings':     'Save Settings',
+    'admin.test-smtp':         'Send Test E-mail',
 
     /* ── Admin repair-types tab ── */
     'admin.add-repair-type': '+ Add Repair Type',
@@ -154,9 +167,15 @@ const TRANSLATIONS = {
     'admin.col.created':     'Created',
 
     /* ── Admin modals ── */
+    'modal.update-order':     'Manage Order',
     'modal.update-status':    'Update Appointment Status',
     'modal.customer':         'Customer',
     'modal.status':           'Status',
+    'modal.quoted-price':     'Quoted Price (€)',
+    'modal.messages':         'Messages',
+    'modal.send-msg':         'Send',
+    'modal.msg-email-note':   'Customer will receive an e-mail notification when you send a message.',
+    'modal.open-conv':        'Open customer conversation page',
     'modal.cancel':           'Cancel',
     'modal.save-changes':     'Save Changes',
     'modal.add-service':      'Add Service',
@@ -165,8 +184,8 @@ const TRANSLATIONS = {
     'modal.repair-type':      'Repair Type',
     'modal.select-repair-type':'— Select repair type —',
     'modal.description':      'Description',
-    'modal.price':            'Price ($) *',
-    'modal.duration':         'Duration (minutes)',
+    'modal.price-from':       'Price From (€)',
+    'modal.price-to':         'Price To (€)',
     'modal.stock-status':     'Stock Status',
     'modal.in-stock':         '✅ In Stock',
     'modal.out-of-stock':     '❌ Out of Stock',
@@ -175,6 +194,12 @@ const TRANSLATIONS = {
     'modal.edit-repair-type': 'Edit Repair Type',
     'modal.name':             'Name *',
     'modal.save':             'Save',
+    'modal.smtp-host':        'SMTP Host',
+    'modal.smtp-port':        'SMTP Port',
+    'modal.smtp-secure':      'Secure (SSL/TLS)',
+    'modal.smtp-user':        'Gmail address',
+    'modal.smtp-pass':        'App Password',
+    'modal.smtp-from':        'From name / address',
 
     /* ── Admin status badges ── */
     'status.pending':   '⏳ Pending',
@@ -220,6 +245,11 @@ const TRANSLATIONS = {
     'admin.toast.type-updated':     'Type Updated',
     'admin.toast.type-created':     'Type Created',
     'admin.toast.type-deleted':     'Type Deleted',
+    'admin.toast.msg-sent':         'Message sent',
+    'admin.toast.settings-saved':   'Settings Saved',
+    'admin.toast.smtp-ok':          'SMTP Test OK',
+    'admin.toast.smtp-ok-msg':      'Test e-mail sent successfully.',
+    'admin.toast.smtp-fail':        'SMTP Test Failed',
 
     /* ── Admin confirm dialogs ── */
     'confirm.delete-service':    'Delete service "{name}"? This action cannot be undone.',
@@ -265,27 +295,30 @@ const TRANSLATIONS = {
     /* ── Services section ── */
     'services.tag':       'Naše služby',
     'services.title':     'Opravy pre každý problém',
-    'services.subtitle':  'Zabezpečujeme všetky hlavné opravy s originálnymi dielmi a odbornou starostlivosťou. Prezrite si celú ponuku služieb.',
-    'services.in-stock':  '✓ Skladom',
+    'services.subtitle':  'Zabezpečujeme všetky hlavné opravy s originálnymi dielmi. Ceny sú orientačné – presnú cenu stanovíme po obdržaní vášho zariadenia.',
+    'services.in-stock':  '✓ Dostupné',
     'services.out-stock': '✗ Nedostupné',
     'services.empty':     'Zatiaľ nie sú k dispozícii žiadne služby.',
     'services.error':     'Nepodarilo sa načítať služby. Skúste to prosím znova.',
+    'services.price-from':       'Od',
+    'services.price-up-to':      'Do',
+    'services.price-on-request': 'Cena po konzultácii',
 
     /* ── How It Works ── */
     'how.tag':         'Postup',
     'how.title':       'Ako to funguje',
-    'how.subtitle':    'Oprava vášho telefónu je jednoduchá. Tri jednoduché kroky a ste späť v prevádzke.',
-    'how.step1-title': 'Vyberte si službu',
-    'how.step1-desc':  'Prezerajte naše možnosti opráv a vyberte si službu, ktorá zodpovedá problému vášho zariadenia. Podporujeme všetky hlavné značky a modely.',
-    'how.step2-title': 'Rezervujte termín',
-    'how.step2-desc':  'Vyberte si vhodný dátum a čas. Vyplňte kontaktné údaje a informácie o zariadení – trvá to menej ako 2 minúty.',
-    'how.step3-title': 'Dajte to opraviť',
-    'how.step3-desc':  'Prineste zariadenie do nášho servisu. Naši certifikovaní technici ho opravia a dostanete ho späť – často do hodiny.',
+    'how.subtitle':    'Oprava telefónu je jednoduchá. Vyplňte formulár a pošlite nám zariadenie – zvyšok zariadíme my.',
+    'how.step1-title': 'Vyberte opravu',
+    'how.step1-desc':  'Prezerajte naše opravy a vyberte tú, ktorá zodpovedá problému vášho zariadenia. Cenu stanovíme po obdržaní telefónu.',
+    'how.step2-title': 'Pošlite telefón',
+    'how.step2-desc':  'Vyplňte formulár a pošlite nám zariadenie cez Packeta alebo iného dopravcu. Adresu dostanete e-mailom.',
+    'how.step3-title': 'Dostanete späť opraveného',
+    'how.step3-desc':  'Po oprave vám zariadenie pošleme späť. Celý priebeh sledujete cez konverzáciu na odkaze v e-maili.',
 
     /* ── Booking form ── */
-    'booking.tag':              'Rezervovať',
-    'booking.title':            'Naplánovať opravu',
-    'booking.subtitle':         'Vyplňte formulár nižšie a potvrdíme vašu rezerváciu do hodiny.',
+    'booking.tag':              'Odoslať na opravu',
+    'booking.title':            'Požiadať o opravu',
+    'booking.subtitle':         'Vyplňte formulár nižšie. Po obdržaní zariadenia vám pošleme presnú cenu a ďalšie pokyny e-mailom.',
     'booking.name-label':       'Celé meno',
     'booking.name-ph':          'Ján Novák',
     'booking.email-label':      'E-mailová adresa',
@@ -294,26 +327,24 @@ const TRANSLATIONS = {
     'booking.phone-ph':         '+421 900 000 000',
     'booking.device-label':     'Model zariadenia',
     'booking.device-ph':        'napr. iPhone 14, Samsung S23',
-    'booking.service-label':    'Služba',
-    'booking.service-default':  'Vyberte službu (nepovinné)',
-    'booking.date-label':       'Preferovaný dátum',
-    'booking.notes-label':      'Ďalšie poznámky',
+    'booking.service-label':    'Typ opravy',
+    'booking.service-default':  'Vyberte typ opravy',
+    'booking.notes-label':      'Popis problému',
     'booking.notes-ph':         'Opíšte problém alebo iné relevantné detaily...',
-    'booking.submit':           '📅 Rezervovať termín',
-    'booking.submitting':       '⏳ Rezervujem...',
+    'booking.submit':           '📦 Odoslať žiadosť o opravu',
+    'booking.submitting':       '⏳ Odosielam...',
 
     /* ── Footer ── */
-    'footer.desc':            'Profesionálne opravy telefónov so zárukou spokojnosti. Opravujeme všetky hlavné značky s originálnymi dielmi a odbornou starostlivosťou.',
+    'footer.desc':            'Vrátime vášmu mobilu štýlové SSS-rank nabíjanie. Opravujeme všetky hlavné značky s originálnymi dielmi a zárukou spokojnosti.',
     'footer.quick-links':     'Rýchle odkazy',
     'footer.svc-heading':     'Služby',
-    'footer.book-appt':       'Rezervovať termín',
+    'footer.book-appt':       'Odoslať na opravu',
     'footer.admin':           'Administrácia',
     'footer.screen':          'Oprava obrazovky',
     'footer.battery':         'Výmena batérie',
     'footer.water':           'Poškodenie vodou',
     'footer.software':        'Softvérové problémy',
     'footer.rights':          'Všetky práva vyhradené.',
-    'footer.hours':           'Otváracie hodiny: Po–So 9:00–19:00 · Ne 10:00–17:00',
 
     /* ── Form validation ── */
     'val.name-required':    'Celé meno je povinné.',
@@ -321,13 +352,13 @@ const TRANSLATIONS = {
     'val.email-invalid':    'Zadajte platnú e-mailovú adresu.',
     'val.phone-required':   'Telefónne číslo je povinné.',
     'val.device-required':  'Model zariadenia je povinný.',
-    'val.date-required':    'Dátum termínu je povinný.',
+    'val.service-required': 'Vyberte prosím typ opravy.',
 
     /* ── Toasts (main) ── */
     'toast.val-error':      'Chyba validácie',
-    'toast.booked-title':   'Termín rezervovaný!',
-    'toast.booked-msg':     'Uvidíme sa {date}. Potvrdenie bolo odoslané na {email}.',
-    'toast.book-fail':      'Rezervácia zlyhala',
+    'toast.booked-title':   'Žiadosť odoslaná!',
+    'toast.booked-msg':     'Ďakujeme! Ozveme sa vám na {email} hneď ako obdržíme vaše zariadenie.',
+    'toast.book-fail':      'Odoslanie zlyhalo',
     'toast.something-wrong':'Niečo sa pokazilo. Skúste to prosím znova.',
 
     /* ── Admin sidebar ── */
@@ -336,6 +367,7 @@ const TRANSLATIONS = {
     'admin.orders':         'Objednávky',
     'admin.services':       'Služby',
     'admin.repair-types':   'Typy opráv',
+    'admin.settings':       'Nastavenia',
     'admin.view-website':   '🏠 Zobraziť web',
 
     /* ── Admin topbar ── */
@@ -344,6 +376,7 @@ const TRANSLATIONS = {
     'admin.tab.orders':         'Všetky rezervácie',
     'admin.tab.services':       'Služby',
     'admin.tab.repair-types':   'Typy opráv',
+    'admin.tab.settings':       'Nastavenia',
 
     /* ── Admin stats ── */
     'admin.total-orders':    'Celkové objednávky',
@@ -379,12 +412,20 @@ const TRANSLATIONS = {
     'admin.filter.cancelled': 'Zrušené',
 
     /* ── Admin services tab ── */
-    'admin.add-service':    '+ Pridať službu',
-    'admin.col.name':       'Názov',
-    'admin.col.repair-type':'Typ opravy',
-    'admin.col.price':      'Cena',
-    'admin.col.duration':   'Trvanie',
-    'admin.col.stock':      'Sklad',
+    'admin.add-service':     '+ Pridať službu',
+    'admin.col.name':        'Názov',
+    'admin.col.repair-type': 'Typ opravy',
+    'admin.col.price':       'Cena',
+    'admin.col.price-range': 'Cenové rozpätie',
+    'admin.col.duration':    'Trvanie',
+    'admin.col.stock':       'Dostupnosť',
+
+    /* ── Admin settings ── */
+    'admin.settings':          'Nastavenia',
+    'admin.settings-subtitle': 'Konfigurácia SMTP e-mailu',
+    'admin.settings-desc':     'Nastavte Gmail SMTP na posielanie potvrdení a upozornení zákazníkom.',
+    'admin.save-settings':     'Uložiť nastavenia',
+    'admin.test-smtp':         'Odoslať testovací e-mail',
 
     /* ── Admin repair-types tab ── */
     'admin.add-repair-type': '+ Pridať typ opravy',
@@ -392,9 +433,15 @@ const TRANSLATIONS = {
     'admin.col.created':     'Vytvorené',
 
     /* ── Admin modals ── */
+    'modal.update-order':     'Spravovať objednávku',
     'modal.update-status':    'Aktualizovať stav rezervácie',
     'modal.customer':         'Zákazník',
     'modal.status':           'Stav',
+    'modal.quoted-price':     'Cenová ponuka (€)',
+    'modal.messages':         'Správy',
+    'modal.send-msg':         'Odoslať',
+    'modal.msg-email-note':   'Zákazník dostane e-mail keď mu napíšete správu.',
+    'modal.open-conv':        'Otvoriť konverzačnú stránku zákazníka',
     'modal.cancel':           'Zrušiť',
     'modal.save-changes':     'Uložiť zmeny',
     'modal.add-service':      'Pridať službu',
@@ -403,16 +450,22 @@ const TRANSLATIONS = {
     'modal.repair-type':      'Typ opravy',
     'modal.select-repair-type':'— Vyberte typ opravy —',
     'modal.description':      'Popis',
-    'modal.price':            'Cena (€) *',
-    'modal.duration':         'Trvanie (minúty)',
-    'modal.stock-status':     'Stav skladu',
-    'modal.in-stock':         '✅ Skladom',
-    'modal.out-of-stock':     '❌ Vypredané',
+    'modal.price-from':       'Cena od (€)',
+    'modal.price-to':         'Cena do (€)',
+    'modal.stock-status':     'Stav dostupnosti',
+    'modal.in-stock':         '✅ Dostupné',
+    'modal.out-of-stock':     '❌ Nedostupné',
     'modal.save-service':     'Uložiť službu',
     'modal.add-repair-type':  'Pridať typ opravy',
     'modal.edit-repair-type': 'Upraviť typ opravy',
     'modal.name':             'Názov *',
     'modal.save':             'Uložiť',
+    'modal.smtp-host':        'SMTP Host',
+    'modal.smtp-port':        'SMTP Port',
+    'modal.smtp-secure':      'Zabezpečené (SSL/TLS)',
+    'modal.smtp-user':        'Gmail adresa',
+    'modal.smtp-pass':        'App heslo',
+    'modal.smtp-from':        'Meno / adresa odosielateľa',
 
     /* ── Admin status badges ── */
     'status.pending':   '⏳ Čakajúce',
@@ -421,8 +474,8 @@ const TRANSLATIONS = {
     'status.cancelled': '❌ Zrušené',
 
     /* ── Admin stock ── */
-    'stock.in':  '✓ Skladom',
-    'stock.out': '✗ Vypredané',
+    'stock.in':  '✓ Dostupné',
+    'stock.out': '✗ Nedostupné',
 
     /* ── Admin empty states ── */
     'empty.no-appts':        'Zatiaľ žiadne rezervácie',
@@ -458,6 +511,11 @@ const TRANSLATIONS = {
     'admin.toast.type-updated':     'Typ aktualizovaný',
     'admin.toast.type-created':     'Typ vytvorený',
     'admin.toast.type-deleted':     'Typ odstránený',
+    'admin.toast.msg-sent':         'Správa odoslaná',
+    'admin.toast.settings-saved':   'Nastavenia uložené',
+    'admin.toast.smtp-ok':          'SMTP test OK',
+    'admin.toast.smtp-ok-msg':      'Testovací e-mail odoslaný úspešne.',
+    'admin.toast.smtp-fail':        'SMTP test zlyhal',
 
     /* ── Admin confirm dialogs ── */
     'confirm.delete-service': 'Odstrániť službu „{name}"? Túto akciu nie je možné vrátiť späť.',

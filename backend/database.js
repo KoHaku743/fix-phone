@@ -86,13 +86,20 @@ function initializeSchema() {
       repair_type_id INTEGER,
       name TEXT NOT NULL,
       description TEXT,
-      price REAL NOT NULL,
+      price REAL,
+      price_from REAL,
+      price_to REAL,
       duration_minutes INTEGER DEFAULT 60,
       in_stock INTEGER DEFAULT 1,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (repair_type_id) REFERENCES repair_types(id)
     );
   `);
+
+  // Migrate: add price_from / price_to if upgrading from old schema
+  try { db.run(`ALTER TABLE services ADD COLUMN price_from REAL`); } catch (_) {}
+  try { db.run(`ALTER TABLE services ADD COLUMN price_to REAL`); } catch (_) {}
+  // Make price nullable on existing DBs (SQLite cannot DROP NOT NULL, so we just allow nulls by default)
 
   db.run(`
     CREATE TABLE IF NOT EXISTS appointments (
@@ -102,11 +109,35 @@ function initializeSchema() {
       customer_phone TEXT NOT NULL,
       device_model TEXT NOT NULL,
       service_id INTEGER,
-      appointment_date TEXT NOT NULL,
+      appointment_date TEXT,
       notes TEXT,
       status TEXT DEFAULT 'pending',
+      quoted_price REAL,
+      conversation_token TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (service_id) REFERENCES services(id)
+    );
+  `);
+
+  // Migrate: add new appointment columns if upgrading from old schema
+  try { db.run(`ALTER TABLE appointments ADD COLUMN quoted_price REAL`); } catch (_) {}
+  try { db.run(`ALTER TABLE appointments ADD COLUMN conversation_token TEXT`); } catch (_) {}
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      appointment_id INTEGER NOT NULL,
+      sender TEXT NOT NULL CHECK(sender IN ('customer','admin')),
+      content TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (appointment_id) REFERENCES appointments(id)
+    );
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS settings (
+      key TEXT PRIMARY KEY,
+      value TEXT
     );
   `);
 
@@ -133,17 +164,17 @@ function seedData() {
   rows[0]?.values.forEach(([id, name]) => { typeMap[name] = id; });
 
   const services = [
-    [typeMap['Screen Repair'],       'iPhone 14 Screen Replacement',          'OEM quality screen replacement for iPhone 14',              149, 90, 1],
-    [typeMap['Screen Repair'],       'Samsung Galaxy S23 Screen Replacement', 'Original AMOLED screen replacement for Samsung S23',        129, 90, 1],
-    [typeMap['Battery Replacement'], 'iPhone 14 Battery Replacement',         'Genuine Apple battery replacement for iPhone 14',            89, 45, 1],
-    [typeMap['Battery Replacement'], 'Samsung Galaxy S23 Battery Replacement','OEM battery replacement for Samsung Galaxy S23',             79, 45, 1],
-    [typeMap['Water Damage'],        'Water Damage Diagnostic',               'Full diagnostic and cleaning for water damaged devices',     49, 120, 1],
-    [typeMap['Software Issues'],     'Software Restore',                      'Full software restore, data backup and recovery',            59, 60, 1],
+    [typeMap['Screen Repair'],       'iPhone 14 Screen Replacement',          'OEM quality screen replacement for iPhone 14',              120, 160, 90, 1],
+    [typeMap['Screen Repair'],       'Samsung Galaxy S23 Screen Replacement', 'Original AMOLED screen replacement for Samsung S23',        100, 149, 90, 1],
+    [typeMap['Battery Replacement'], 'iPhone 14 Battery Replacement',         'Genuine Apple battery replacement for iPhone 14',            70,  99, 45, 1],
+    [typeMap['Battery Replacement'], 'Samsung Galaxy S23 Battery Replacement','OEM battery replacement for Samsung Galaxy S23',             60,  89, 45, 1],
+    [typeMap['Water Damage'],        'Water Damage Diagnostic',               'Full diagnostic and cleaning for water damaged devices',     40,  80, 120, 1],
+    [typeMap['Software Issues'],     'Software Restore',                      'Full software restore, data backup and recovery',            40,  70, 60, 1],
   ];
-  services.forEach(([rtId, name, desc, price, dur, stock]) => {
+  services.forEach(([rtId, name, desc, priceFrom, priceTo, dur, stock]) => {
     db.run(
-      'INSERT INTO services (repair_type_id, name, description, price, duration_minutes, in_stock) VALUES (?,?,?,?,?,?)',
-      [rtId, name, desc, price, dur, stock]
+      'INSERT INTO services (repair_type_id, name, description, price_from, price_to, duration_minutes, in_stock) VALUES (?,?,?,?,?,?,?)',
+      [rtId, name, desc, priceFrom, priceTo, dur, stock]
     );
   });
 

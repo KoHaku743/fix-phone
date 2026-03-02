@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="sk" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSStylish Repair – Konverzácia</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    body { background: var(--bg-primary); min-height: 100vh; }
+
+    .conv-navbar {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .conv-navbar-logo {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .conv-container {
+      max-width: 760px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .conv-order-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .conv-order-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+    }
+    .conv-order-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.75rem;
+    }
+    .conv-meta-item { }
+    .conv-meta-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .conv-meta-value { font-size: 0.9rem; color: var(--text-primary); font-weight: 500; }
+
+    .conv-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .conv-status-pending   { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .conv-status-confirmed { background: rgba(59,130,246,0.15); color: #3b82f6; }
+    .conv-status-completed { background: rgba(16,185,129,0.15); color: #10b981; }
+    .conv-status-cancelled { background: rgba(239,68,68,0.15);  color: #ef4444; }
+
+    .conv-quoted-price {
+      margin-top: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    .conv-messages-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .conv-messages-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .conv-messages-list {
+      padding: 1.25rem 1.5rem;
+      min-height: 200px;
+      max-height: 460px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .conv-msg {
+      max-width: 80%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .conv-msg-admin { align-self: flex-start; }
+    .conv-msg-customer { align-self: flex-end; }
+
+    .conv-msg-bubble {
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+    .conv-msg-admin .conv-msg-bubble {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-bottom-left-radius: 4px;
+    }
+    .conv-msg-customer .conv-msg-bubble {
+      background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15));
+      border: 1px solid rgba(0,212,255,0.25);
+      color: var(--text-primary);
+      border-bottom-right-radius: 4px;
+    }
+    .conv-msg-meta {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    .conv-msg-admin  .conv-msg-meta { text-align: left; }
+    .conv-msg-customer .conv-msg-meta { text-align: right; }
+
+    .conv-empty-msgs {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 2rem 0;
+      font-size: 0.9rem;
+    }
+
+    .conv-reply-area {
+      padding: 1.25rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-end;
+    }
+    .conv-reply-input {
+      flex: 1;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.875rem;
+      padding: 0.7rem 1rem;
+      resize: none;
+      min-height: 48px;
+      max-height: 140px;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .conv-reply-input:focus { border-color: var(--teal); }
+    .conv-reply-input::placeholder { color: var(--text-muted); }
+
+    .conv-reply-btn {
+      background: linear-gradient(135deg, var(--teal), var(--accent));
+      color: #0a0e1a;
+      font-weight: 700;
+      font-size: 0.875rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.7rem 1.2rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+    .conv-reply-btn:hover:not(:disabled) { opacity: 0.85; }
+    .conv-reply-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .conv-loading, .conv-error {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+    }
+    .conv-error { color: var(--danger); }
+  </style>
+</head>
+<body>
+
+  <nav class="conv-navbar">
+    <a href="/" class="conv-navbar-logo">⚡ <span style="color:var(--teal);">SSS</span>tylish Repair</a>
+  </nav>
+
+  <div class="conv-container">
+    <div id="conv-loading" class="conv-loading">
+      <div class="loading-spinner" style="margin: 0 auto 1rem;"></div>
+      Načítavam konverzáciu…
+    </div>
+    <div id="conv-error" class="conv-error" style="display:none;"></div>
+
+    <div id="conv-content" style="display:none;">
+      <!-- Order info card -->
+      <div class="conv-order-card">
+        <div class="conv-order-title">📦 Objednávka <span id="order-number" style="color:var(--teal);"></span></div>
+        <div class="conv-order-meta">
+          <div class="conv-meta-item">
+            <div class="conv-meta-label">Zariadenie</div>
+            <div class="conv-meta-value" id="order-device">—</div>
+          </div>
+          <div class="conv-meta-item">
+            <div class="conv-meta-label">Oprava</div>
+            <div class="conv-meta-value" id="order-service">—</div>
+          </div>
+          <div class="conv-meta-item">
+            <div class="conv-meta-label">Stav</div>
+            <div class="conv-meta-value"><span id="order-status-badge"></span></div>
+          </div>
+        </div>
+        <div id="order-quoted-price" class="conv-quoted-price" style="display:none;"></div>
+      </div>
+
+      <!-- Messages -->
+      <div class="conv-messages-card">
+        <div class="conv-messages-header">
+          💬 Konverzácia s technikom
+        </div>
+        <div class="conv-messages-list" id="messages-list">
+          <div class="conv-empty-msgs">Zatiaľ žiadne správy. Napíšte nám!</div>
+        </div>
+        <div class="conv-reply-area">
+          <textarea class="conv-reply-input" id="reply-input" placeholder="Napíšte správu…" rows="2"></textarea>
+          <button class="conv-reply-btn" id="reply-btn" onclick="sendMessage()">Odoslať</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script>
+    const token = location.pathname.split('/conversation/')[1];
+    let appointmentId = null;
+
+    function escHtml(str) {
+      if (typeof str !== 'string') return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function formatTime(ts) {
+      if (!ts) return '';
+      const d = new Date(ts);
+      return d.toLocaleString('sk-SK', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    }
+
+    const STATUS_LABELS = {
+      pending:   '⏳ Čaká na spracovanie',
+      confirmed: '🔵 Potvrdená',
+      completed: '✅ Dokončená',
+      cancelled: '❌ Zrušená',
+    };
+    const STATUS_CLASSES = {
+      pending: 'conv-status-pending',
+      confirmed: 'conv-status-confirmed',
+      completed: 'conv-status-completed',
+      cancelled: 'conv-status-cancelled',
+    };
+
+    function renderMessages(messages) {
+      const list = document.getElementById('messages-list');
+      if (!messages.length) {
+        list.innerHTML = '<div class="conv-empty-msgs">Zatiaľ žiadne správy. Napíšte nám!</div>';
+        return;
+      }
+      list.innerHTML = messages.map(m => `
+        <div class="conv-msg conv-msg-${m.sender}">
+          <div class="conv-msg-bubble">${escHtml(m.content)}</div>
+          <div class="conv-msg-meta">
+            ${m.sender === 'admin' ? '🔧 Technik' : '👤 Vy'} · ${formatTime(m.created_at)}
+          </div>
+        </div>
+      `).join('');
+      list.scrollTop = list.scrollHeight;
+    }
+
+    async function loadConversation() {
+      try {
+        const res = await fetch(`/api/conversations/${token}`);
+        if (!res.ok) throw new Error('Konverzácia nebola nájdená.');
+        const data = await res.json();
+        const appt = data.appointment;
+        appointmentId = appt.id;
+
+        document.getElementById('order-number').textContent = '#' + appt.id;
+        document.getElementById('order-device').textContent  = appt.device_model || '—';
+        document.getElementById('order-service').textContent = appt.service_name || 'Neurčená';
+
+        const statusBadge = document.getElementById('order-status-badge');
+        statusBadge.textContent = STATUS_LABELS[appt.status] || appt.status;
+        statusBadge.className = 'conv-status ' + (STATUS_CLASSES[appt.status] || 'conv-status-pending');
+
+        if (appt.quoted_price != null) {
+          const qp = document.getElementById('order-quoted-price');
+          qp.style.display = 'block';
+          qp.textContent = `💰 Cenová ponuka technika: ${Number(appt.quoted_price).toFixed(2)} €`;
+        }
+
+        renderMessages(data.messages);
+
+        document.getElementById('conv-loading').style.display = 'none';
+        document.getElementById('conv-content').style.display = 'block';
+      } catch (err) {
+        document.getElementById('conv-loading').style.display = 'none';
+        document.getElementById('conv-error').style.display = 'block';
+        document.getElementById('conv-error').textContent = '❌ ' + (err.message || 'Nastala chyba.');
+      }
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById('reply-input');
+      const btn   = document.getElementById('reply-btn');
+      const content = input.value.trim();
+      if (!content) return;
+
+      btn.disabled = true;
+      btn.textContent = '⏳';
+
+      try {
+        const res = await fetch(`/api/conversations/${token}/messages`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content }),
+        });
+        if (!res.ok) throw new Error((await res.json()).error || 'Nastala chyba.');
+        const msg = await res.json();
+        input.value = '';
+
+        // Append new message
+        const list = document.getElementById('messages-list');
+        const emptyMsg = list.querySelector('.conv-empty-msgs');
+        if (emptyMsg) emptyMsg.remove();
+
+        const div = document.createElement('div');
+        div.className = 'conv-msg conv-msg-customer';
+        div.innerHTML = `
+          <div class="conv-msg-bubble">${escHtml(msg.content)}</div>
+          <div class="conv-msg-meta">👤 Vy · ${formatTime(msg.created_at)}</div>
+        `;
+        list.appendChild(div);
+        list.scrollTop = list.scrollHeight;
+      } catch (err) {
+        showToast('error', 'Chyba', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Odoslať';
+      }
+    }
+
+    // Allow Ctrl+Enter or Enter (without Shift) to send
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('reply-input');
+      if (input) {
+        input.addEventListener('keydown', e => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+          }
+        });
+      }
+      loadConversation();
+    });
+
+    function showToast(type, title, message) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+        <div class="toast-body">
+          <div class="toast-title">${escHtml(title)}</div>
+          <div class="toast-message">${escHtml(message || '')}</div>
+        </div>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(20px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 350);
+      }, 5000);
+    }
+  </script>
+</body>
+</html>

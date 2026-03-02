@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getDb } = require('../database');
 const { requireAuth } = require('../middleware/auth');
+const { sendMessageNotification } = require('../mailer');
 
 // All admin routes require a valid token
 router.use(requireAuth);
@@ -19,7 +20,7 @@ router.get('/appointments', (req, res) => {
   try {
     const { prepare } = getDb();
     const appointments = prepare(`
-      SELECT a.*, s.name as service_name, s.price as service_price
+      SELECT a.*, s.name as service_name, s.price_from, s.price_to
       FROM appointments a
       LEFT JOIN services s ON a.service_id = s.id
       ORDER BY a.created_at DESC
@@ -30,19 +31,78 @@ router.get('/appointments', (req, res) => {
   }
 });
 
-// PUT /api/admin/appointments/:id
+// PUT /api/admin/appointments/:id  – update status and/or quoted_price
 router.put('/appointments/:id', (req, res) => {
   try {
     const { prepare } = getDb();
-    const { status } = req.body;
+    const { status, quoted_price } = req.body;
     const validStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
-    if (!validStatuses.includes(status)) {
+    if (status !== undefined && !validStatuses.includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
-    prepare('UPDATE appointments SET status = ? WHERE id = ?').run(status, req.params.id);
+    if (status !== undefined) {
+      prepare('UPDATE appointments SET status = ? WHERE id = ?').run(status, req.params.id);
+    }
+    if (quoted_price !== undefined) {
+      const price = quoted_price === null ? null : parseFloat(quoted_price);
+      prepare('UPDATE appointments SET quoted_price = ? WHERE id = ?').run(price, req.params.id);
+    }
     const appointment = prepare('SELECT * FROM appointments WHERE id = ?').get(req.params.id);
     if (!appointment) return res.status(404).json({ error: 'Appointment not found' });
     res.json(appointment);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/appointments/:id/messages
+router.get('/appointments/:id/messages', (req, res) => {
+  try {
+    const { prepare } = getDb();
+    const messages = prepare(`
+      SELECT * FROM messages WHERE appointment_id = ? ORDER BY created_at ASC
+    `).all(req.params.id);
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/appointments/:id/messages  – admin sends message → notify customer via email
+router.post('/appointments/:id/messages', async (req, res) => {
+  try {
+    const { prepare } = getDb();
+    const appt = prepare(`
+      SELECT a.*, s.name as service_name FROM appointments a
+      LEFT JOIN services s ON a.service_id = s.id
+      WHERE a.id = ?
+    `).get(req.params.id);
+    if (!appt) return res.status(404).json({ error: 'Appointment not found' });
+
+    const { content } = req.body;
+    if (!content || !content.trim()) return res.status(400).json({ error: 'Message content is required' });
+    if (content.length > 2000) return res.status(400).json({ error: 'Message too long (max 2000 characters)' });
+
+    const result = prepare(`
+      INSERT INTO messages (appointment_id, sender, content) VALUES (?, 'admin', ?)
+    `).run(appt.id, content.trim());
+
+    const msg = prepare('SELECT * FROM messages WHERE id = ?').get(result.lastInsertRowid);
+
+    // Send email notification to customer (non-blocking)
+    if (appt.conversation_token) {
+      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+      const conversationUrl = `${baseUrl}/conversation/${appt.conversation_token}`;
+      sendMessageNotification({
+        to: appt.customer_email,
+        customerName: appt.customer_name,
+        orderNumber: appt.id,
+        adminMessage: content.trim(),
+        conversationUrl,
+      }).catch(err => console.warn('⚠️  Could not send message notification:', err.message));
+    }
+
+    res.status(201).json(msg);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -68,12 +128,18 @@ router.get('/services', (req, res) => {
 router.post('/services', (req, res) => {
   try {
     const { prepare } = getDb();
-    const { repair_type_id, name, description, price, duration_minutes, in_stock } = req.body;
-    if (!name || price === undefined) return res.status(400).json({ error: 'Missing required fields' });
+    const { repair_type_id, name, description, price_from, price_to, duration_minutes, in_stock } = req.body;
+    if (!name) return res.status(400).json({ error: 'Missing required fields' });
     const result = prepare(`
-      INSERT INTO services (repair_type_id, name, description, price, duration_minutes, in_stock)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `).run(repair_type_id || null, name, description || null, price, duration_minutes || 60, in_stock !== undefined ? in_stock : 1);
+      INSERT INTO services (repair_type_id, name, description, price_from, price_to, duration_minutes, in_stock)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      repair_type_id || null, name, description || null,
+      price_from != null ? parseFloat(price_from) : null,
+      price_to != null ? parseFloat(price_to) : null,
+      duration_minutes || 60,
+      in_stock !== undefined ? in_stock : 1
+    );
     const service = prepare('SELECT * FROM services WHERE id = ?').get(result.lastInsertRowid);
     res.status(201).json(service);
   } catch (err) {
@@ -85,10 +151,15 @@ router.post('/services', (req, res) => {
 router.put('/services/:id', (req, res) => {
   try {
     const { prepare } = getDb();
-    const { repair_type_id, name, description, price, duration_minutes, in_stock } = req.body;
+    const { repair_type_id, name, description, price_from, price_to, duration_minutes, in_stock } = req.body;
     prepare(`
-      UPDATE services SET repair_type_id=?, name=?, description=?, price=?, duration_minutes=?, in_stock=? WHERE id=?
-    `).run(repair_type_id, name, description, price, duration_minutes, in_stock, req.params.id);
+      UPDATE services SET repair_type_id=?, name=?, description=?, price_from=?, price_to=?, duration_minutes=?, in_stock=? WHERE id=?
+    `).run(
+      repair_type_id, name, description,
+      price_from != null ? parseFloat(price_from) : null,
+      price_to != null ? parseFloat(price_to) : null,
+      duration_minutes, in_stock, req.params.id
+    );
     const service = prepare('SELECT * FROM services WHERE id = ?').get(req.params.id);
     if (!service) return res.status(404).json({ error: 'Service not found' });
     res.json(service);
@@ -155,6 +226,73 @@ router.delete('/repair-types/:id', (req, res) => {
     const result = prepare('DELETE FROM repair_types WHERE id = ?').run(req.params.id);
     if (result.changes === 0) return res.status(404).json({ error: 'Repair type not found' });
     res.json({ message: 'Repair type deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Settings (SMTP, etc.) ──────────────────────────────────────
+
+const ALLOWED_SETTINGS_KEYS = [
+  'smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from', 'smtp_secure',
+];
+
+const SMTP_PASS_MASK = '••••••••';
+
+// GET /api/admin/settings
+router.get('/settings', (req, res) => {
+  try {
+    const { prepare } = getDb();
+    const rows = prepare(`SELECT key, value FROM settings`).all();
+    const settings = {};
+    rows.forEach(r => { settings[r.key] = r.value; });
+    // Mask SMTP password in response
+    if (settings.smtp_pass) settings.smtp_pass = SMTP_PASS_MASK;
+    res.json(settings);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/admin/settings
+router.put('/settings', (req, res) => {
+  try {
+    const { prepare } = getDb();
+    const updates = req.body;
+    for (const [key, value] of Object.entries(updates)) {
+      if (!ALLOWED_SETTINGS_KEYS.includes(key)) continue;
+      // Don't overwrite password if client sends the masked placeholder
+      if (key === 'smtp_pass' && value === SMTP_PASS_MASK) continue;
+      prepare(`INSERT INTO settings (key, value) VALUES (?, ?)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value`).run(key, value);
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/settings/test-smtp  – send a test email
+router.post('/settings/test-smtp', async (req, res) => {
+  try {
+    const { getSmtpSettings } = require('../mailer');
+    const cfg = getSmtpSettings();
+    if (!cfg) return res.status(400).json({ error: 'SMTP not configured' });
+
+    const nodemailer = require('nodemailer');
+    const transport = nodemailer.createTransport({
+      host: cfg.smtp_host,
+      port: parseInt(cfg.smtp_port, 10) || 587,
+      secure: cfg.smtp_secure === 'true',
+      auth: { user: cfg.smtp_user, pass: cfg.smtp_pass },
+    });
+    await transport.sendMail({
+      from: cfg.smtp_from || cfg.smtp_user,
+      to: cfg.smtp_user,
+      subject: 'SSStylish Repair – SMTP test',
+      text: 'SMTP nastavenia fungujú správne! ✅',
+    });
+    res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

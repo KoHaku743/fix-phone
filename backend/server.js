@@ -52,6 +52,7 @@ app.use('/api/auth',         authLimiter, require('./routes/auth'));
 app.use('/api/services',     require('./routes/services'));
 app.use('/api/appointments', appointmentLimiter, require('./routes/appointments'));
 app.use('/api/admin',        require('./routes/admin'));
+app.use('/api/conversations', require('./routes/messages'));
 
 // Frontend routes
 app.get('/', (req, res) => {
@@ -60,6 +61,10 @@ app.get('/', (req, res) => {
 
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/admin.html'));
+});
+
+app.get('/conversation/:token', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/conversation.html'));
 });
 
 // 404 – serve custom page for HTML requests, JSON for API
