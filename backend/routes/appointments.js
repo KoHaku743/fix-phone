@@ -10,7 +10,10 @@ router.post('/', async (req, res) => {
     const { prepare } = getDb();
     const { customer_name, customer_email, customer_phone, device_model, service_id, notes } = req.body;
 
-    if (!customer_name || !customer_email || !customer_phone || !device_model) {
+    if (!service_id) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    if (!notes?.trim()) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -20,7 +23,7 @@ router.post('/', async (req, res) => {
     const result = prepare(`
       INSERT INTO appointments (customer_name, customer_email, customer_phone, device_model, service_id, notes, status, conversation_token)
       VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)
-    `).run(customer_name, customer_email, customer_phone, device_model, service_id || null, notes || null, conversation_token);
+    `).run(customer_name || '', customer_email || '', customer_phone || '', device_model || '', service_id || null, notes, conversation_token);
 
     const appointment = prepare(`
       SELECT a.*, s.name as service_name FROM appointments a
@@ -28,17 +31,19 @@ router.post('/', async (req, res) => {
       WHERE a.id = ?
     `).get(result.lastInsertRowid);
 
-    // Send confirmation email (non-blocking – errors are logged, not returned)
-    const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
-    const conversationUrl = `${baseUrl}/conversation/${conversation_token}`;
-    sendBookingConfirmation({
-      to: customer_email,
-      customerName: customer_name,
-      deviceModel: device_model,
-      serviceName: appointment.service_name,
-      orderNumber: appointment.id,
-      conversationUrl,
-    }).catch(err => console.warn('⚠️  Could not send confirmation email:', err.message));
+    // Send confirmation email only when an address was provided (non-blocking)
+    if (customer_email) {
+      const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+      const conversationUrl = `${baseUrl}/conversation/${conversation_token}`;
+      sendBookingConfirmation({
+        to: customer_email,
+        customerName: customer_name,
+        deviceModel: device_model,
+        serviceName: appointment.service_name,
+        orderNumber: appointment.id,
+        conversationUrl,
+      }).catch(err => console.warn('⚠️  Could not send confirmation email:', err.message));
+    }
 
     res.status(201).json(appointment);
   } catch (err) {

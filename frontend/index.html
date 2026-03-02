@@ -193,7 +193,7 @@
         </div>
       </div>
 
-      <!-- Step 2: Contact form (shown after service selection) -->
+      <!-- Step 2: Details (shown after service selection) -->
       <div class="booking-form-wrapper reveal" id="booking-form-step">
         <div class="booking-step-label" data-i18n="booking.your-details">Krok 2 – Vaše údaje</div>
         <div class="booking-selected-service" id="booking-selected-service" style="display:none;">
@@ -203,31 +203,9 @@
         </div>
         <form id="booking-form" novalidate>
           <input type="hidden" id="service_id" name="service_id" />
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label" for="customer_name"><span data-i18n="booking.name-label">Celé meno</span> <span>*</span></label>
-              <input class="form-input" type="text" id="customer_name" name="customer_name" data-i18n-placeholder="booking.name-ph" placeholder="Ján Novák" required />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="customer_email"><span data-i18n="booking.email-label">E-mailová adresa</span> <span>*</span></label>
-              <input class="form-input" type="email" id="customer_email" name="customer_email" data-i18n-placeholder="booking.email-ph" placeholder="jan@priklad.sk" required />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="customer_phone"><span data-i18n="booking.phone-label">Telefónne číslo</span> <span>*</span></label>
-              <input class="form-input" type="tel" id="customer_phone" name="customer_phone" data-i18n-placeholder="booking.phone-ph" placeholder="+421 900 000 000" required />
-            </div>
-
-            <div class="form-group">
-              <label class="form-label" for="device_model"><span data-i18n="booking.device-label">Model zariadenia</span> <span>*</span></label>
-              <input class="form-input" type="text" id="device_model" name="device_model" data-i18n-placeholder="booking.device-ph" placeholder="napr. iPhone 14, Samsung S23" required />
-            </div>
-
-            <div class="form-group full-width">
-              <label class="form-label" for="notes" data-i18n="booking.notes-label">Popis problému</label>
-              <textarea class="form-textarea" id="notes" name="notes" data-i18n-placeholder="booking.notes-ph" placeholder="Opíšte problém alebo iné relevantné detaily..."></textarea>
-            </div>
+          <div class="form-group full-width">
+            <label class="form-label" for="notes"><span data-i18n="booking.details-label">Vaše údaje a popis problému</span> <span>*</span></label>
+            <textarea class="form-textarea" id="notes" name="notes" data-i18n-placeholder="booking.details-ph" placeholder="Napíšte meno, telefónne číslo, model zariadenia a popíšte problém..." required></textarea>
           </div>
 
           <button type="submit" class="form-submit" id="submit-btn">

@@ -1,25 +1,21 @@
 services:
   fix-phone:
     image: ghcr.io/kohaku743/fix-phone:latest
+    # Load all variables from your .env file (copy .env.example → .env first)
+    env_file:
+      - .env
     ports:
-      - "3000:3000"
+      - "${PORT:-3000}:${PORT:-3000}"
+      # Uncomment if ADMIN_PORT is set in .env to expose the admin panel on a
+      # separate port (e.g. ADMIN_PORT=3001):
+      # - "${ADMIN_PORT:-3001}:${ADMIN_PORT:-3001}"
     volumes:
       - db-data:/app/backend/data
     restart: unless-stopped
+    # Docker-specific overrides – these take precedence over .env values
     environment:
       - NODE_ENV=production
       - DB_PATH=/app/backend/data/phone_repair.db
-      # REQUIRED – change before deploying (owner password)
-      - ADMIN_PASSWORD=changeme
-      # Optional – enable second staff account (remove or leave blank to disable)
-      # - STAFF_PASSWORD=changeme2
-      # Optional – display names on login screen
-      # - OWNER_NAME=Owner
-      # - STAFF_NAME=Staff
-      # Optional – shop address shown in confirmation emails with a Google Maps link
-      # - SHOP_ADDRESS=Mlynská 1, 010 01 Žilina, Slovakia
-      # REQUIRED – use a long random string: openssl rand -hex 32
-      - JWT_SECRET=change-this-to-a-long-random-secret
 
 volumes:
   db-data:
