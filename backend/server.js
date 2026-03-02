@@ -62,9 +62,10 @@ app.use(limiter);
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // ─── Public API routes (always on main server) ────────────
-app.use('/api/services',     require('./routes/services'));
-app.use('/api/appointments', appointmentLimiter, require('./routes/appointments'));
-app.use('/api/track',        require('./routes/track'));
+app.use('/api/services',      require('./routes/services'));
+app.use('/api/appointments',  appointmentLimiter, require('./routes/appointments'));
+app.use('/api/track',         require('./routes/track'));
+app.use('/api/conversations', require('./routes/messages'));
 
 // ─── Admin API + HTML routes ──────────────────────────────
 // When ADMIN_PORT is configured these are mounted on the separate admin server
@@ -72,7 +73,6 @@ app.use('/api/track',        require('./routes/track'));
 function mountAdminRoutes(expressApp) {
   expressApp.use('/api/auth',         authLimiter, require('./routes/auth'));
   expressApp.use('/api/admin',        require('./routes/admin'));
-  expressApp.use('/api/conversations', require('./routes/messages'));
   expressApp.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/admin.html'));
   });
