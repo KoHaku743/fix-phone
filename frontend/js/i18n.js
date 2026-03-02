@@ -52,9 +52,17 @@ const TRANSLATIONS = {
     /* ── Booking form ── */
     'booking.tag':              'Book a Repair',
     'booking.title':            'Request a Repair',
-    'booking.subtitle':         "Pick your service below, then type your name, phone number, device model and describe the issue. We'll get back to you.",
-    'booking.details-label':    'Your details & issue description',
-    'booking.details-ph':       'e.g. John Smith, +421 900 000 000, iPhone 14 – battery drains fast',
+    'booking.subtitle':         "Pick your service below, then fill in your details. We'll be in touch to arrange a convenient time and place.",
+    'booking.name-label':       'Full Name',
+    'booking.name-ph':          'John Smith',
+    'booking.email-label':      'Email Address',
+    'booking.email-ph':         'john@example.com',
+    'booking.phone-label':      'Phone Number',
+    'booking.phone-ph':         '+421 900 000 000',
+    'booking.device-label':     'Device Model',
+    'booking.device-ph':        'e.g. iPhone 14, Samsung S23',
+    'booking.notes-label':      'Problem Description',
+    'booking.notes-ph':         'Describe the issue or any other relevant details...',
     'booking.submit':           '✅ Submit Repair Request',
     'booking.submitting':       '⏳ Submitting...',
     'booking.pick-service':     'Step 1 – Pick your repair',
@@ -76,13 +84,17 @@ const TRANSLATIONS = {
     'footer.rights':          'All rights reserved.',
 
     /* ── Form validation ── */
+    'val.name-required':    'Full name is required.',
+    'val.email-required':   'Email address is required.',
+    'val.email-invalid':    'Please enter a valid email address.',
+    'val.phone-required':   'Phone number is required.',
+    'val.device-required':  'Device model is required.',
     'val.service-required': 'Please select a repair type.',
-    'val.details-required': 'Please describe your details and the issue.',
 
     /* ── Toasts (main) ── */
     'toast.val-error':      'Validation Error',
     'toast.booked-title':   'Request Submitted!',
-    'toast.booked-msg':     "Thank you! We'll be in touch shortly.",
+    'toast.booked-msg':     "Thank you! A confirmation has been sent to {email}.",
     'toast.book-fail':      'Submission Failed',
     'toast.something-wrong':'Something went wrong. Please try again.',
 
@@ -363,9 +375,17 @@ const TRANSLATIONS = {
     /* ── Booking form ── */
     'booking.tag':              'Rezervovať opravu',
     'booking.title':            'Požiadať o opravu',
-    'booking.subtitle':         'Vyberte opravu nižšie a napíšte meno, telefónne číslo, model zariadenia a opíšte problém. Ozveme sa vám.',
-    'booking.details-label':    'Vaše údaje a popis problému',
-    'booking.details-ph':       'napr. Ján Novák, +421 900 000 000, iPhone 14 – rýchlo sa vybíja',
+    'booking.subtitle':         'Vyberte opravu nižšie a vyplňte kontaktné údaje. Ozveme sa vám pre dohodu na čase a mieste.',
+    'booking.name-label':       'Celé meno',
+    'booking.name-ph':          'Ján Novák',
+    'booking.email-label':      'E-mailová adresa',
+    'booking.email-ph':         'jan@priklad.sk',
+    'booking.phone-label':      'Telefónne číslo',
+    'booking.phone-ph':         '+421 900 000 000',
+    'booking.device-label':     'Model zariadenia',
+    'booking.device-ph':        'napr. iPhone 14, Samsung S23',
+    'booking.notes-label':      'Popis problému',
+    'booking.notes-ph':         'Opíšte problém alebo iné relevantné detaily...',
     'booking.submit':           '✅ Odoslať žiadosť o opravu',
     'booking.submitting':       '⏳ Odosielam...',
     'booking.pick-service':     'Krok 1 – Vyberte opravu',
@@ -387,13 +407,17 @@ const TRANSLATIONS = {
     'footer.rights':          'Všetky práva vyhradené.',
 
     /* ── Form validation ── */
+    'val.name-required':    'Celé meno je povinné.',
+    'val.email-required':   'E-mailová adresa je povinná.',
+    'val.email-invalid':    'Zadajte platnú e-mailovú adresu.',
+    'val.phone-required':   'Telefónne číslo je povinné.',
+    'val.device-required':  'Model zariadenia je povinný.',
     'val.service-required': 'Vyberte prosím typ opravy.',
-    'val.details-required': 'Popíšte prosím vaše údaje a problém.',
 
     /* ── Toasts (main) ── */
     'toast.val-error':      'Chyba validácie',
     'toast.booked-title':   'Žiadosť odoslaná!',
-    'toast.booked-msg':     'Ďakujeme! Ozveme sa vám čoskoro.',
+    'toast.booked-msg':     'Ďakujeme! Potvrdenie sme odoslali na {email}.',
     'toast.book-fail':      'Odoslanie zlyhalo',
     'toast.something-wrong':'Niečo sa pokazilo. Skúste to prosím znova.',
 

@@ -202,8 +202,12 @@ function selectService(id, name) {
 // ─── Form validation ──────────────────────────────────────
 function validateForm(data) {
   const errors = [];
-  if (!data.service_id)        errors.push(window.t('val.service-required'));
-  if (!data.notes?.trim())     errors.push(window.t('val.details-required'));
+  if (!data.customer_name?.trim())  errors.push(window.t('val.name-required'));
+  if (!data.customer_email?.trim()) errors.push(window.t('val.email-required'));
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.customer_email)) errors.push(window.t('val.email-invalid'));
+  if (!data.customer_phone?.trim()) errors.push(window.t('val.phone-required'));
+  if (!data.device_model?.trim())   errors.push(window.t('val.device-required'));
+  if (!data.service_id)             errors.push(window.t('val.service-required'));
   return errors;
 }
 
@@ -216,8 +220,13 @@ async function handleBooking(e) {
   const loadEl   = document.getElementById('submit-loading');
 
   const data = {
-    service_id: form.service_id.value || null,
-    notes:      form.notes.value.trim() || null,
+    customer_name:    form.customer_name.value.trim(),
+    customer_email:   form.customer_email.value.trim(),
+    customer_phone:   form.customer_phone.value.trim(),
+    device_model:     form.device_model.value.trim(),
+    service_id:       form.service_id.value || null,
+    notes:            form.notes.value.trim() || null,
+    customer_lang:    (window.currentLang ? window.currentLang() : null) || localStorage.getItem('fixphone-lang') || 'sk',
   };
 
   const errors = validateForm(data);
@@ -241,7 +250,7 @@ async function handleBooking(e) {
 
     if (!res.ok) throw new Error(result.error || window.t('toast.something-wrong'));
 
-    showToast('success', window.t('toast.booked-title'), window.t('toast.booked-msg'));
+    showToast('success', window.t('toast.booked-title'), window.t('toast.booked-msg', { email: data.customer_email }));
     form.reset();
 
     // Reset service picker after successful submission
