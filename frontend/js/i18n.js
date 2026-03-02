@@ -112,6 +112,7 @@ const TRANSLATIONS = {
 
     /* ── Admin topbar ── */
     'admin.subtitle':             'Manage your repair business',
+    'admin.loading':              'Loading…',
     'admin.tab.dashboard':        'Dashboard',
     'admin.tab.orders':           'All Appointments',
     'admin.tab.services':         'Services',
@@ -435,6 +436,7 @@ const TRANSLATIONS = {
 
     /* ── Admin topbar ── */
     'admin.subtitle':             'Spravujte svoj opravárenský biznis',
+    'admin.loading':              'Načítavam…',
     'admin.tab.dashboard':        'Prehľad',
     'admin.tab.orders':           'Všetky rezervácie',
     'admin.tab.services':         'Služby',

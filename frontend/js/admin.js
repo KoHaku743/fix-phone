@@ -111,7 +111,7 @@ async function loadLoginUsers() {
         style="justify-content:flex-start;gap:0.75rem;padding:0.875rem 1.1rem;text-align:left;">
         <div style="width:2.1rem;height:2.1rem;border-radius:50%;background:${avatarGradients[u.username] || avatarGradients.owner};
           display:flex;align-items:center;justify-content:center;font-weight:800;color:#0a0e1a;font-size:1rem;flex-shrink:0;">
-          ${escapeHtml(u.displayName.charAt(0).toUpperCase())}
+          ${escapeHtml(u.displayName.charAt(0).toUpperCase() || u.username.charAt(0).toUpperCase())}
         </div>
         <div>
           <div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);">${escapeHtml(u.displayName)}</div>
@@ -139,7 +139,7 @@ function selectLoginUser(username, users) {
 
   const avatarEl = document.getElementById('login-user-avatar-badge');
   if (avatarEl) {
-    avatarEl.textContent = displayName.charAt(0).toUpperCase();
+    avatarEl.textContent = (displayName.charAt(0) || username.charAt(0)).toUpperCase();
     avatarEl.style.background = username === 'staff'
       ? 'linear-gradient(135deg,#7c3aed,#ec4899)'
       : 'linear-gradient(135deg,#00d4ff,#7c3aed)';

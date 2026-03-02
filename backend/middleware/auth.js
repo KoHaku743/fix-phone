@@ -5,7 +5,7 @@
 
 const crypto = require('crypto');
 
-const TOKEN_TTL_MS = 48 * 60 * 60 * 1000; // 48 hours
+const TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 function getSecret() {
   const s = process.env.JWT_SECRET;
