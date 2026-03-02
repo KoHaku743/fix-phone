@@ -4,6 +4,86 @@
 
 const API = '';
 
+// ─── Auth helpers ─────────────────────────────────────────
+const TOKEN_KEY = 'fixphone-admin-token';
+
+function getToken() {
+  try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
+}
+
+function saveToken(token) {
+  try { localStorage.setItem(TOKEN_KEY, token); } catch (_) {}
+}
+
+function clearToken() {
+  try { localStorage.removeItem(TOKEN_KEY); } catch (_) {}
+}
+
+/** Authenticated fetch wrapper – adds Bearer token header. */
+async function authFetch(url, options = {}) {
+  const token = getToken();
+  if (!token) {
+    showLoginOverlay();
+    throw new Error('Not authenticated.');
+  }
+  const headers = { ...(options.headers || {}), 'Authorization': `Bearer ${token}` };
+  const res = await fetch(url, { ...options, headers });
+  if (res.status === 401) {
+    // Token expired or invalid – redirect to login
+    clearToken();
+    showLoginOverlay();
+    throw new Error('Session expired. Please sign in again.');
+  }
+  return res;
+}
+
+// ─── Login overlay ────────────────────────────────────────
+function showLoginOverlay() {
+  const overlay = document.getElementById('login-overlay');
+  if (overlay) overlay.style.display = 'flex';
+}
+
+function hideLoginOverlay() {
+  const overlay = document.getElementById('login-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const password   = document.getElementById('admin-password').value;
+  const btn        = document.getElementById('login-btn');
+  const btnText    = document.getElementById('login-btn-text');
+  const btnLoading = document.getElementById('login-btn-loading');
+  const errorEl    = document.getElementById('login-error');
+
+  errorEl.style.display = 'none';
+  btn.disabled = true;
+  btnText.style.display = 'none';
+  btnLoading.style.display = 'inline';
+
+  try {
+    const res = await fetch(`${API}/api/auth/login`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+
+    saveToken(data.token);
+    hideLoginOverlay();
+    document.getElementById('admin-password').value = '';
+    loadAllData();
+  } catch (err) {
+    errorEl.textContent  = err.message;
+    errorEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btnText.style.display = 'inline';
+    btnLoading.style.display = 'none';
+  }
+}
+
 // ─── State ────────────────────────────────────────────────
 let allAppointments = [];
 let allServices = [];
@@ -115,9 +195,9 @@ function switchTab(tabName) {
 async function loadAllData() {
   try {
     const [apptRes, svcRes, rtRes] = await Promise.all([
-      fetch(`${API}/api/admin/appointments`),
-      fetch(`${API}/api/admin/services`),
-      fetch(`${API}/api/admin/repair-types`),
+      authFetch(`${API}/api/admin/appointments`),
+      authFetch(`${API}/api/admin/services`),
+      authFetch(`${API}/api/admin/repair-types`),
     ]);
     allAppointments = await apptRes.json();
     allServices     = await svcRes.json();
@@ -129,7 +209,9 @@ async function loadAllData() {
 
     loadDashboard();
   } catch (err) {
-    showToast('error', window.t('admin.toast.load-error'), window.t('admin.toast.load-error-msg'));
+    if (err.message !== 'Session expired. Please sign in again.') {
+      showToast('error', window.t('admin.toast.load-error'), window.t('admin.toast.load-error-msg'));
+    }
     console.error(err);
   }
 }
@@ -332,7 +414,7 @@ async function saveOrderStatus() {
   const status = document.getElementById('order-status').value;
 
   try {
-    const res = await fetch(`${API}/api/admin/appointments/${id}`, {
+    const res = await authFetch(`${API}/api/admin/appointments/${id}`, {
       method:  'PUT',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ status }),
@@ -412,7 +494,7 @@ async function saveService() {
   try {
     const url    = id ? `${API}/api/admin/services/${id}` : `${API}/api/admin/services`;
     const method = id ? 'PUT' : 'POST';
-    const res    = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const res    = await authFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (!res.ok) throw new Error((await res.json()).error);
 
     const saved = await res.json();
@@ -440,7 +522,7 @@ async function deleteService(id) {
   if (!confirm(window.t('confirm.delete-service', { name: svc.name }))) return;
 
   try {
-    const res = await fetch(`${API}/api/admin/services/${id}`, { method: 'DELETE' });
+    const res = await authFetch(`${API}/api/admin/services/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error((await res.json()).error);
     allServices = allServices.filter(s => s.id !== id);
     renderServices();
@@ -482,7 +564,7 @@ async function saveRepairType() {
   try {
     const url    = id ? `${API}/api/admin/repair-types/${id}` : `${API}/api/admin/repair-types`;
     const method = id ? 'PUT' : 'POST';
-    const res    = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const res    = await authFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (!res.ok) throw new Error((await res.json()).error);
 
     const saved = await res.json();
@@ -507,7 +589,7 @@ async function deleteRepairType(id) {
   if (!confirm(window.t('confirm.delete-type', { name: rt.name }))) return;
 
   try {
-    const res = await fetch(`${API}/api/admin/repair-types/${id}`, { method: 'DELETE' });
+    const res = await authFetch(`${API}/api/admin/repair-types/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error((await res.json()).error);
     allRepairTypes = allRepairTypes.filter(r => r.id !== id);
     renderRepairTypes();
@@ -519,6 +601,10 @@ async function deleteRepairType(id) {
 
 // ─── Event Listeners ──────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // Login form
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) loginForm.addEventListener('submit', handleLogin);
+
   // Sidebar navigation
   document.querySelectorAll('.sidebar-item').forEach(item => {
     item.addEventListener('click', () => switchTab(item.dataset.tab));
@@ -565,6 +651,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Load data
-  loadAllData();
+  // Check auth: show login overlay if no token stored
+  if (!getToken()) {
+    showLoginOverlay();
+  } else {
+    loadAllData();
+  }
 });

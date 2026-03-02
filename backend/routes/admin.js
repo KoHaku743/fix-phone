@@ -1,6 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const { getDb } = require('../database');
+const { requireAuth } = require('../middleware/auth');
+
+// All admin routes require a valid token
+router.use(requireAuth);
+
+// Additionally block admin access when no ADMIN_PASSWORD is configured
+router.use((req, res, next) => {
+  if (!process.env.ADMIN_PASSWORD) {
+    return res.status(503).json({ error: 'Admin access is not configured on this server.' });
+  }
+  next();
+});
 
 // GET /api/admin/appointments
 router.get('/appointments', (req, res) => {
