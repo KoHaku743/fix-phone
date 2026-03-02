@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FixPhone – Admin Panel</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -11,7 +12,25 @@
 </head>
 <body>
 
-  <!-- Sidebar -->
+  <!-- ========== LOGIN OVERLAY ========== -->
+  <div id="login-overlay" class="login-overlay" style="display:none;">
+    <div class="login-card">
+      <div class="login-logo">🔧 FixPhone Admin</div>
+      <h2 class="login-title" data-i18n="login.title">Sign In</h2>
+      <p class="login-subtitle" data-i18n="login.subtitle">Enter your admin password to continue.</p>
+      <form id="login-form" autocomplete="off">
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label class="form-label" for="admin-password" data-i18n="login.password-label">Password</label>
+          <input class="form-input" type="password" id="admin-password" data-i18n-placeholder="login.password-ph" placeholder="Admin password" autocomplete="current-password" required />
+        </div>
+        <div id="login-error" style="display:none;color:var(--danger);font-size:0.85rem;margin-bottom:0.75rem;"></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;" id="login-btn">
+          <span id="login-btn-text" data-i18n="login.submit">Sign In →</span>
+          <span id="login-btn-loading" style="display:none;" data-i18n="login.submitting">Signing in…</span>
+        </button>
+      </form>
+    </div>
+  </div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <span class="sidebar-logo-icon">🔧</span>

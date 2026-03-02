@@ -231,6 +231,14 @@ const TRANSLATIONS = {
     'admin.rt-name-ph':     'e.g. Screen Repair',
     'admin.rt-desc-ph':     'Brief description...',
     'admin.search-orders-ph':'Search orders...',
+
+    /* ── Admin login ── */
+    'login.title':           'Sign In',
+    'login.subtitle':        'Enter your admin password to continue.',
+    'login.password-label':  'Password',
+    'login.password-ph':     'Admin password',
+    'login.submit':          'Sign In →',
+    'login.submitting':      'Signing in…',
   },
 
   sk: {
@@ -461,6 +469,14 @@ const TRANSLATIONS = {
     'admin.rt-name-ph':      'napr. Oprava obrazovky',
     'admin.rt-desc-ph':      'Stručný popis...',
     'admin.search-orders-ph':'Hľadať objednávky...',
+
+    /* ── Admin login ── */
+    'login.title':           'Prihlásenie',
+    'login.subtitle':        'Zadajte heslo administrátora.',
+    'login.password-label':  'Heslo',
+    'login.password-ph':     'Heslo administrátora',
+    'login.submit':          'Prihlásiť sa →',
+    'login.submitting':      'Prihlasovanie…',
   }
 };
 

@@ -2,7 +2,7 @@ const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
 
-const DB_PATH = path.join(__dirname, 'phone_repair.db');
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'phone_repair.db');
 
 let db = null;
 let SQL = null;
