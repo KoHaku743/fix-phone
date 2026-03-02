@@ -62,6 +62,11 @@
         <span class="sidebar-item-text" data-i18n="admin.inventory">Inventory</span>
         <span class="sidebar-badge sidebar-badge-low" id="low-stock-badge" style="display:none;background:#f59e0b;">0</span>
       </div>
+      <div class="sidebar-item" data-tab="staff">
+        <div class="sidebar-item-icon">👷</div>
+        <span class="sidebar-item-text" data-i18n="admin.staff">Staff</span>
+        <span class="sidebar-badge" id="staff-open-badge" style="display:none;">0</span>
+      </div>
       <div class="sidebar-item" data-tab="settings">
         <div class="sidebar-item-icon">⚙️</div>
         <span class="sidebar-item-text" data-i18n="admin.settings">Settings</span>
@@ -288,6 +293,59 @@
             </thead>
             <tbody id="inventory-tbody">
               <tr><td colspan="7"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== STAFF TAB ========== -->
+      <div class="tab-pane" id="tab-staff">
+        <!-- Open orders -->
+        <div class="section-header">
+          <div>
+            <div class="section-title" data-i18n="admin.staff.open-orders">Open Orders</div>
+            <div class="section-count" data-i18n="admin.staff.open-sub">Click "Work on it" to take an order</div>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th data-i18n="admin.col.num">#</th>
+                <th data-i18n="admin.col.customer">Customer</th>
+                <th data-i18n="admin.col.device">Device</th>
+                <th data-i18n="admin.col.service">Service</th>
+                <th data-i18n="admin.col.status">Status</th>
+                <th data-i18n="admin.col.actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="staff-open-tbody">
+              <tr><td colspan="6"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Active orders (confirmed / diagnostics / waiting_parts) -->
+        <div class="section-header" style="margin-top:2rem;">
+          <div>
+            <div class="section-title" data-i18n="admin.staff.my-orders">My Active Orders</div>
+            <div class="section-count" data-i18n="admin.staff.my-sub">Orders you are currently working on</div>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th data-i18n="admin.col.num">#</th>
+                <th data-i18n="admin.col.customer">Customer</th>
+                <th data-i18n="admin.col.device">Device</th>
+                <th data-i18n="admin.col.service">Service</th>
+                <th data-i18n="admin.col.status">Status</th>
+                <th data-i18n="admin.col.actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="staff-active-tbody">
+              <tr><td colspan="6"><div class="loading-spinner"></div></td></tr>
             </tbody>
           </table>
         </div>

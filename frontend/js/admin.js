@@ -195,6 +195,7 @@ function switchTab(tabName) {
     services:     'admin.tab.services',
     'repair-types': 'admin.tab.repair-types',
     inventory:    'admin.tab.inventory',
+    staff:        'admin.tab.staff',
     settings:     'admin.tab.settings',
   };
   const topTitle = document.getElementById('topbar-title');
@@ -205,6 +206,7 @@ function switchTab(tabName) {
   if (tabName === 'services')      renderServices();
   if (tabName === 'repair-types')  renderRepairTypes();
   if (tabName === 'inventory')     renderInventory();
+  if (tabName === 'staff')         renderStaffTab();
   if (tabName === 'settings')      loadSettings();
 }
 
@@ -225,6 +227,17 @@ async function loadAllData() {
     const pending = allAppointments.filter(a => a.status === 'pending').length;
     const badge = document.getElementById('pending-badge');
     if (badge) badge.textContent = pending;
+
+    // Staff open-orders badge (pending orders)
+    const staffBadge = document.getElementById('staff-open-badge');
+    if (staffBadge) {
+      if (pending > 0) {
+        staffBadge.textContent = pending;
+        staffBadge.style.display = 'inline-flex';
+      } else {
+        staffBadge.style.display = 'none';
+      }
+    }
 
     // Low-stock badge
     const lowStockItems = allInventory.filter(i => i.quantity <= i.min_quantity);
@@ -831,6 +844,83 @@ function renderInventory() {
   }).join('');
 }
 
+// ─── Staff Tab ────────────────────────────────────────────
+function renderStaffTab() {
+  // Open orders: status === 'pending'
+  const openOrders = allAppointments.filter(a => a.status === 'pending');
+  const openTbody = document.getElementById('staff-open-tbody');
+  if (openTbody) {
+    if (!openOrders.length) {
+      openTbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">🎉</div><div class="empty-state-text">${window.t('admin.staff.no-open')}</div></div></td></tr>`;
+    } else {
+      openTbody.innerHTML = openOrders.map(a => `
+        <tr>
+          <td class="td-mono">#${a.id}</td>
+          <td class="td-primary">${escapeHtml(a.customer_name)}</td>
+          <td>${escapeHtml(a.device_model)}</td>
+          <td>${escapeHtml(a.service_name || '—')}</td>
+          <td>${statusBadge(a.status)}</td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick="staffTakeOrder(${a.id})">${window.t('admin.staff.take')}</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  // Active orders: status in [confirmed, diagnostics, waiting_parts]
+  const activeStatuses = ['confirmed', 'diagnostics', 'waiting_parts'];
+  const activeOrders = allAppointments.filter(a => activeStatuses.includes(a.status));
+  const activeTbody = document.getElementById('staff-active-tbody');
+  if (activeTbody) {
+    if (!activeOrders.length) {
+      activeTbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">${window.t('admin.staff.no-active')}</div></div></td></tr>`;
+    } else {
+      activeTbody.innerHTML = activeOrders.map(a => `
+        <tr>
+          <td class="td-mono">#${a.id}</td>
+          <td class="td-primary">${escapeHtml(a.customer_name)}</td>
+          <td>${escapeHtml(a.device_model)}</td>
+          <td>${escapeHtml(a.service_name || '—')}</td>
+          <td>${statusBadge(a.status)}</td>
+          <td>
+            <button class="btn btn-ghost btn-sm btn-icon" title="${window.t('admin.action.edit')}" onclick="openOrderModal(${a.id})">✏️</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+  }
+}
+
+async function staffTakeOrder(id) {
+  try {
+    const res = await authFetch(`${API}/api/admin/appointments/${id}`, {
+      method:  'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ status: 'confirmed' }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    const updated = await res.json();
+    const idx = allAppointments.findIndex(a => a.id === updated.id);
+    if (idx !== -1) allAppointments[idx] = { ...allAppointments[idx], status: updated.status };
+
+    // Refresh badges
+    const pending = allAppointments.filter(a => a.status === 'pending').length;
+    const pendingBadge = document.getElementById('pending-badge');
+    if (pendingBadge) pendingBadge.textContent = pending;
+    const staffBadge = document.getElementById('staff-open-badge');
+    if (staffBadge) {
+      if (pending > 0) { staffBadge.textContent = pending; staffBadge.style.display = 'inline-flex'; }
+      else { staffBadge.style.display = 'none'; }
+    }
+
+    renderStaffTab();
+    showToast('success', window.t('admin.toast.status-updated'), `#${id}`);
+  } catch (err) {
+    showToast('error', window.t('admin.toast.update-failed'), err.message);
+  }
+}
+
 function openInventoryModal(id = null) {
   const titleEl = document.getElementById('modal-inventory-title');
 
@@ -1060,6 +1150,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderServices();
       renderRepairTypes();
       renderInventory();
+      renderStaffTab();
     });
   });
 
