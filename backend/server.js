@@ -7,6 +7,10 @@ const { initDb } = require('./database');
 const app  = express();
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 
+// Trust the first proxy (e.g. Docker/nginx) so express-rate-limit can
+// correctly identify clients via the X-Forwarded-For header.
+app.set('trust proxy', 1);
+
 // ─── Security headers ─────────────────────────────────────
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
