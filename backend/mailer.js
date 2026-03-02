@@ -24,10 +24,14 @@ function getSmtpSettings() {
 }
 
 function createTransport(cfg) {
+  const port = parseInt(cfg.smtp_port, 10) || 587;
+  // Port 465 always uses implicit TLS; other ports use STARTTLS (secure=false)
+  // unless the user has explicitly opted in via smtp_secure=true.
+  const secure = port === 465 ? true : cfg.smtp_secure === 'true';
   return nodemailer.createTransport({
     host:   cfg.smtp_host,
-    port:   parseInt(cfg.smtp_port, 10) || 587,
-    secure: cfg.smtp_secure === 'true',
+    port,
+    secure,
     auth: {
       user: cfg.smtp_user,
       pass: cfg.smtp_pass,
@@ -196,4 +200,4 @@ function escHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-module.exports = { sendBookingConfirmation, sendMessageNotification, getSmtpSettings };
+module.exports = { sendBookingConfirmation, sendMessageNotification, getSmtpSettings, createTransport };

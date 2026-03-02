@@ -345,17 +345,11 @@ router.put('/settings', (req, res) => {
 // POST /api/admin/settings/test-smtp  – send a test email
 router.post('/settings/test-smtp', async (req, res) => {
   try {
-    const { getSmtpSettings } = require('../mailer');
+    const { getSmtpSettings, createTransport } = require('../mailer');
     const cfg = getSmtpSettings();
     if (!cfg) return res.status(400).json({ error: 'SMTP not configured' });
 
-    const nodemailer = require('nodemailer');
-    const transport = nodemailer.createTransport({
-      host: cfg.smtp_host,
-      port: parseInt(cfg.smtp_port, 10) || 587,
-      secure: cfg.smtp_secure === 'true',
-      auth: { user: cfg.smtp_user, pass: cfg.smtp_pass },
-    });
+    const transport = createTransport(cfg);
     await transport.sendMail({
       from: cfg.smtp_from || cfg.smtp_user,
       to: cfg.smtp_user,
