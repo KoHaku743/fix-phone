@@ -82,7 +82,6 @@ async function loadServices() {
 
     if (!services.length) {
       grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">${window.t('services.empty')}</div>`;
-      renderServicePicker([]);
       return;
     }
 
