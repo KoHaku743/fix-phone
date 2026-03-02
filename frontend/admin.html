@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FixPhone – Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="sidebar-logo-icon">🔧</span>
+      <span class="sidebar-logo-text">FixPhone Admin</span>
+    </div>
+
+    <div class="sidebar-label">Main Menu</div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-item active" data-tab="dashboard">
+        <div class="sidebar-item-icon">📊</div>
+        <span class="sidebar-item-text">Dashboard</span>
+      </div>
+      <div class="sidebar-item" data-tab="orders">
+        <div class="sidebar-item-icon">📋</div>
+        <span class="sidebar-item-text">Orders</span>
+        <span class="sidebar-badge" id="pending-badge">0</span>
+      </div>
+      <div class="sidebar-item" data-tab="services">
+        <div class="sidebar-item-icon">🛠️</div>
+        <span class="sidebar-item-text">Services</span>
+      </div>
+      <div class="sidebar-item" data-tab="repair-types">
+        <div class="sidebar-item-icon">🏷️</div>
+        <span class="sidebar-item-text">Repair Types</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="/" class="sidebar-footer-link">
+        🏠 View Website
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <!-- Topbar -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div class="topbar-subtitle">Manage your repair business</div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-avatar">A</div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-area">
+
+      <!-- ========== DASHBOARD TAB ========== -->
+      <div class="tab-pane active" id="tab-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card stat-card-1">
+            <div class="stat-icon stat-icon-1">📋</div>
+            <div class="stat-value" id="stat-total">—</div>
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-change">↑ All time</div>
+          </div>
+          <div class="stat-card stat-card-2">
+            <div class="stat-icon stat-icon-2">⏳</div>
+            <div class="stat-value" id="stat-pending">—</div>
+            <div class="stat-label">Pending</div>
+            <div class="stat-change" style="color: var(--warning);">Needs attention</div>
+          </div>
+          <div class="stat-card stat-card-3">
+            <div class="stat-icon stat-icon-3">✅</div>
+            <div class="stat-value" id="stat-completed">—</div>
+            <div class="stat-label">Completed</div>
+            <div class="stat-change">↑ Great work!</div>
+          </div>
+          <div class="stat-card stat-card-4">
+            <div class="stat-icon stat-icon-4">💰</div>
+            <div class="stat-value" id="stat-revenue">—</div>
+            <div class="stat-label">Revenue</div>
+            <div class="stat-change" style="color: var(--accent-light);">Completed orders</div>
+          </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="section-header">
+          <div>
+            <div class="section-title">Recent Orders</div>
+            <div class="section-count" id="recent-count"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="switchTab('orders')">View All →</button>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Device</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="recent-tbody">
+              <tr><td colspan="6"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== ORDERS TAB ========== -->
+      <div class="tab-pane" id="tab-orders">
+        <div class="section-header">
+          <div>
+            <div class="section-title">All Appointments</div>
+            <div class="section-count" id="orders-count"></div>
+          </div>
+        </div>
+        <div class="table-container">
+          <div class="table-toolbar">
+            <div class="table-search">
+              <span class="table-search-icon">🔍</span>
+              <input class="table-search-input" type="text" placeholder="Search orders..." id="orders-search" />
+            </div>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button class="btn btn-ghost btn-sm filter-btn active" data-filter="all">All</button>
+              <button class="btn btn-ghost btn-sm filter-btn" data-filter="pending">Pending</button>
+              <button class="btn btn-ghost btn-sm filter-btn" data-filter="confirmed">Confirmed</button>
+              <button class="btn btn-ghost btn-sm filter-btn" data-filter="completed">Completed</button>
+              <button class="btn btn-ghost btn-sm filter-btn" data-filter="cancelled">Cancelled</button>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Contact</th>
+                <th>Device</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="orders-tbody">
+              <tr><td colspan="8"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== SERVICES TAB ========== -->
+      <div class="tab-pane" id="tab-services">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Services</div>
+            <div class="section-count" id="services-count"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="add-service-btn">+ Add Service</button>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Repair Type</th>
+                <th>Price</th>
+                <th>Duration</th>
+                <th>Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="services-tbody">
+              <tr><td colspan="7"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== REPAIR TYPES TAB ========== -->
+      <div class="tab-pane" id="tab-repair-types">
+        <div class="section-header">
+          <div>
+            <div class="section-title">Repair Types</div>
+            <div class="section-count" id="repair-types-count"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="add-repair-type-btn">+ Add Repair Type</button>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="repair-types-tbody">
+              <tr><td colspan="5"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+  </main>
+
+  <!-- ========== MODALS ========== -->
+
+  <!-- Edit Order Status Modal -->
+  <div class="modal-overlay" id="modal-order">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Update Appointment Status</span>
+        <button class="modal-close" data-modal="modal-order">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="order-id" />
+        <div class="form-group">
+          <label class="form-label">Customer</label>
+          <div id="order-customer-info" style="font-size:0.875rem; color:var(--text-secondary); padding:0.5rem 0;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="order-status">
+            <option value="pending">⏳ Pending</option>
+            <option value="confirmed">🔵 Confirmed</option>
+            <option value="completed">✅ Completed</option>
+            <option value="cancelled">❌ Cancelled</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal="modal-order">Cancel</button>
+        <button class="btn btn-primary" id="save-order-btn">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Service Modal -->
+  <div class="modal-overlay" id="modal-service">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-service-title">Add Service</span>
+        <button class="modal-close" data-modal="modal-service">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="service-id" />
+        <div class="form-group">
+          <label class="form-label">Service Name *</label>
+          <input class="form-input" type="text" id="service-name" placeholder="e.g. iPhone 15 Screen Replacement" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Repair Type</label>
+          <select class="form-select" id="service-repair-type">
+            <option value="">— Select repair type —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="service-description" placeholder="Brief description of the service..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Price ($) *</label>
+            <input class="form-input" type="number" id="service-price" placeholder="99.99" min="0" step="0.01" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Duration (minutes)</label>
+            <input class="form-input" type="number" id="service-duration" placeholder="60" min="1" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stock Status</label>
+          <select class="form-select" id="service-stock">
+            <option value="1">✅ In Stock</option>
+            <option value="0">❌ Out of Stock</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal="modal-service">Cancel</button>
+        <button class="btn btn-primary" id="save-service-btn">Save Service</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Repair Type Modal -->
+  <div class="modal-overlay" id="modal-repair-type">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-repair-type-title">Add Repair Type</span>
+        <button class="modal-close" data-modal="modal-repair-type">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="repair-type-id" />
+        <div class="form-group">
+          <label class="form-label">Name *</label>
+          <input class="form-input" type="text" id="repair-type-name" placeholder="e.g. Screen Repair" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="repair-type-description" placeholder="Brief description..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal="modal-repair-type">Cancel</button>
+        <button class="btn btn-primary" id="save-repair-type-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" style="position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;"></div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
