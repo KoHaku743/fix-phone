@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="sk" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSStylish Repair – Sledovanie zákazky</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    body { background: var(--bg-primary); min-height: 100vh; }
+
+    .track-navbar {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .track-navbar-logo {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      text-decoration: none;
+    }
+
+    .track-container {
+      max-width: 680px;
+      margin: 2.5rem auto;
+      padding: 0 1rem;
+    }
+
+    .track-heading {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .track-heading h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    .track-heading p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .track-form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .track-form { display: flex; flex-direction: column; gap: 1rem; }
+
+    .form-row-track {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 520px) {
+      .form-row-track { grid-template-columns: 1fr; }
+    }
+
+    .track-btn {
+      background: linear-gradient(135deg, var(--teal), var(--accent));
+      color: #0a0e1a;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.85rem 2rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      width: 100%;
+    }
+    .track-btn:hover:not(:disabled) { opacity: 0.85; }
+    .track-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .track-error {
+      color: var(--danger);
+      font-size: 0.88rem;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+
+    /* Result card */
+    .track-result {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .track-result-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .track-order-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .track-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.75rem;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .track-meta-item {}
+    .track-meta-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+    .track-meta-value { font-size: 0.9rem; color: var(--text-primary); font-weight: 600; }
+
+    .track-price {
+      margin: 0 1.5rem 0;
+      padding: 0.75rem 1rem;
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.2);
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    /* Progress stepper */
+    .track-progress {
+      padding: 1.5rem;
+    }
+    .track-progress-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 1.25rem;
+    }
+
+    .stepper {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      position: relative;
+    }
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 32px;
+      bottom: -8px;
+      width: 2px;
+      background: var(--border);
+    }
+    .step-item.step-done:not(:last-child)::after { background: var(--teal); }
+    .step-item.step-active:not(:last-child)::after { background: var(--border); }
+
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    .step-item.step-done .step-circle {
+      border-color: var(--teal);
+      background: var(--teal);
+      color: #0a0e1a;
+    }
+    .step-item.step-active .step-circle {
+      border-color: var(--accent);
+      background: rgba(124,58,237,0.15);
+      color: var(--accent);
+    }
+
+    .step-content {
+      padding: 4px 0 20px;
+    }
+    .step-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .step-item.step-done .step-label { color: var(--text-primary); }
+    .step-item.step-active .step-label { color: var(--text-primary); }
+    .step-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .cancelled-banner {
+      padding: 1.25rem 1.5rem;
+      background: rgba(239,68,68,0.1);
+      border-top: 1px solid rgba(239,68,68,0.2);
+      color: #ef4444;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .track-actions {
+      padding: 1.25rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="track-navbar">
+    <a href="/" class="track-navbar-logo">⚡ <span style="color:var(--teal);">SSS</span>tylish Repair</a>
+  </nav>
+
+  <div class="track-container">
+    <div class="track-heading">
+      <h1>📦 Sledovanie zákazky</h1>
+      <p>Zadajte číslo objednávky a e-mailovú adresu na sledovanie stavu opravy.</p>
+    </div>
+
+    <div class="track-form-card">
+      <form class="track-form" id="track-form">
+        <div class="form-row-track">
+          <div class="form-group">
+            <label class="form-label" for="track-id">Číslo zákazky *</label>
+            <input class="form-input" type="number" id="track-id" placeholder="napr. 42" min="1" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="track-email">Váš e-mail *</label>
+            <input class="form-input" type="email" id="track-email" placeholder="jan@priklad.sk" required />
+          </div>
+        </div>
+        <div id="track-error" class="track-error" style="display:none;"></div>
+        <button type="submit" class="track-btn" id="track-btn">
+          <span id="track-btn-text">🔍 Sledovať zákazku</span>
+          <span id="track-btn-loading" style="display:none;">⏳ Hľadám...</span>
+        </button>
+      </form>
+    </div>
+
+    <div id="track-result" style="display:none;" class="track-result"></div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script>
+    const STEPS_INFO = [
+      { key: 'pending',       label: 'Prijaté',           desc: 'Vaše zariadenie bolo prijaté do opravovne.' },
+      { key: 'confirmed',     label: 'Potvrdené',          desc: 'Oprava bola potvrdená, čoskoro začneme.' },
+      { key: 'diagnostics',   label: 'Diagnostika',        desc: 'Technik diagnostikuje váš prístroj.' },
+      { key: 'waiting_parts', label: 'Čaká na diely',      desc: 'Čakáme na dodanie náhradných dielov.' },
+      { key: 'completed',     label: 'Opravené',           desc: 'Oprava dokončená, zariadenie bude odoslané.' },
+    ];
+
+    function escHtml(str) {
+      if (typeof str !== 'string') return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function renderResult(data) {
+      const container = document.getElementById('track-result');
+      const isCancelled = data.status === 'cancelled';
+      const stepIndex = data.current_step_index;
+
+      const stepsHtml = STEPS_INFO.map((s, i) => {
+        let cls = '';
+        if (i < stepIndex) cls = 'step-done';
+        else if (i === stepIndex) cls = 'step-active';
+        const icon = i < stepIndex ? '✓' : (i === stepIndex ? '●' : (i + 1).toString());
+        return `
+          <div class="step-item ${cls}">
+            <div class="step-circle">${icon}</div>
+            <div class="step-content">
+              <div class="step-label">${escHtml(s.label)}</div>
+              <div class="step-desc">${i <= stepIndex || cls === 'step-done' ? escHtml(s.desc) : ''}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="track-result-header">
+          <div class="track-order-title">📦 Zákazka #${data.id}</div>
+        </div>
+        <div class="track-meta">
+          <div class="track-meta-item">
+            <div class="track-meta-label">Zákazník</div>
+            <div class="track-meta-value">${escHtml(data.customer_name)}</div>
+          </div>
+          <div class="track-meta-item">
+            <div class="track-meta-label">Zariadenie</div>
+            <div class="track-meta-value">${escHtml(data.device_model)}</div>
+          </div>
+          <div class="track-meta-item">
+            <div class="track-meta-label">Oprava</div>
+            <div class="track-meta-value">${escHtml(data.service_name || '—')}</div>
+          </div>
+        </div>
+        ${data.quoted_price != null ? `<div class="track-price" style="margin:1rem 1.5rem 0;">💰 Cenová ponuka: ${Number(data.quoted_price).toFixed(2)} €</div>` : ''}
+        ${isCancelled
+          ? `<div class="cancelled-banner">❌ Táto zákazka bola zrušená.</div>`
+          : `<div class="track-progress">
+              <div class="track-progress-title">Priebeh opravy</div>
+              <div class="stepper">${stepsHtml}</div>
+            </div>`
+        }
+        <div class="track-actions">
+          <a href="/" style="font-size:0.85rem;color:var(--teal);text-decoration:none;">← Späť na hlavnú stránku</a>
+        </div>
+      `;
+
+      container.style.display = 'block';
+    }
+
+    async function trackOrder(e) {
+      e.preventDefault();
+      const idVal    = document.getElementById('track-id').value.trim();
+      const emailVal = document.getElementById('track-email').value.trim();
+      const errEl    = document.getElementById('track-error');
+      const btn      = document.getElementById('track-btn');
+      const btnText  = document.getElementById('track-btn-text');
+      const btnLoad  = document.getElementById('track-btn-loading');
+
+      errEl.style.display = 'none';
+      document.getElementById('track-result').style.display = 'none';
+
+      if (!idVal || !emailVal) {
+        errEl.textContent = 'Vyplňte prosím všetky polia.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.style.display = 'none';
+      btnLoad.style.display = 'inline';
+
+      try {
+        const res = await fetch(`/api/track/${encodeURIComponent(idVal)}?email=${encodeURIComponent(emailVal)}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Zákazka sa nenašla.');
+        renderResult(data);
+      } catch (err) {
+        errEl.textContent = '❌ ' + (err.message || 'Nastala chyba. Skúste to znova.');
+        errEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoad.style.display = 'none';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('track-form');
+      if (form) form.addEventListener('submit', trackOrder);
+
+      // Pre-fill from URL params if any
+      const params = new URLSearchParams(location.search);
+      if (params.get('id')) document.getElementById('track-id').value = params.get('id');
+      if (params.get('email')) document.getElementById('track-email').value = params.get('email');
+    });
+  </script>
+</body>
+</html>

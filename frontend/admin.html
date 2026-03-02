@@ -57,6 +57,11 @@
         <div class="sidebar-item-icon">🏷️</div>
         <span class="sidebar-item-text" data-i18n="admin.repair-types">Repair Types</span>
       </div>
+      <div class="sidebar-item" data-tab="inventory">
+        <div class="sidebar-item-icon">📦</div>
+        <span class="sidebar-item-text" data-i18n="admin.inventory">Inventory</span>
+        <span class="sidebar-badge sidebar-badge-low" id="low-stock-badge" style="display:none;background:#f59e0b;">0</span>
+      </div>
       <div class="sidebar-item" data-tab="settings">
         <div class="sidebar-item-icon">⚙️</div>
         <span class="sidebar-item-text" data-i18n="admin.settings">Settings</span>
@@ -114,7 +119,28 @@
             <div class="stat-label" data-i18n="admin.revenue">Revenue</div>
             <div class="stat-change" style="color: var(--accent-light);" data-i18n="admin.completed-orders">Completed orders</div>
           </div>
+          <div class="stat-card stat-card-1">
+            <div class="stat-icon stat-icon-2">📅</div>
+            <div class="stat-value" id="stat-today">—</div>
+            <div class="stat-label" data-i18n="admin.today-orders">Today's Orders</div>
+            <div class="stat-change" data-i18n="admin.today-desc">New today</div>
+          </div>
+          <div class="stat-card stat-card-4">
+            <div class="stat-icon stat-icon-4">📆</div>
+            <div class="stat-value" id="stat-monthly-revenue">—</div>
+            <div class="stat-label" data-i18n="admin.monthly-revenue">Monthly Revenue</div>
+            <div class="stat-change" style="color: var(--accent-light);" data-i18n="admin.this-month">This month</div>
+          </div>
         </div>
+
+        <!-- Top 3 Device Models -->
+        <div class="section-header" style="margin-top:1.5rem;">
+          <div>
+            <div class="section-title" data-i18n="admin.top-models">Top Device Models</div>
+            <div class="section-count" data-i18n="admin.top-models-sub">Most frequent repairs</div>
+          </div>
+        </div>
+        <div id="top-models-list" style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.5rem;"></div>
 
         <!-- Recent Orders -->
         <div class="section-header">
@@ -238,6 +264,35 @@
         </div>
       </div>
 
+      <!-- ========== INVENTORY TAB ========== -->
+      <div class="tab-pane" id="tab-inventory">
+        <div class="section-header">
+          <div>
+            <div class="section-title" data-i18n="admin.inventory">Inventory</div>
+            <div class="section-count" id="inventory-count"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="add-inventory-btn" data-i18n="admin.add-inventory">+ Add Part</button>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th data-i18n="admin.col.num">#</th>
+                <th data-i18n="admin.inv.part-name">Part Name</th>
+                <th data-i18n="admin.inv.model">Device Model</th>
+                <th data-i18n="admin.inv.quantity">Quantity</th>
+                <th data-i18n="admin.inv.min-qty">Min. Stock</th>
+                <th data-i18n="admin.inv.price">Unit Price</th>
+                <th data-i18n="admin.col.actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-tbody">
+              <tr><td colspan="7"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- ========== SETTINGS TAB ========== -->
       <div class="tab-pane" id="tab-settings">
         <div class="section-header">
@@ -312,6 +367,8 @@
             <select class="form-select" id="order-status">
               <option value="pending" data-i18n="status.pending">⏳ Pending</option>
               <option value="confirmed" data-i18n="status.confirmed">🔵 Confirmed</option>
+              <option value="diagnostics" data-i18n="status.diagnostics">🔬 Diagnostics</option>
+              <option value="waiting_parts" data-i18n="status.waiting_parts">⏸️ Waiting for Parts</option>
               <option value="completed" data-i18n="status.completed">✅ Completed</option>
               <option value="cancelled" data-i18n="status.cancelled">❌ Cancelled</option>
             </select>
@@ -347,6 +404,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" data-modal="modal-order" data-i18n="modal.cancel">Cancel</button>
+        <button class="btn btn-ghost" id="print-receipt-btn" data-i18n="modal.print-receipt">🖨️ Receipt</button>
         <button class="btn btn-primary" id="save-order-btn" data-i18n="modal.save-changes">Save Changes</button>
       </div>
     </div>
@@ -421,6 +479,47 @@
       <div class="modal-footer">
         <button class="btn btn-ghost" data-modal="modal-repair-type" data-i18n="modal.cancel">Cancel</button>
         <button class="btn btn-primary" id="save-repair-type-btn" data-i18n="modal.save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Inventory Modal -->
+  <div class="modal-overlay" id="modal-inventory">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-inventory-title" data-i18n="admin.add-inventory">Add Part</span>
+        <button class="modal-close" data-modal="modal-inventory">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="inventory-id" />
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" data-i18n="admin.inv.part-name">Part Name *</label>
+            <input class="form-input" type="text" id="inv-part-name" placeholder="e.g. Display, Battery" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="admin.inv.model">Device Model *</label>
+            <input class="form-input" type="text" id="inv-model-name" placeholder="e.g. iPhone 14" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" data-i18n="admin.inv.quantity">Quantity</label>
+            <input class="form-input" type="number" id="inv-quantity" placeholder="0" min="0" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="admin.inv.min-qty">Min. Stock Alert</label>
+            <input class="form-input" type="number" id="inv-min-quantity" placeholder="1" min="0" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="admin.inv.price">Unit Price (€)</label>
+          <input class="form-input" type="number" id="inv-unit-price" placeholder="0.00" min="0" step="0.01" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal="modal-inventory" data-i18n="modal.cancel">Cancel</button>
+        <button class="btn btn-primary" id="save-inventory-btn" data-i18n="modal.save">Save</button>
       </div>
     </div>
   </div>

@@ -36,7 +36,7 @@ router.put('/appointments/:id', (req, res) => {
   try {
     const { prepare } = getDb();
     const { status, quoted_price } = req.body;
-    const validStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
+    const validStatuses = ['pending', 'confirmed', 'diagnostics', 'waiting_parts', 'completed', 'cancelled'];
     if (status !== undefined && !validStatuses.includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
@@ -226,6 +226,76 @@ router.delete('/repair-types/:id', (req, res) => {
     const result = prepare('DELETE FROM repair_types WHERE id = ?').run(req.params.id);
     if (result.changes === 0) return res.status(404).json({ error: 'Repair type not found' });
     res.json({ message: 'Repair type deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Inventory ─────────────────────────────────────────────
+
+// GET /api/admin/inventory
+router.get('/inventory', (req, res) => {
+  try {
+    const { prepare } = getDb();
+    const items = prepare('SELECT * FROM inventory ORDER BY model_name, part_name').all();
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/inventory
+router.post('/inventory', (req, res) => {
+  try {
+    const { prepare } = getDb();
+    const { part_name, model_name, quantity, min_quantity, unit_price } = req.body;
+    if (!part_name || !model_name) return res.status(400).json({ error: 'part_name and model_name are required' });
+    const result = prepare(`
+      INSERT INTO inventory (part_name, model_name, quantity, min_quantity, unit_price)
+      VALUES (?, ?, ?, ?, ?)
+    `).run(
+      part_name, model_name,
+      quantity != null ? parseInt(quantity, 10) : 0,
+      min_quantity != null ? parseInt(min_quantity, 10) : 1,
+      unit_price != null ? parseFloat(unit_price) : null
+    );
+    const item = prepare('SELECT * FROM inventory WHERE id = ?').get(result.lastInsertRowid);
+    res.status(201).json(item);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/admin/inventory/:id
+router.put('/inventory/:id', (req, res) => {
+  try {
+    const { prepare } = getDb();
+    const { part_name, model_name, quantity, min_quantity, unit_price } = req.body;
+    if (!part_name || !model_name) return res.status(400).json({ error: 'part_name and model_name are required' });
+    prepare(`
+      UPDATE inventory SET part_name=?, model_name=?, quantity=?, min_quantity=?, unit_price=? WHERE id=?
+    `).run(
+      part_name, model_name,
+      quantity != null ? parseInt(quantity, 10) : 0,
+      min_quantity != null ? parseInt(min_quantity, 10) : 1,
+      unit_price != null ? parseFloat(unit_price) : null,
+      req.params.id
+    );
+    const item = prepare('SELECT * FROM inventory WHERE id = ?').get(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Inventory item not found' });
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/admin/inventory/:id
+router.delete('/inventory/:id', (req, res) => {
+  try {
+    const { prepare } = getDb();
+    const result = prepare('DELETE FROM inventory WHERE id = ?').run(req.params.id);
+    if (result.changes === 0) return res.status(404).json({ error: 'Inventory item not found' });
+    res.json({ message: 'Item deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
