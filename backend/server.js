@@ -80,6 +80,10 @@ function mountAdminRoutes(expressApp) {
 
 if (!useAdminServer) {
   mountAdminRoutes(app);
+  // Admin-enhanced conversation view on single-server setup
+  app.get('/admin/conversation/:token', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/admin-conversation.html'));
+  });
 }
 
 // ─── Public frontend routes ───────────────────────────────
@@ -112,6 +116,9 @@ if (useAdminServer) {
   adminApp.use(limiter);
   adminApp.use(express.static(path.join(__dirname, '../frontend')));
   mountAdminRoutes(adminApp);
+  adminApp.get('/conversation/:token', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/admin-conversation.html'));
+  });
   adminApp.use((req, res) => {
     if (req.accepts('html')) {
       res.status(404).sendFile(path.join(__dirname, '../frontend/404.html'));

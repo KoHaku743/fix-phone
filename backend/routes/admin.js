@@ -96,6 +96,29 @@ router.put('/appointments/:id', async (req, res) => {
   }
 });
 
+// GET /api/admin/conversations/:token – look up appointment + messages by conversation_token
+router.get('/conversations/:token', (req, res) => {
+  try {
+    const { prepare } = getDb();
+    const appt = prepare(`
+      SELECT a.*, s.name as service_name
+      FROM appointments a
+      LEFT JOIN services s ON a.service_id = s.id
+      WHERE a.conversation_token = ?
+    `).get(req.params.token);
+    if (!appt) return res.status(404).json({ error: 'Conversation not found' });
+
+    const messages = prepare(`
+      SELECT id, sender, content, created_at
+      FROM messages WHERE appointment_id = ? ORDER BY created_at ASC
+    `).all(appt.id);
+
+    res.json({ appointment: appt, messages });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/admin/appointments/:id/messages
 router.get('/appointments/:id/messages', (req, res) => {
   try {
