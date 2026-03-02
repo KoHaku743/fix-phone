@@ -278,10 +278,10 @@
             <thead>
               <tr>
                 <th data-i18n="admin.col.num">#</th>
-                <th data-i18n="admin.inv.part-name">Part Name</th>
-                <th data-i18n="admin.inv.model">Device Model</th>
-                <th data-i18n="admin.inv.quantity">Quantity</th>
-                <th data-i18n="admin.inv.min-qty">Min. Stock</th>
+                <th data-i18n="admin.inv.part-name">Spare Part Name</th>
+                <th data-i18n="admin.inv.model">Compatible Device Model</th>
+                <th data-i18n="admin.inv.quantity">Stock Quantity</th>
+                <th data-i18n="admin.inv.min-qty">Minimum Stock Level</th>
                 <th data-i18n="admin.inv.price">Unit Price</th>
                 <th data-i18n="admin.col.actions">Actions</th>
               </tr>
@@ -494,21 +494,21 @@
         <input type="hidden" id="inventory-id" />
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label" data-i18n="admin.inv.part-name">Part Name *</label>
+            <label class="form-label" data-i18n="admin.inv.part-name">Spare Part Name *</label>
             <input class="form-input" type="text" id="inv-part-name" placeholder="e.g. Display, Battery" />
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="admin.inv.model">Device Model *</label>
+            <label class="form-label" data-i18n="admin.inv.model">Compatible Device Model *</label>
             <input class="form-input" type="text" id="inv-model-name" placeholder="e.g. iPhone 14" />
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label" data-i18n="admin.inv.quantity">Quantity</label>
+            <label class="form-label" data-i18n="admin.inv.quantity">Stock Quantity</label>
             <input class="form-input" type="number" id="inv-quantity" placeholder="0" min="0" />
           </div>
           <div class="form-group">
-            <label class="form-label" data-i18n="admin.inv.min-qty">Min. Stock Alert</label>
+            <label class="form-label" data-i18n="admin.inv.min-qty">Minimum Stock Level</label>
             <input class="form-input" type="number" id="inv-min-quantity" placeholder="1" min="0" />
           </div>
         </div>

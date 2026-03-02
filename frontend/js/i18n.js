@@ -160,7 +160,6 @@ const TRANSLATIONS = {
     'admin.col.repair-type': 'Repair Type',
     'admin.col.price':       'Price',
     'admin.col.price-range': 'Price Range',
-    'admin.col.duration':    'Duration',
     'admin.col.stock':       'Stock',
 
     /* ── Admin settings ── */
@@ -178,10 +177,10 @@ const TRANSLATIONS = {
     /* ── Admin inventory tab ── */
     'admin.add-inventory':   '+ Add Part',
     'admin.edit-inventory':  'Edit Part',
-    'admin.inv.part-name':   'Part Name',
-    'admin.inv.model':       'Device Model',
-    'admin.inv.quantity':    'Quantity',
-    'admin.inv.min-qty':     'Min. Stock',
+    'admin.inv.part-name':   'Spare Part Name',
+    'admin.inv.model':       'Compatible Device Model',
+    'admin.inv.quantity':    'Stock Quantity',
+    'admin.inv.min-qty':     'Minimum Stock Level',
     'admin.inv.price':       'Unit Price',
 
     /* ── Admin modal receipt ── */
@@ -310,7 +309,7 @@ const TRANSLATIONS = {
     'nav.book-now':    'Rezervovať',
 
     /* ── Hero ── */
-    'hero.badge':            '✅ Servis v ten istý deň',
+    'hero.badge':            '⚡ SSS-rank kvalitný servis',
     'hero.title1':           'Odborné opravy telefónov',
     'hero.title2':           'Ktorým môžete veriť',
     'hero.subtitle':         'Od prasklých obrazoviek až po vybité batérie – naši certifikovaní technici rýchlo opravia všetky hlavné modely telefónov s použitím originálnych dielov a zárukou spokojnosti.',
@@ -318,11 +317,11 @@ const TRANSLATIONS = {
     'hero.cta-services':     '🔍 Zobraziť služby',
     'hero.stat1-label':      'Opravených zariadení',
     'hero.stat2-label':      'Hodnotenie zákazníkov',
-    'hero.stat3-label':      'Priem. čas opravy',
+    'hero.stat3-label':      'Rýchle vybavenie',
     'hero.phone-warranty':   '🛡️ 90-dňová záruka',
     'hero.phone-title':      'Oprava prebieha',
     'hero.phone-subtitle':   'Spúšťanie diagnostiky...',
-    'hero.phone-ready':      '⚡ Hotové do 60 min',
+    'hero.phone-ready':      '📦 Odoslanie poštou',
 
     /* ── Services section ── */
     'services.tag':       'Naše služby',
@@ -458,7 +457,6 @@ const TRANSLATIONS = {
     'admin.col.repair-type': 'Typ opravy',
     'admin.col.price':       'Cena',
     'admin.col.price-range': 'Cenové rozpätie',
-    'admin.col.duration':    'Trvanie',
     'admin.col.stock':       'Dostupnosť',
 
     /* ── Admin settings ── */
@@ -476,10 +474,10 @@ const TRANSLATIONS = {
     /* ── Admin inventory tab ── */
     'admin.add-inventory':   '+ Pridať diel',
     'admin.edit-inventory':  'Upraviť diel',
-    'admin.inv.part-name':   'Názov dielu',
-    'admin.inv.model':       'Model zariadenia',
-    'admin.inv.quantity':    'Množstvo',
-    'admin.inv.min-qty':     'Min. zásoby',
+    'admin.inv.part-name':   'Názov náhradného dielu',
+    'admin.inv.model':       'Kompatibilný model zariadenia',
+    'admin.inv.quantity':    'Množstvo na sklade',
+    'admin.inv.min-qty':     'Minimálna zásoba',
     'admin.inv.price':       'Jednotková cena',
 
     /* ── Admin modal receipt ── */

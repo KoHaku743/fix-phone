@@ -155,10 +155,10 @@ router.put('/services/:id', (req, res) => {
     prepare(`
       UPDATE services SET repair_type_id=?, name=?, description=?, price_from=?, price_to=?, duration_minutes=?, in_stock=? WHERE id=?
     `).run(
-      repair_type_id, name, description,
+      repair_type_id || null, name, description || null,
       price_from != null ? parseFloat(price_from) : null,
       price_to != null ? parseFloat(price_to) : null,
-      duration_minutes, in_stock, req.params.id
+      duration_minutes || 60, in_stock, req.params.id
     );
     const service = prepare('SELECT * FROM services WHERE id = ?').get(req.params.id);
     if (!service) return res.status(404).json({ error: 'Service not found' });
