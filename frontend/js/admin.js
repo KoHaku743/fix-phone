@@ -1248,12 +1248,40 @@ document.addEventListener('DOMContentLoaded', () => {
   const backBtn = document.getElementById('login-back-btn');
   if (backBtn) backBtn.addEventListener('click', () => showLoginStep(1));
 
+  // Mobile sidebar toggle
+  const hamburger = document.getElementById('topbar-hamburger');
+  const sidebar   = document.getElementById('sidebar');
+  const overlay   = document.getElementById('sidebar-overlay');
+
+  function openSidebar() {
+    sidebar?.classList.add('open');
+    overlay?.classList.add('open');
+    hamburger?.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeSidebar() {
+    sidebar?.classList.remove('open');
+    overlay?.classList.remove('open');
+    hamburger?.setAttribute('aria-expanded', 'false');
+  }
+
+  hamburger?.addEventListener('click', () => {
+    if (sidebar?.classList.contains('open')) closeSidebar();
+    else openSidebar();
+  });
+
+  overlay?.addEventListener('click', closeSidebar);
+
   // Logout button
   document.getElementById('logout-btn')?.addEventListener('click', logout);
 
   // Sidebar navigation
   document.querySelectorAll('.sidebar-item').forEach(item => {
-    item.addEventListener('click', () => switchTab(item.dataset.tab));
+    item.addEventListener('click', () => {
+      switchTab(item.dataset.tab);
+      // Close sidebar on mobile after nav
+      if (window.innerWidth <= 768) closeSidebar();
+    });
   });
 
   // Modal save buttons
