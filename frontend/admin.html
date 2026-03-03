@@ -103,14 +103,21 @@
       </button>
     </div>
   </aside>
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
   <!-- Main Content -->
   <main class="admin-main">
     <!-- Topbar -->
     <div class="topbar">
-      <div>
-        <div class="topbar-title" id="topbar-title" data-i18n="admin.tab.dashboard">Dashboard</div>
-        <div class="topbar-subtitle" data-i18n="admin.subtitle">Manage your repair business</div>
+      <div style="display:flex;align-items:center;gap:0.75rem;">
+        <button class="topbar-hamburger" id="topbar-hamburger" aria-label="Toggle sidebar" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <div>
+          <div class="topbar-title" id="topbar-title" data-i18n="admin.tab.dashboard">Dashboard</div>
+          <div class="topbar-subtitle" data-i18n="admin.subtitle">Manage your repair business</div>
+        </div>
       </div>
       <div class="topbar-right">
         <button class="lang-toggle" id="lang-toggle" aria-label="Switch language">EN</button>
