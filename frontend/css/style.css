@@ -1277,7 +1277,7 @@ section { padding: 6rem 2rem; }
 @media (max-width: 600px) {
   .navbar { padding: 0 1rem; }
   .nav-links { gap: 1rem; }
-  .nav-links li:not(:last-child):not(:nth-last-child(2)) { display: none; }
+  .nav-links li:not(:last-child) { display: none; }
   .nav-hamburger { display: flex; }
   section { padding: 4rem 1rem; }
   .form-grid { grid-template-columns: 1fr; }
