@@ -122,7 +122,7 @@ async function loadServices() {
           <span class="service-type-badge">${escapeHtml(s.repair_type_name || 'General')}</span>
           <div class="service-icon">${getServiceIcon(s.repair_type_name, s.name)}</div>
           <h3 class="service-name">${escapeHtml(s.name)}</h3>
-          <p class="service-description">${escapeHtml(s.description || 'Profesionálna oprava s originálnymi dielmi.')}</p>
+          <p class="service-description">${escapeHtml(s.description || 'Profesionálna oprava.')}</p>
           <div class="service-footer">
             <span class="service-price service-price-range">${formatPriceRange(s.price_from, s.price_to)}</span>
             <div class="service-meta">

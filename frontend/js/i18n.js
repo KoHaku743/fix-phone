@@ -18,7 +18,7 @@ const TRANSLATIONS = {
     'hero.badge':            '⚡ SSS-rank quality service',
     'hero.title1':           'Expert Phone Repairs',
     'hero.title2':           'SSS-rank Style',
-    'hero.subtitle':         "We return SSS-rank charging to your phone. Bring your device in person – fast, convenient, with genuine parts.",
+    'hero.subtitle':         "We return SSS-rank charging to your phone. Bring your device in person – fast, convenient.",
     'hero.cta-book':         '🛠️ Book a Repair',
     'hero.cta-services':     '🔍 View Services',
     'hero.stat1-label':      'SSS-rank quality',
@@ -32,7 +32,7 @@ const TRANSLATIONS = {
     /* ── Services section ── */
     'services.tag':       'Our Services',
     'services.title':     'Repairs for Every Problem',
-    'services.subtitle':  'We handle all major repairs with genuine parts. Prices are estimates – exact price is set after receiving your device.',
+    'services.subtitle':  'We handle all major repairs. Prices are estimates – exact price is set after receiving your device.',
     'services.in-stock':  '✓ Available',
     'services.out-stock': '✗ Unavailable',
     'services.empty':     'No services available yet.',
@@ -71,7 +71,7 @@ const TRANSLATIONS = {
     'booking.change':           'Change',
 
     /* ── Footer ── */
-    'footer.desc':            'We return SSS-rank charging to your phone. Professional repairs with genuine parts and satisfaction guarantee.',
+    'footer.desc':            'We return SSS-rank charging to your phone. Professional repairs with satisfaction guarantee.',
     'footer.quick-links':     'Quick Links',
     'footer.svc-heading':     'Services',
     'footer.book-appt':       'Book a Repair',
@@ -339,7 +339,7 @@ const TRANSLATIONS = {
     'hero.badge':            '⚡ SSS-rank kvalitný servis',
     'hero.title1':           'Odborné opravy telefónov',
     'hero.title2':           'SSS-rank štýl',
-    'hero.subtitle':         'Vrátime vášmu mobilu štýlové SSS-rank nabíjanie. Prineste zariadenie osobne – rýchlo, pohodlne a s originálnymi dielmi.',
+    'hero.subtitle':         'Vrátime vášmu mobilu štýlové SSS-rank nabíjanie. Prineste zariadenie osobne – rýchlo, pohodlne.',
     'hero.cta-book':         '🛠️ Rezervovať opravu',
     'hero.cta-services':     '🔍 Zobraziť služby',
     'hero.stat1-label':      'SSS-rank kvality',
@@ -353,7 +353,7 @@ const TRANSLATIONS = {
     /* ── Services section ── */
     'services.tag':       'Naše služby',
     'services.title':     'Opravy pre každý problém',
-    'services.subtitle':  'Zabezpečujeme všetky hlavné opravy s originálnymi dielmi. Ceny sú orientačné – presnú cenu stanovíme po obdržaní vášho zariadenia.',
+    'services.subtitle':  'Zabezpečujeme všetky hlavné opravy. Ceny sú orientačné – presnú cenu stanovíme po obdržaní vášho zariadenia.',
     'services.in-stock':  '✓ Dostupné',
     'services.out-stock': '✗ Nedostupné',
     'services.empty':     'Zatiaľ nie sú k dispozícii žiadne služby.',
@@ -395,7 +395,7 @@ const TRANSLATIONS = {
     'booking.change':           'Zmeniť',
 
     /* ── Footer ── */
-    'footer.desc':            'Vrátime vášmu mobilu štýlové SSS-rank nabíjanie. Opravujeme všetky hlavné značky s originálnymi dielmi a zárukou spokojnosti.',
+    'footer.desc':            'Vrátime vášmu mobilu štýlové SSS-rank nabíjanie. Opravujeme všetky hlavné značky so zárukou spokojnosti.',
     'footer.quick-links':     'Rýchle odkazy',
     'footer.svc-heading':     'Služby',
     'footer.book-appt':       'Rezervovať opravu',
