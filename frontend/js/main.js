@@ -373,7 +373,7 @@ async function loadPublicReviews() {
     listEl.innerHTML = reviews.map(r => `
       <div class="review-card">
         <div class="review-stars">${'⭐'.repeat(Math.min(5, Math.max(1, r.rating)))}</div>
-        <p class="review-text">"${escapeHtml(r.review_text)}"</p>
+        ${r.review_text ? `<p class="review-text">"${escapeHtml(r.review_text)}"</p>` : ''}
         <div class="review-author">— ${escapeHtml(r.customer_name || 'Customer')}</div>
       </div>
     `).join('');
