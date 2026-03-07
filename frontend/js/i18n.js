@@ -287,6 +287,7 @@ const TRANSLATIONS = {
     'admin.toast.inv-updated':      'Part Updated',
     'admin.toast.inv-created':      'Part Added',
     'admin.toast.inv-deleted':      'Part Deleted',
+    'admin.toast.slots-saved':      'Time Slots Saved',
 
     /* ── Admin confirm dialogs ── */
     'confirm.delete-service':    'Delete service "{name}"? This action cannot be undone.',
@@ -725,6 +726,7 @@ const TRANSLATIONS = {
     'admin.toast.inv-updated':      'Diel aktualizovaný',
     'admin.toast.inv-created':      'Diel pridaný',
     'admin.toast.inv-deleted':      'Diel odstránený',
+    'admin.toast.slots-saved':      'Časové sloty uložené',
 
     /* ── Admin confirm dialogs ── */
     'confirm.delete-service': 'Odstrániť službu „{name}"? Túto akciu nie je možné vrátiť späť.',

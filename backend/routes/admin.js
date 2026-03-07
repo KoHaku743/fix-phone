@@ -276,7 +276,7 @@ router.post('/appointments/:id/messages', async (req, res) => {
     }
 
     // Emit socket.io event
-    try { req.app.locals.io && req.app.locals.io.emit('new-message', { appointmentId: appt.id, message: msg }); } catch (_) {}
+    try { req.app.locals.io && req.app.locals.io.emit('new-message', { appointment_id: appt.id, message: msg }); } catch (_) {}
 
     res.status(201).json(msg);
   } catch (err) {

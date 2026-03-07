@@ -1547,7 +1547,8 @@ async function loadCalendar() {
   try {
     const res = await authFetch(`${API}/api/admin/calendar?date=${dateStr}`);
     if (!res.ok) throw new Error((await res.json()).error);
-    const appointments = await res.json();
+    const calData = await res.json();
+    const appointments = Array.isArray(calData) ? calData : (calData.appointments || []);
 
     // Group by day
     const dayMap = {};
@@ -1561,16 +1562,18 @@ async function loadCalendar() {
       if (dayMap[key]) dayMap[key].push(a);
     });
 
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    // Derive day abbreviations from the locale for i18n
+    const locale = window.currentLang() === 'sk' ? 'sk-SK' : 'en-US';
     grid.innerHTML = `
       <div class="cal-week-grid">
-        ${Object.entries(dayMap).map(([date, appts], i) => {
-          const d = new Date(date);
+        ${Object.entries(dayMap).map(([date, appts]) => {
+          const d = new Date(date + 'T12:00:00'); // noon to avoid DST issues
           const isToday = date === new Date().toISOString().slice(0, 10);
+          const dayName = d.toLocaleDateString(locale, { weekday: 'short' });
           return `
             <div class="cal-day ${isToday ? 'cal-day-today' : ''}">
               <div class="cal-day-header">
-                <span class="cal-day-name">${days[i]}</span>
+                <span class="cal-day-name">${escapeHtml(dayName)}</span>
                 <span class="cal-day-date">${d.getDate()}</span>
                 ${appts.length ? `<span class="cal-day-count">${appts.length}</span>` : ''}
               </div>
@@ -1605,12 +1608,13 @@ async function loadSlots() {
       container.innerHTML = `<div style="color:var(--text-muted);font-size:0.85rem;">No slots configured.</div>`;
       return;
     }
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    // day_of_week uses Date.getDay() convention: 0=Sunday, 1=Monday, ..., 6=Saturday
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     container.innerHTML = `
       <div id="slots-data" data-slots='${JSON.stringify(slots)}'>
         ${slots.map(s => `
           <div style="display:flex;align-items:center;gap:1rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
-            <span style="min-width:100px;font-size:0.85rem;color:var(--text-secondary);">${days[s.day_of_week - 1] || s.day_of_week}</span>
+            <span style="min-width:100px;font-size:0.85rem;color:var(--text-secondary);">${days[s.day_of_week] || s.day_of_week}</span>
             <span style="min-width:60px;font-weight:700;">${escapeHtml(s.slot_time)}</span>
             <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;">
               <input type="checkbox" data-slot-id="${s.id}" ${s.is_active ? 'checked' : ''} style="accent-color:var(--teal);" />
@@ -1655,7 +1659,7 @@ async function saveSlots() {
       body: JSON.stringify(updated),
     });
     if (!res.ok) throw new Error((await res.json()).error);
-    showToast('success', 'Slots Saved', '');
+    showToast('success', window.t('admin.toast.slots-saved'), '');
   } catch (err) {
     showToast('error', window.t('admin.toast.save-failed'), err.message);
   }
