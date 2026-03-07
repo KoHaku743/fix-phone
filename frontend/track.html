@@ -229,6 +229,69 @@
       gap: 0.75rem;
       flex-wrap: wrap;
     }
+
+    /* Warranty */
+    .warranty-banner {
+      margin: 0 1.5rem 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .warranty-valid {
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.3);
+      color: #10b981;
+    }
+    .warranty-expired {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      color: #ef4444;
+    }
+
+    /* Review form */
+    .review-form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .review-form-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text-primary);
+    }
+    .star-rating {
+      display: flex;
+      gap: 0.25rem;
+      margin-bottom: 1rem;
+    }
+    .star-rating .star {
+      font-size: 1.8rem;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: opacity 0.15s;
+    }
+    .star-rating .star.active { opacity: 1; }
+    .review-submit-btn {
+      background: linear-gradient(135deg, var(--teal), var(--accent));
+      color: #0a0e1a;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      margin-top: 0.75rem;
+      transition: opacity 0.2s;
+    }
+    .review-submit-btn:hover:not(:disabled) { opacity: 0.85; }
+    .review-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -285,6 +348,7 @@
     function renderResult(data) {
       const container = document.getElementById('track-result');
       const isCancelled = data.status === 'cancelled';
+      const isCompleted = data.status === 'completed';
       const stepIndex = data.current_step_index;
 
       const stepsHtml = STEPS_INFO.map((s, i) => {
@@ -302,6 +366,37 @@
           </div>
         `;
       }).join('');
+
+      // Warranty section
+      let warrantyHtml = '';
+      if (isCompleted && data.warranty_expiry) {
+        const expDate = new Date(data.warranty_expiry);
+        const expired = expDate < new Date();
+        const cls = expired ? 'warranty-expired' : 'warranty-valid';
+        const icon = expired ? '⚠️' : '🛡️';
+        const label = expired ? 'Záruka vypršala' : 'Záruka platí do';
+        warrantyHtml = `<div class="warranty-banner ${cls}">${icon} ${label}: ${expDate.toLocaleDateString('sk-SK')}</div>`;
+      }
+
+      // Review form (only for completed orders, without existing review)
+      let reviewHtml = '';
+      if (isCompleted && !data.has_review) {
+        reviewHtml = `
+          <div class="review-form-card" id="review-form-card">
+            <div class="review-form-title">⭐ Ohodnoťte opravu</div>
+            <div class="star-rating" id="star-rating">
+              <span class="star" data-val="1">⭐</span>
+              <span class="star" data-val="2">⭐</span>
+              <span class="star" data-val="3">⭐</span>
+              <span class="star" data-val="4">⭐</span>
+              <span class="star" data-val="5">⭐</span>
+            </div>
+            <textarea id="review-text" class="form-input" rows="3" placeholder="Napíšte recenziu (voliteľné)..." style="width:100%;resize:vertical;"></textarea>
+            <div id="review-error" style="color:var(--danger);font-size:0.85rem;margin-top:0.5rem;display:none;"></div>
+            <button class="review-submit-btn" id="review-submit-btn" onclick="submitReview('${escHtml(data.conversation_token || '')}')">Odoslať hodnotenie</button>
+          </div>
+        `;
+      }
 
       container.innerHTML = `
         <div class="track-result-header">
@@ -322,6 +417,7 @@
           </div>
         </div>
         ${data.quoted_price != null ? `<div class="track-price" style="margin:1rem 1.5rem 0;">💰 Cenová ponuka: ${Number(data.quoted_price).toFixed(2)} €</div>` : ''}
+        ${warrantyHtml}
         ${isCancelled
           ? `<div class="cancelled-banner">❌ Táto zákazka bola zrušená.</div>`
           : `<div class="track-progress">
@@ -332,9 +428,75 @@
         <div class="track-actions">
           <a href="/" style="font-size:0.85rem;color:var(--teal);text-decoration:none;">← Späť na hlavnú stránku</a>
         </div>
+        ${reviewHtml}
       `;
 
       container.style.display = 'block';
+
+      // Setup star rating
+      if (isCompleted) {
+        setupStarRating();
+      }
+    }
+
+    let _selectedRating = 0;
+
+    function setupStarRating() {
+      const stars = document.querySelectorAll('#star-rating .star');
+      stars.forEach(star => {
+        star.addEventListener('click', () => {
+          _selectedRating = parseInt(star.dataset.val, 10);
+          stars.forEach(s => s.classList.toggle('active', parseInt(s.dataset.val, 10) <= _selectedRating));
+        });
+        star.addEventListener('mouseover', () => {
+          const val = parseInt(star.dataset.val, 10);
+          stars.forEach(s => s.classList.toggle('active', parseInt(s.dataset.val, 10) <= val));
+        });
+      });
+      const ratingEl = document.getElementById('star-rating');
+      if (ratingEl) {
+        ratingEl.addEventListener('mouseleave', () => {
+          stars.forEach(s => s.classList.toggle('active', parseInt(s.dataset.val, 10) <= _selectedRating));
+        });
+      }
+    }
+
+    async function submitReview(conversationToken) {
+      const btn = document.getElementById('review-submit-btn');
+      const errEl = document.getElementById('review-error');
+      const text = document.getElementById('review-text')?.value.trim() || '';
+      errEl.style.display = 'none';
+
+      if (!_selectedRating) {
+        errEl.textContent = 'Vyberte prosím hodnotenie (1–5 hviezdičiek).';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      if (!conversationToken) {
+        errEl.textContent = 'Nemôžeme odoslať recenziu – chýba identifikátor zákazky.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ conversation_token: conversationToken, rating: _selectedRating, review_text: text }),
+        });
+        if (!res.ok) {
+          const d = await res.json();
+          throw new Error(d.error || 'Odoslanie zlyhalo.');
+        }
+        const card = document.getElementById('review-form-card');
+        if (card) card.innerHTML = '<div style="color:var(--success);font-weight:700;padding:1rem 0;">✅ Ďakujeme za vaše hodnotenie!</div>';
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.style.display = 'block';
+        btn.disabled = false;
+      }
     }
 
     async function trackOrder(e) {
