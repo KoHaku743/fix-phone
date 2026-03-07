@@ -287,11 +287,13 @@ const TRANSLATIONS = {
     'admin.toast.inv-updated':      'Part Updated',
     'admin.toast.inv-created':      'Part Added',
     'admin.toast.inv-deleted':      'Part Deleted',
+    'admin.toast.slots-saved':      'Time Slots Saved',
 
     /* ── Admin confirm dialogs ── */
     'confirm.delete-service':    'Delete service "{name}"? This action cannot be undone.',
     'confirm.delete-type':       'Delete repair type "{name}"? This action cannot be undone.',
     'confirm.delete-inventory':  'Delete part "{name}"? This action cannot be undone.',
+    'confirm.delete-review':     'Delete review #{id}? This action cannot be undone.',
 
     /* ── Admin service description placeholders ── */
     'admin.svc-name-ph':    'e.g. iPhone 15 Screen Replacement',
@@ -327,6 +329,119 @@ const TRANSLATIONS = {
     'admin.staff.take':        'Work on it',
     'admin.staff.no-open':     'No open orders – great job! 🎉',
     'admin.staff.no-active':   'You have no active orders right now.',
+
+    /* ── New tabs ── */
+    'admin.tab.analytics':   'Analytics',
+    'admin.tab.reviews':     'Reviews',
+    'admin.tab.crm':         'Customers (CRM)',
+    'admin.tab.calendar':    'Calendar',
+    'admin.analytics':       'Analytics',
+    'admin.reviews':         'Reviews',
+    'admin.crm':             'Customers',
+    'admin.calendar':        'Calendar',
+
+    /* ── Analytics ── */
+    'analytics.overview':          'Business Overview',
+    'analytics.revenue-total':     'Total Revenue',
+    'analytics.revenue-week':      'Weekly Revenue',
+    'analytics.revenue-month':     'Monthly Revenue',
+    'analytics.avg-turnaround':    'Avg. Turnaround',
+    'analytics.return-rate':       'Return Rate',
+    'analytics.service-popularity':'Service Popularity',
+    'analytics.revenue-trend':     'Revenue Trend (30 days)',
+    'analytics.hours-suffix':      'hrs',
+    'analytics.pct-suffix':        '%',
+
+    /* ── Reviews ── */
+    'reviews.filter.all':      'All',
+    'reviews.filter.pending':  'Pending',
+    'reviews.filter.approved': 'Approved',
+    'reviews.filter.hidden':   'Hidden',
+    'reviews.col.customer':    'Customer',
+    'reviews.col.rating':      'Rating',
+    'reviews.col.text':        'Review',
+    'reviews.col.date':        'Date',
+    'reviews.col.status':      'Status',
+    'reviews.approve':         '✅ Approve',
+    'reviews.hide':            '🙈 Hide',
+    'reviews.status.pending':  '⏳ Pending',
+    'reviews.status.approved': '✅ Approved',
+    'reviews.status.hidden':   '🙈 Hidden',
+    'empty.no-reviews':        'No reviews yet',
+    'admin.toast.review-updated': 'Review Updated',
+    'admin.toast.review-deleted': 'Review Deleted',
+
+    /* ── CRM ── */
+    'crm.search-ph':       'Search by email or name...',
+    'crm.col.email':       'Email',
+    'crm.col.name':        'Name',
+    'crm.col.orders':      'Orders',
+    'crm.col.spent':       'Total Spent',
+    'crm.col.last-visit':  'Last Visit',
+    'crm.col.notes':       'Notes',
+    'crm.view-history':    'History',
+    'crm.edit-notes':      'Notes',
+    'crm.notes-label':     'Admin Notes',
+    'crm.loyalty-repairs': 'Loyalty Repairs Count',
+    'empty.no-customers':  'No customers yet',
+    'admin.toast.notes-saved': 'Notes Saved',
+
+    /* ── Calendar ── */
+    'calendar.prev-week': '← Prev',
+    'calendar.next-week': 'Next →',
+    'calendar.today':     'Today',
+
+    /* ── Payment ── */
+    'modal.payment-status':  'Payment Status',
+    'modal.payment-method':  'Payment Method',
+    'modal.payment-cash':    '💵 Cash',
+    'modal.payment-online':  '💳 Online (Coming soon)',
+    'payment.unpaid':        '⚪ Unpaid',
+    'payment.paid':          '✅ Paid',
+    'modal.warranty-expiry': 'Warranty Expires',
+    'modal.view-invoice':    '🧾 Invoice',
+
+    /* ── Warranty ── */
+    'modal.warranty-days': 'Warranty (days)',
+
+    /* ── Supplier ── */
+    'admin.inv.supplier-name':    'Supplier Name',
+    'admin.inv.supplier-contact': 'Supplier Contact',
+    'admin.inv.supplier-notes':   'Supplier Notes',
+    'admin.inv.cost-price':       'Cost Price (€)',
+
+    /* ── Staff accounts ── */
+    'admin.staff-accounts':          'Staff Accounts',
+    'admin.staff-accounts-subtitle': 'Manage login accounts for your team',
+    'admin.add-staff':               '+ Add Staff Account',
+    'staff.col.username':    'Username',
+    'staff.col.display-name':'Display Name',
+    'staff.col.role':        'Role',
+    'staff.col.active':      'Active',
+    'staff.role.owner':      'Owner',
+    'staff.role.staff':      'Staff',
+    'modal.staff-username':     'Username',
+    'modal.staff-display-name': 'Display Name',
+    'modal.staff-password':     'Password (leave blank to keep)',
+    'modal.staff-role':         'Role',
+    'modal.staff-active':       'Active',
+    'modal.add-staff':          'Add Staff Account',
+    'modal.edit-staff':         'Edit Staff Account',
+    'confirm.delete-staff':     'Delete staff account "{name}"?',
+    'admin.toast.staff-created': 'Staff Account Created',
+    'admin.toast.staff-updated': 'Staff Account Updated',
+    'admin.toast.staff-deleted': 'Staff Account Deleted',
+
+    /* ── Audit log ── */
+    'admin.audit-log':   'Audit Log',
+    'audit.col.user':    'User',
+    'audit.col.action':  'Action',
+    'audit.col.when':    'When',
+    'empty.no-audit':    'No audit log entries yet',
+
+    /* ── Reviews public ── */
+    'reviews.tag':   'Customer Reviews',
+    'reviews.title': 'What Our Customers Say',
   },
 
   sk: {
@@ -611,11 +726,13 @@ const TRANSLATIONS = {
     'admin.toast.inv-updated':      'Diel aktualizovaný',
     'admin.toast.inv-created':      'Diel pridaný',
     'admin.toast.inv-deleted':      'Diel odstránený',
+    'admin.toast.slots-saved':      'Časové sloty uložené',
 
     /* ── Admin confirm dialogs ── */
     'confirm.delete-service': 'Odstrániť službu „{name}"? Túto akciu nie je možné vrátiť späť.',
     'confirm.delete-type':    'Odstrániť typ opravy „{name}"? Túto akciu nie je možné vrátiť späť.',
     'confirm.delete-inventory': 'Odstrániť diel „{name}"? Túto akciu nie je možné vrátiť späť.',
+    'confirm.delete-review':  'Odstrániť recenziu #{id}? Túto akciu nie je možné vrátiť späť.',
 
     /* ── Admin placeholders ── */
     'admin.svc-name-ph':     'napr. Výmena obrazovky iPhone 15',
@@ -651,6 +768,119 @@ const TRANSLATIONS = {
     'admin.staff.take':        'Pracujem na tom',
     'admin.staff.no-open':     'Žiadne otvorené zákazky – skvelá práca! 🎉',
     'admin.staff.no-active':   'Momentálne nemáte žiadne aktívne zákazky.',
+
+    /* ── New tabs ── */
+    'admin.tab.analytics':   'Analytika',
+    'admin.tab.reviews':     'Recenzie',
+    'admin.tab.crm':         'Zákazníci (CRM)',
+    'admin.tab.calendar':    'Kalendár',
+    'admin.analytics':       'Analytika',
+    'admin.reviews':         'Recenzie',
+    'admin.crm':             'Zákazníci',
+    'admin.calendar':        'Kalendár',
+
+    /* ── Analytics ── */
+    'analytics.overview':          'Prehľad biznisu',
+    'analytics.revenue-total':     'Celkové tržby',
+    'analytics.revenue-week':      'Týždenné tržby',
+    'analytics.revenue-month':     'Mesačné tržby',
+    'analytics.avg-turnaround':    'Priemerný čas opravy',
+    'analytics.return-rate':       'Miera návratu',
+    'analytics.service-popularity':'Popularita služieb',
+    'analytics.revenue-trend':     'Trend tržieb (30 dní)',
+    'analytics.hours-suffix':      'hod',
+    'analytics.pct-suffix':        '%',
+
+    /* ── Reviews ── */
+    'reviews.filter.all':      'Všetky',
+    'reviews.filter.pending':  'Čakajúce',
+    'reviews.filter.approved': 'Schválené',
+    'reviews.filter.hidden':   'Skryté',
+    'reviews.col.customer':    'Zákazník',
+    'reviews.col.rating':      'Hodnotenie',
+    'reviews.col.text':        'Recenzia',
+    'reviews.col.date':        'Dátum',
+    'reviews.col.status':      'Stav',
+    'reviews.approve':         '✅ Schváliť',
+    'reviews.hide':            '🙈 Skryť',
+    'reviews.status.pending':  '⏳ Čakajúce',
+    'reviews.status.approved': '✅ Schválené',
+    'reviews.status.hidden':   '🙈 Skryté',
+    'empty.no-reviews':        'Zatiaľ žiadne recenzie',
+    'admin.toast.review-updated': 'Recenzia aktualizovaná',
+    'admin.toast.review-deleted': 'Recenzia odstránená',
+
+    /* ── CRM ── */
+    'crm.search-ph':       'Hľadať podľa e-mailu alebo mena...',
+    'crm.col.email':       'E-mail',
+    'crm.col.name':        'Meno',
+    'crm.col.orders':      'Objednávky',
+    'crm.col.spent':       'Celkové výdavky',
+    'crm.col.last-visit':  'Posledná návšteva',
+    'crm.col.notes':       'Poznámky',
+    'crm.view-history':    'História',
+    'crm.edit-notes':      'Poznámky',
+    'crm.notes-label':     'Interné poznámky',
+    'crm.loyalty-repairs': 'Počet opráv (vernosť)',
+    'empty.no-customers':  'Zatiaľ žiadni zákazníci',
+    'admin.toast.notes-saved': 'Poznámky uložené',
+
+    /* ── Calendar ── */
+    'calendar.prev-week': '← Predch.',
+    'calendar.next-week': 'Ďalší →',
+    'calendar.today':     'Dnes',
+
+    /* ── Payment ── */
+    'modal.payment-status':  'Stav platby',
+    'modal.payment-method':  'Spôsob platby',
+    'modal.payment-cash':    '💵 Hotovosť',
+    'modal.payment-online':  '💳 Online (Čoskoro)',
+    'payment.unpaid':        '⚪ Nezaplatené',
+    'payment.paid':          '✅ Zaplatené',
+    'modal.warranty-expiry': 'Záruka expiruje',
+    'modal.view-invoice':    '🧾 Faktúra',
+
+    /* ── Warranty ── */
+    'modal.warranty-days': 'Záruka (dni)',
+
+    /* ── Supplier ── */
+    'admin.inv.supplier-name':    'Dodávateľ',
+    'admin.inv.supplier-contact': 'Kontakt na dodávateľa',
+    'admin.inv.supplier-notes':   'Poznámky k dodávateľovi',
+    'admin.inv.cost-price':       'Nákupná cena (€)',
+
+    /* ── Staff accounts ── */
+    'admin.staff-accounts':          'Účty pracovníkov',
+    'admin.staff-accounts-subtitle': 'Spravujte prihlasovacie účty vášho tímu',
+    'admin.add-staff':               '+ Pridať účet pracovníka',
+    'staff.col.username':    'Prihlasovacie meno',
+    'staff.col.display-name':'Zobrazované meno',
+    'staff.col.role':        'Rola',
+    'staff.col.active':      'Aktívny',
+    'staff.role.owner':      'Majiteľ',
+    'staff.role.staff':      'Pracovník',
+    'modal.staff-username':     'Prihlasovacie meno',
+    'modal.staff-display-name': 'Zobrazované meno',
+    'modal.staff-password':     'Heslo (nechajte prázdne pre zachovanie)',
+    'modal.staff-role':         'Rola',
+    'modal.staff-active':       'Aktívny',
+    'modal.add-staff':          'Pridať účet pracovníka',
+    'modal.edit-staff':         'Upraviť účet pracovníka',
+    'confirm.delete-staff':     'Odstrániť účet pracovníka „{name}"?',
+    'admin.toast.staff-created': 'Účet pracovníka vytvorený',
+    'admin.toast.staff-updated': 'Účet pracovníka aktualizovaný',
+    'admin.toast.staff-deleted': 'Účet pracovníka odstránený',
+
+    /* ── Audit log ── */
+    'admin.audit-log':   'Audit log',
+    'audit.col.user':    'Používateľ',
+    'audit.col.action':  'Akcia',
+    'audit.col.when':    'Kedy',
+    'empty.no-audit':    'Zatiaľ žiadne záznamy v audit logu',
+
+    /* ── Reviews public ── */
+    'reviews.tag':   'Recenzie zákazníkov',
+    'reviews.title': 'Čo hovoria naši zákazníci',
   }
 };
 

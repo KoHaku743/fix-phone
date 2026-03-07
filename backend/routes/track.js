@@ -18,13 +18,21 @@ router.get('/:id', (req, res) => {
 
     const appt = prepare(`
       SELECT a.id, a.customer_name, a.device_model, a.status, a.created_at,
-             a.quoted_price, s.name as service_name
+             a.quoted_price, a.conversation_token, a.warranty_expiry,
+             s.name as service_name
       FROM appointments a
       LEFT JOIN services s ON a.service_id = s.id
       WHERE a.id = ? AND LOWER(a.customer_email) = LOWER(?)
     `).get(req.params.id, email.trim());
 
     if (!appt) return res.status(404).json({ error: 'Order not found. Please check your order number and email.' });
+
+    // Check if a review already exists for this appointment
+    let has_review = false;
+    try {
+      const existing = prepare('SELECT id FROM reviews WHERE appointment_id = ?').get(appt.id);
+      has_review = !!existing;
+    } catch (_) {}
 
     const stepIndex = STATUS_STEPS.indexOf(appt.status);
     res.json({
@@ -34,6 +42,9 @@ router.get('/:id', (req, res) => {
       service_name: appt.service_name,
       status: appt.status,
       quoted_price: appt.quoted_price,
+      warranty_expiry: appt.warranty_expiry || null,
+      conversation_token: appt.conversation_token || null,
+      has_review,
       created_at: appt.created_at,
       progress_steps: STATUS_STEPS,
       current_step_index: stepIndex === -1 ? (appt.status === 'cancelled' ? -2 : 0) : stepIndex,

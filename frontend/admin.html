@@ -88,6 +88,23 @@
         <span class="sidebar-item-text" data-i18n="admin.staff">Staff</span>
         <span class="sidebar-badge" id="staff-open-badge" style="display:none;">0</span>
       </div>
+      <div class="sidebar-item" data-tab="reviews">
+        <div class="sidebar-item-icon">📝</div>
+        <span class="sidebar-item-text" data-i18n="admin.reviews">Reviews</span>
+        <span class="sidebar-badge" id="reviews-badge" style="display:none;background:#f59e0b;">0</span>
+      </div>
+      <div class="sidebar-item" data-tab="analytics">
+        <div class="sidebar-item-icon">📈</div>
+        <span class="sidebar-item-text" data-i18n="admin.analytics">Analytics</span>
+      </div>
+      <div class="sidebar-item" data-tab="crm">
+        <div class="sidebar-item-icon">👥</div>
+        <span class="sidebar-item-text" data-i18n="admin.crm">Customers</span>
+      </div>
+      <div class="sidebar-item" data-tab="calendar">
+        <div class="sidebar-item-icon">📅</div>
+        <span class="sidebar-item-text" data-i18n="admin.calendar">Calendar</span>
+      </div>
       <div class="sidebar-item" data-tab="settings">
         <div class="sidebar-item-icon">⚙️</div>
         <span class="sidebar-item-text" data-i18n="admin.settings">Settings</span>
@@ -382,6 +399,138 @@
         </div>
       </div>
 
+      <!-- ========== REVIEWS TAB ========== -->
+      <div class="tab-pane" id="tab-reviews">
+        <div class="section-header">
+          <div>
+            <div class="section-title" data-i18n="admin.reviews">Reviews</div>
+            <div class="section-count" id="reviews-count"></div>
+          </div>
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+            <button class="btn btn-ghost btn-sm reviews-filter-btn active" data-filter="all" data-i18n="reviews.filter.all">All</button>
+            <button class="btn btn-ghost btn-sm reviews-filter-btn" data-filter="pending" data-i18n="reviews.filter.pending">Pending</button>
+            <button class="btn btn-ghost btn-sm reviews-filter-btn" data-filter="approved" data-i18n="reviews.filter.approved">Approved</button>
+            <button class="btn btn-ghost btn-sm reviews-filter-btn" data-filter="hidden" data-i18n="reviews.filter.hidden">Hidden</button>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th data-i18n="admin.col.num">#</th>
+                <th data-i18n="reviews.col.customer">Customer</th>
+                <th data-i18n="reviews.col.rating">Rating</th>
+                <th data-i18n="reviews.col.text">Review</th>
+                <th data-i18n="reviews.col.date">Date</th>
+                <th data-i18n="reviews.col.status">Status</th>
+                <th data-i18n="admin.col.actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reviews-tbody">
+              <tr><td colspan="7"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== ANALYTICS TAB ========== -->
+      <div class="tab-pane" id="tab-analytics">
+        <div class="section-header">
+          <div>
+            <div class="section-title" data-i18n="analytics.overview">Business Overview</div>
+          </div>
+        </div>
+        <div class="analytics-cards" id="analytics-cards">
+          <div class="stat-card stat-card-1">
+            <div class="stat-icon stat-icon-1">💰</div>
+            <div class="stat-value" id="analytics-revenue-total">—</div>
+            <div class="stat-label" data-i18n="analytics.revenue-total">Total Revenue</div>
+          </div>
+          <div class="stat-card stat-card-2">
+            <div class="stat-icon stat-icon-2">📅</div>
+            <div class="stat-value" id="analytics-revenue-week">—</div>
+            <div class="stat-label" data-i18n="analytics.revenue-week">Weekly Revenue</div>
+          </div>
+          <div class="stat-card stat-card-3">
+            <div class="stat-icon stat-icon-3">📆</div>
+            <div class="stat-value" id="analytics-revenue-month">—</div>
+            <div class="stat-label" data-i18n="analytics.revenue-month">Monthly Revenue</div>
+          </div>
+          <div class="stat-card stat-card-4">
+            <div class="stat-icon stat-icon-4">⏱️</div>
+            <div class="stat-value" id="analytics-turnaround">—</div>
+            <div class="stat-label" data-i18n="analytics.avg-turnaround">Avg. Turnaround</div>
+          </div>
+          <div class="stat-card stat-card-1">
+            <div class="stat-icon stat-icon-2">🔄</div>
+            <div class="stat-value" id="analytics-return-rate">—</div>
+            <div class="stat-label" data-i18n="analytics.return-rate">Return Rate</div>
+          </div>
+        </div>
+        <div class="section-header" style="margin-top:1.5rem;">
+          <div>
+            <div class="section-title" data-i18n="analytics.service-popularity">Service Popularity</div>
+          </div>
+        </div>
+        <div class="table-container" style="padding:1rem 1.25rem;" id="analytics-popularity"></div>
+        <div class="section-header" style="margin-top:1.5rem;">
+          <div>
+            <div class="section-title" data-i18n="analytics.revenue-trend">Revenue Trend (30 days)</div>
+          </div>
+        </div>
+        <div class="table-container" style="padding:1rem 1.25rem;" id="analytics-revenue-chart"></div>
+      </div>
+
+      <!-- ========== CRM TAB ========== -->
+      <div class="tab-pane" id="tab-crm">
+        <div class="section-header">
+          <div>
+            <div class="section-title" data-i18n="admin.crm">Customers</div>
+            <div class="section-count" id="crm-count"></div>
+          </div>
+        </div>
+        <div class="table-container">
+          <div class="table-toolbar">
+            <div class="table-search">
+              <span class="table-search-icon">🔍</span>
+              <input class="table-search-input" type="text" id="crm-search" data-i18n-placeholder="crm.search-ph" placeholder="Search by email or name..." />
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th data-i18n="crm.col.email">Email</th>
+                <th data-i18n="crm.col.name">Name</th>
+                <th data-i18n="crm.col.orders">Orders</th>
+                <th data-i18n="crm.col.spent">Total Spent</th>
+                <th data-i18n="crm.col.last-visit">Last Visit</th>
+                <th data-i18n="crm.col.notes">Notes</th>
+                <th data-i18n="admin.col.actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="crm-tbody">
+              <tr><td colspan="7"><div class="loading-spinner"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ========== CALENDAR TAB ========== -->
+      <div class="tab-pane" id="tab-calendar">
+        <div class="section-header">
+          <div>
+            <div class="section-title" data-i18n="admin.calendar">Calendar</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center;">
+            <button class="btn btn-ghost btn-sm" id="cal-prev-btn" data-i18n="calendar.prev-week">← Prev</button>
+            <span id="cal-week-label" style="font-size:0.88rem;color:var(--text-secondary);min-width:160px;text-align:center;">—</span>
+            <button class="btn btn-ghost btn-sm" id="cal-today-btn" data-i18n="calendar.today">Today</button>
+            <button class="btn btn-ghost btn-sm" id="cal-next-btn" data-i18n="calendar.next-week">Next →</button>
+          </div>
+        </div>
+        <div id="calendar-grid" class="calendar-grid"></div>
+      </div>
+
       <!-- ========== SETTINGS TAB ========== -->
       <div class="tab-pane" id="tab-settings">
         <div class="section-header">
@@ -430,7 +579,71 @@
             </div>
           </div>
         </div>
-      </div>
+
+        <!-- Staff Accounts (owner only) -->
+        <div id="staff-accounts-section" style="display:none;margin-top:2rem;">
+          <div class="section-header">
+            <div>
+              <div class="section-title" data-i18n="admin.staff-accounts">Staff Accounts</div>
+              <div class="section-count" data-i18n="admin.staff-accounts-subtitle">Manage login accounts for your team</div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="add-staff-account-btn" data-i18n="admin.add-staff">+ Add Staff Account</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th data-i18n="staff.col.username">Username</th>
+                  <th data-i18n="staff.col.display-name">Display Name</th>
+                  <th data-i18n="staff.col.role">Role</th>
+                  <th data-i18n="staff.col.active">Active</th>
+                  <th data-i18n="admin.col.actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="staff-accounts-tbody">
+                <tr><td colspan="5"><div class="loading-spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Time Slots -->
+        <div style="margin-top:2rem;">
+          <div class="section-header">
+            <div>
+              <div class="section-title">📅 Time Slots</div>
+              <div class="section-count">Configure available appointment slots</div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="save-slots-btn">Save Slots</button>
+          </div>
+          <div class="table-container" style="padding:1rem 1.25rem;" id="slots-container">
+            <div class="loading-spinner"></div>
+          </div>
+        </div>
+
+        <!-- Audit Log -->
+        <div style="margin-top:2rem;">
+          <div class="section-header">
+            <div>
+              <div class="section-title" data-i18n="admin.audit-log">Audit Log</div>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th data-i18n="audit.col.user">User</th>
+                  <th data-i18n="audit.col.action">Action</th>
+                  <th data-i18n="audit.col.when">When</th>
+                </tr>
+              </thead>
+              <tbody id="audit-log-tbody">
+                <tr><td colspan="3"><div class="loading-spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div><!-- /tab-settings -->
 
     </div><!-- /content-area -->
   </main>
@@ -494,7 +707,34 @@
             🔗 <span data-i18n="modal.open-conv">Open customer conversation page</span>
           </a>
         </div>
-      </div>
+
+        <!-- Payment Section -->
+        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" data-i18n="modal.payment-status">Payment Status</label>
+              <select class="form-select" id="order-payment-status">
+                <option value="unpaid" data-i18n="payment.unpaid">⚪ Unpaid</option>
+                <option value="paid" data-i18n="payment.paid">✅ Paid</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="modal.payment-method">Payment Method</label>
+              <select class="form-select" id="order-payment-method">
+                <option value="cash" data-i18n="modal.payment-cash">💵 Cash</option>
+                <option value="online" disabled data-i18n="modal.payment-online">💳 Online (Coming soon)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" id="order-warranty-group" style="display:none;">
+            <label class="form-label" data-i18n="modal.warranty-expiry">Warranty Expires</label>
+            <div id="order-warranty-expiry" style="font-size:0.875rem;color:var(--teal);padding:0.5rem 0;"></div>
+          </div>
+          <div style="margin-top:0.5rem;">
+            <button type="button" class="btn btn-ghost btn-sm" id="view-invoice-btn" data-i18n="modal.view-invoice">🧾 Invoice</button>
+          </div>
+        </div>
+      </div><!-- /modal-body -->
       <div class="modal-footer">
         <button class="btn btn-ghost" data-modal="modal-order" data-i18n="modal.cancel">Cancel</button>
         <button class="btn btn-ghost" id="print-receipt-btn" data-i18n="modal.print-receipt">🖨️ Receipt</button>
@@ -542,6 +782,10 @@
             <option value="1" data-i18n="modal.in-stock">✅ In Stock</option>
             <option value="0" data-i18n="modal.out-of-stock">❌ Out of Stock</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="modal.warranty-days">Warranty (days)</label>
+          <input class="form-input" type="number" id="service-warranty-days" placeholder="90" min="0" />
         </div>
       </div>
       <div class="modal-footer">
@@ -609,6 +853,24 @@
           <label class="form-label" data-i18n="admin.inv.price">Unit Price (€)</label>
           <input class="form-input" type="number" id="inv-unit-price" placeholder="0.00" min="0" step="0.01" />
         </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="admin.inv.cost-price">Cost Price (€)</label>
+          <input class="form-input" type="number" id="inv-cost-price" placeholder="0.00" min="0" step="0.01" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" data-i18n="admin.inv.supplier-name">Supplier Name</label>
+            <input class="form-input" type="text" id="inv-supplier-name" placeholder="e.g. Parts Depot" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="admin.inv.supplier-contact">Supplier Contact</label>
+            <input class="form-input" type="text" id="inv-supplier-contact" placeholder="e.g. +421 900 000 000" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="admin.inv.supplier-notes">Supplier Notes</label>
+          <textarea class="form-textarea" id="inv-supplier-notes" placeholder="Notes about this supplier..."></textarea>
+        </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" data-modal="modal-inventory" data-i18n="modal.cancel">Cancel</button>
@@ -617,9 +879,98 @@
     </div>
   </div>
 
+  <!-- Staff Account Modal -->
+  <div class="modal-overlay" id="modal-staff-account">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-staff-account-title" data-i18n="modal.add-staff">Add Staff Account</span>
+        <button class="modal-close" data-modal="modal-staff-account">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="staff-account-id" />
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal.staff-username">Username</label>
+            <input class="form-input" type="text" id="staff-account-username" placeholder="e.g. john" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal.staff-display-name">Display Name</label>
+            <input class="form-input" type="text" id="staff-account-display-name" placeholder="e.g. John Smith" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="modal.staff-password">Password (leave blank to keep)</label>
+          <input class="form-input" type="password" id="staff-account-password" autocomplete="new-password" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal.staff-role">Role</label>
+            <select class="form-select" id="staff-account-role">
+              <option value="staff" data-i18n="staff.role.staff">Staff</option>
+              <option value="owner" data-i18n="staff.role.owner">Owner</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="modal.staff-active">Active</label>
+            <select class="form-select" id="staff-account-active">
+              <option value="1">✅ Active</option>
+              <option value="0">❌ Inactive</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal="modal-staff-account" data-i18n="modal.cancel">Cancel</button>
+        <button class="btn btn-primary" id="save-staff-account-btn" data-i18n="modal.save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRM Customer History Modal -->
+  <div class="modal-overlay" id="modal-crm-history">
+    <div class="modal" style="max-width:700px;width:95%;">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-crm-history-title">Customer History</span>
+        <button class="modal-close" data-modal="modal-crm-history">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="crm-history-content" style="max-height:400px;overflow-y:auto;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal="modal-crm-history" data-i18n="modal.cancel">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRM Customer Notes Modal -->
+  <div class="modal-overlay" id="modal-crm-notes">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title" id="modal-crm-notes-email">Customer Notes</span>
+        <button class="modal-close" data-modal="modal-crm-notes">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="crm-notes-email" />
+        <div class="form-group">
+          <label class="form-label" data-i18n="crm.notes-label">Admin Notes</label>
+          <textarea class="form-textarea" id="crm-notes-text" rows="5" placeholder="Internal notes about this customer..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="crm.loyalty-repairs">Loyalty Repairs Count</label>
+          <input class="form-input" type="number" id="crm-loyalty-repairs" min="0" value="0" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal="modal-crm-notes" data-i18n="modal.cancel">Cancel</button>
+        <button class="btn btn-primary" id="save-crm-notes-btn" data-i18n="modal.save">Save Notes</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div id="toast-container" style="position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:0.5rem;"></div>
 
+  <script src="/socket.io/socket.io.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/admin.js"></script>
 </body>

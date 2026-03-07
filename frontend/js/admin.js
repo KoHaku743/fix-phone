@@ -203,8 +203,13 @@ let allAppointments = [];
 let allServices = [];
 let allRepairTypes = [];
 let allInventory = [];
+let allReviews = [];
+let allCRMCustomers = [];
+let analyticsData = null;
 let currentOrderFilter = 'all';
 let ordersSearchTerm = '';
+let currentReviewFilter = 'all';
+let calendarDate = new Date();
 
 // ─── Utilities ────────────────────────────────────────────
 function escapeHtml(str) {
@@ -312,6 +317,10 @@ function switchTab(tabName) {
     inventory:    'admin.tab.inventory',
     staff:        'admin.tab.staff',
     settings:     'admin.tab.settings',
+    analytics:    'admin.tab.analytics',
+    reviews:      'admin.tab.reviews',
+    crm:          'admin.tab.crm',
+    calendar:     'admin.tab.calendar',
   };
   const topTitle = document.getElementById('topbar-title');
   if (topTitle) topTitle.textContent = window.t(titleKeys[tabName] || 'admin.tab.dashboard');
@@ -323,6 +332,10 @@ function switchTab(tabName) {
   if (tabName === 'inventory')     renderInventory();
   if (tabName === 'staff')         renderStaffTab();
   if (tabName === 'settings')      loadSettings();
+  if (tabName === 'analytics')     loadAnalytics();
+  if (tabName === 'reviews')       loadReviews();
+  if (tabName === 'crm')           loadCRM();
+  if (tabName === 'calendar')      loadCalendar();
 }
 
 // ─── Load all data ────────────────────────────────────────
@@ -365,6 +378,23 @@ async function loadAllData() {
         lowBadge.style.display = 'none';
       }
     }
+
+    // Reviews pending badge
+    try {
+      const revRes = await authFetch(`${API}/api/admin/reviews?status=pending`);
+      if (revRes.ok) {
+        const pendingReviews = await revRes.json();
+        const revBadge = document.getElementById('reviews-badge');
+        if (revBadge) {
+          if (pendingReviews.length > 0) {
+            revBadge.textContent = pendingReviews.length;
+            revBadge.style.display = 'inline-flex';
+          } else {
+            revBadge.style.display = 'none';
+          }
+        }
+      }
+    } catch (_) {}
 
     loadDashboard();
   } catch (err) {
@@ -617,7 +647,6 @@ function openOrderModal(id) {
   const apptDateEl = document.getElementById('order-appointment-date');
   if (apptDateEl) {
     if (appt.appointment_date) {
-      // Normalise to "YYYY-MM-DDTHH:MM" expected by datetime-local
       apptDateEl.value = appt.appointment_date.slice(0, 16).replace(' ', 'T');
     } else {
       apptDateEl.value = '';
@@ -625,6 +654,25 @@ function openOrderModal(id) {
   }
   document.getElementById('order-customer-info').innerHTML =
     `<strong>${escapeHtml(appt.customer_name)}</strong> &bull; ${escapeHtml(appt.device_model)} &bull; ${escapeHtml(appt.customer_email)}`;
+
+  // Payment fields
+  const payStatusEl = document.getElementById('order-payment-status');
+  if (payStatusEl) payStatusEl.value = appt.payment_status || 'unpaid';
+  const payMethodEl = document.getElementById('order-payment-method');
+  if (payMethodEl) payMethodEl.value = appt.payment_method || 'cash';
+
+  // Warranty expiry
+  const warrantyGroup = document.getElementById('order-warranty-group');
+  const warrantyEl = document.getElementById('order-warranty-expiry');
+  if (warrantyEl && appt.warranty_expiry) {
+    const expDate = new Date(appt.warranty_expiry);
+    const expired = expDate < new Date();
+    warrantyEl.textContent = expDate.toLocaleDateString('sk-SK');
+    warrantyEl.style.color = expired ? 'var(--danger)' : 'var(--teal)';
+    if (warrantyGroup) warrantyGroup.style.display = 'block';
+  } else if (warrantyGroup) {
+    warrantyGroup.style.display = 'none';
+  }
 
   // Conversation link
   const convLinkWrap = document.getElementById('order-conv-link');
@@ -702,9 +750,11 @@ async function saveOrderStatus() {
   const quoted_price = quotedRaw !== '' ? parseFloat(quotedRaw) : null;
   const apptDateEl  = document.getElementById('order-appointment-date');
   const appointment_date = apptDateEl && apptDateEl.value ? apptDateEl.value : null;
+  const payment_status = document.getElementById('order-payment-status')?.value || 'unpaid';
+  const payment_method = document.getElementById('order-payment-method')?.value || 'cash';
 
   try {
-    const body = { status };
+    const body = { status, payment_status, payment_method };
     if (quotedRaw !== '') body.quoted_price = quoted_price;
     body.appointment_date = appointment_date;
 
@@ -724,7 +774,7 @@ async function saveOrderStatus() {
 
     const updated = await res.json();
     const idx = allAppointments.findIndex(a => a.id === updated.id);
-    if (idx !== -1) allAppointments[idx] = { ...allAppointments[idx], status: updated.status, quoted_price: updated.quoted_price, appointment_date: updated.appointment_date, assigned_to: updated.assigned_to };
+    if (idx !== -1) allAppointments[idx] = { ...allAppointments[idx], ...updated };
 
     closeModal('modal-order');
     renderOrders();
@@ -766,6 +816,8 @@ function openServiceModal(id = null) {
     document.getElementById('service-price-from').value  = svc.price_from != null ? svc.price_from : '';
     document.getElementById('service-price-to').value    = svc.price_to   != null ? svc.price_to   : '';
     document.getElementById('service-stock').value       = svc.in_stock ? '1' : '0';
+    const wdEl = document.getElementById('service-warranty-days');
+    if (wdEl) wdEl.value = svc.warranty_days != null ? svc.warranty_days : '';
     populateRepairTypeDropdown(svc.repair_type_id);
   } else {
     titleEl.textContent = window.t('modal.add-service');
@@ -775,6 +827,8 @@ function openServiceModal(id = null) {
     document.getElementById('service-price-from').value  = '';
     document.getElementById('service-price-to').value    = '';
     document.getElementById('service-stock').value       = '1';
+    const wdEl = document.getElementById('service-warranty-days');
+    if (wdEl) wdEl.value = '';
   }
   openModal('modal-service');
 }
@@ -787,13 +841,15 @@ async function saveService() {
   const priceFromRaw = document.getElementById('service-price-from').value;
   const priceToRaw   = document.getElementById('service-price-to').value;
   const inStock      = parseInt(document.getElementById('service-stock').value);
+  const warrantyRaw  = document.getElementById('service-warranty-days')?.value;
 
   const price_from = priceFromRaw !== '' ? parseFloat(priceFromRaw) : null;
   const price_to   = priceToRaw   !== '' ? parseFloat(priceToRaw)   : null;
+  const warranty_days = warrantyRaw !== '' && warrantyRaw != null ? parseInt(warrantyRaw, 10) : null;
 
   if (!name) { showToast('error', window.t('admin.toast.val'), window.t('admin.toast.val-name')); return; }
 
-  const body = { repair_type_id: repairTypeId, name, description: description || null, price_from, price_to, in_stock: inStock };
+  const body = { repair_type_id: repairTypeId, name, description: description || null, price_from, price_to, in_stock: inStock, warranty_days };
 
   try {
     const url    = id ? `${API}/api/admin/services/${id}` : `${API}/api/admin/services`;
@@ -917,6 +973,13 @@ async function loadSettings() {
   } catch (err) {
     showToast('error', window.t('admin.toast.load-error'), err.message);
   }
+
+  // Load owner-only features
+  if (getCurrentUser() === 'owner') {
+    loadStaffAccounts();
+  }
+  loadSlots();
+  loadAuditLog();
 }
 
 async function saveSettings() {
@@ -1087,6 +1150,14 @@ function openInventoryModal(id = null) {
     document.getElementById('inv-quantity').value      = item.quantity;
     document.getElementById('inv-min-quantity').value  = item.min_quantity;
     document.getElementById('inv-unit-price').value    = item.unit_price != null ? item.unit_price : '';
+    const costEl = document.getElementById('inv-cost-price');
+    if (costEl) costEl.value = item.cost_price != null ? item.cost_price : '';
+    const snEl = document.getElementById('inv-supplier-name');
+    if (snEl) snEl.value = item.supplier_name || '';
+    const scEl = document.getElementById('inv-supplier-contact');
+    if (scEl) scEl.value = item.supplier_contact || '';
+    const snotEl = document.getElementById('inv-supplier-notes');
+    if (snotEl) snotEl.value = item.supplier_notes || '';
   } else {
     titleEl.textContent = window.t('admin.add-inventory');
     document.getElementById('inventory-id').value      = '';
@@ -1095,6 +1166,14 @@ function openInventoryModal(id = null) {
     document.getElementById('inv-quantity').value      = '0';
     document.getElementById('inv-min-quantity').value  = '1';
     document.getElementById('inv-unit-price').value    = '';
+    const costEl = document.getElementById('inv-cost-price');
+    if (costEl) costEl.value = '';
+    const snEl = document.getElementById('inv-supplier-name');
+    if (snEl) snEl.value = '';
+    const scEl = document.getElementById('inv-supplier-contact');
+    if (scEl) scEl.value = '';
+    const snotEl = document.getElementById('inv-supplier-notes');
+    if (snotEl) snotEl.value = '';
   }
   openModal('modal-inventory');
 }
@@ -1106,6 +1185,10 @@ async function saveInventory() {
   const quantity    = document.getElementById('inv-quantity').value;
   const min_qty     = document.getElementById('inv-min-quantity').value;
   const unit_price  = document.getElementById('inv-unit-price').value;
+  const cost_price  = document.getElementById('inv-cost-price')?.value || '';
+  const supplier_name    = document.getElementById('inv-supplier-name')?.value.trim() || null;
+  const supplier_contact = document.getElementById('inv-supplier-contact')?.value.trim() || null;
+  const supplier_notes   = document.getElementById('inv-supplier-notes')?.value.trim() || null;
 
   if (!part_name || !model_name) {
     showToast('error', window.t('admin.toast.val'), window.t('admin.toast.val-inv-name'));
@@ -1117,6 +1200,10 @@ async function saveInventory() {
     quantity: quantity !== '' ? parseInt(quantity, 10) : 0,
     min_quantity: min_qty !== '' ? parseInt(min_qty, 10) : 1,
     unit_price: unit_price !== '' ? parseFloat(unit_price) : null,
+    cost_price: cost_price !== '' ? parseFloat(cost_price) : null,
+    supplier_name,
+    supplier_contact,
+    supplier_notes,
   };
 
   try {
@@ -1169,7 +1256,550 @@ async function deleteInventoryItem(id) {
   }
 }
 
+// ─── Analytics ────────────────────────────────────────────
+async function loadAnalytics() {
+  try {
+    const [overviewRes, popularityRes, revenueRes] = await Promise.all([
+      authFetch(`${API}/api/admin/analytics/overview`),
+      authFetch(`${API}/api/admin/analytics/service-popularity`),
+      authFetch(`${API}/api/admin/analytics/revenue-by-day?days=30`),
+    ]);
+    analyticsData = await overviewRes.json();
+    const popularity = await popularityRes.json();
+    const revenueByDay = await revenueRes.json();
+
+    // Overview cards
+    setText('analytics-revenue-total', formatCurrency(analyticsData.revenue_total));
+    setText('analytics-revenue-week', formatCurrency(analyticsData.revenue_week));
+    setText('analytics-revenue-month', formatCurrency(analyticsData.revenue_month));
+    setText('analytics-turnaround', `${(analyticsData.avg_turnaround_hours || 0).toFixed(1)} ${window.t('analytics.hours-suffix')}`);
+    setText('analytics-return-rate', `${(analyticsData.return_rate_pct || 0).toFixed(1)}${window.t('analytics.pct-suffix')}`);
+
+    // Service popularity chart
+    const popEl = document.getElementById('analytics-popularity');
+    if (popEl) {
+      if (!popularity.length) {
+        popEl.innerHTML = `<div style="color:var(--text-muted);font-size:0.85rem;">${window.t('empty.no-appts')}</div>`;
+      } else {
+        const maxCount = Math.max(...popularity.map(p => p.count), 1);
+        popEl.innerHTML = popularity.map(p => `
+          <div style="margin-bottom:0.75rem;">
+            <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;">
+              <span style="color:var(--text-primary);font-weight:600;">${escapeHtml(p.service_name)}</span>
+              <span style="color:var(--teal);">${p.count}</span>
+            </div>
+            <div style="background:var(--bg-secondary);border-radius:4px;height:8px;overflow:hidden;">
+              <div style="height:100%;width:${(p.count / maxCount * 100).toFixed(1)}%;background:linear-gradient(90deg,var(--teal),var(--accent));border-radius:4px;transition:width 0.5s ease;"></div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Revenue by day chart
+    const revEl = document.getElementById('analytics-revenue-chart');
+    if (revEl) {
+      if (!revenueByDay.length) {
+        revEl.innerHTML = `<div style="color:var(--text-muted);font-size:0.85rem;">${window.t('empty.no-appts')}</div>`;
+      } else {
+        const maxRev = Math.max(...revenueByDay.map(d => d.revenue), 1);
+        revEl.innerHTML = `
+          <div style="display:flex;align-items:flex-end;gap:2px;height:80px;overflow-x:auto;padding-bottom:4px;">
+            ${revenueByDay.map(d => {
+              const pct = maxRev > 0 ? (d.revenue / maxRev * 100) : 0;
+              const dateStr = new Date(d.date).toLocaleDateString('sk-SK', { month: 'short', day: 'numeric' });
+              return `<div title="${dateStr}: ${formatCurrency(d.revenue)}" style="flex:1;min-width:6px;background:linear-gradient(0deg,var(--teal),var(--accent));height:${Math.max(pct, 2)}%;border-radius:2px 2px 0 0;opacity:0.8;cursor:help;"></div>`;
+            }).join('')}
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--text-muted);margin-top:4px;">
+            <span>${revenueByDay[0] ? new Date(revenueByDay[0].date).toLocaleDateString('sk-SK', { month: 'short', day: 'numeric' }) : ''}</span>
+            <span>${revenueByDay[revenueByDay.length - 1] ? new Date(revenueByDay[revenueByDay.length - 1].date).toLocaleDateString('sk-SK', { month: 'short', day: 'numeric' }) : ''}</span>
+          </div>
+        `;
+      }
+    }
+  } catch (err) {
+    showToast('error', window.t('admin.toast.load-error'), err.message);
+  }
+}
+
+// ─── Reviews ──────────────────────────────────────────────
+async function loadReviews() {
+  try {
+    const res = await authFetch(`${API}/api/admin/reviews`);
+    if (!res.ok) throw new Error((await res.json()).error);
+    allReviews = await res.json();
+    renderReviews();
+  } catch (err) {
+    showToast('error', window.t('admin.toast.load-error'), err.message);
+  }
+}
+
+function renderReviews() {
+  const filtered = currentReviewFilter === 'all' ? allReviews : allReviews.filter(r => r.status === currentReviewFilter);
+  const tbody = document.getElementById('reviews-tbody');
+  if (!tbody) return;
+  setText('reviews-count', `${filtered.length}`);
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">📝</div><div class="empty-state-text">${window.t('empty.no-reviews')}</div></div></td></tr>`;
+    return;
+  }
+
+  const stars = n => '⭐'.repeat(Math.max(0, Math.min(5, n)));
+  const statusBadgeReview = s => {
+    const map = { pending: 'badge-pending', approved: 'badge-completed', hidden: 'badge-cancelled' };
+    const key = { pending: 'reviews.status.pending', approved: 'reviews.status.approved', hidden: 'reviews.status.hidden' };
+    return `<span class="badge ${map[s] || 'badge-pending'}">${window.t(key[s] || 'reviews.status.pending')}</span>`;
+  };
+
+  tbody.innerHTML = filtered.map(r => `
+    <tr>
+      <td class="td-mono">#${r.id}</td>
+      <td class="td-primary">${escapeHtml(r.customer_name || '—')}</td>
+      <td>${stars(r.rating)}</td>
+      <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(r.review_text || '—')}</td>
+      <td style="white-space:nowrap;">${formatDate(r.created_at)}</td>
+      <td>${statusBadgeReview(r.status)}</td>
+      <td>
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+          ${r.status !== 'approved' ? `<button class="btn btn-primary btn-sm" onclick="updateReview(${r.id},'approved')" data-i18n="reviews.approve">${window.t('reviews.approve')}</button>` : ''}
+          ${r.status !== 'hidden' ? `<button class="btn btn-danger btn-sm" onclick="updateReview(${r.id},'hidden')" data-i18n="reviews.hide">${window.t('reviews.hide')}</button>` : ''}
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteReview(${r.id})" title="${window.t('admin.action.delete')}">🗑️</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function updateReview(id, status) {
+  try {
+    const res = await authFetch(`${API}/api/admin/reviews/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    const idx = allReviews.findIndex(r => r.id === id);
+    if (idx !== -1) allReviews[idx].status = status;
+    renderReviews();
+    showToast('success', window.t('admin.toast.review-updated'), '');
+  } catch (err) {
+    showToast('error', window.t('admin.toast.update-failed'), err.message);
+  }
+}
+
+async function deleteReview(id) {
+  if (!confirm(window.t('confirm.delete-review', { id }))) return;
+  try {
+    const res = await authFetch(`${API}/api/admin/reviews/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error((await res.json()).error);
+    allReviews = allReviews.filter(r => r.id !== id);
+    renderReviews();
+    showToast('success', window.t('admin.toast.review-deleted'), '');
+  } catch (err) {
+    showToast('error', window.t('admin.toast.delete-failed'), err.message);
+  }
+}
+
+// ─── CRM ──────────────────────────────────────────────────
+async function loadCRM() {
+  try {
+    const res = await authFetch(`${API}/api/admin/crm/customers`);
+    if (!res.ok) throw new Error((await res.json()).error);
+    allCRMCustomers = await res.json();
+    renderCRM();
+  } catch (err) {
+    showToast('error', window.t('admin.toast.load-error'), err.message);
+  }
+}
+
+function renderCRM(searchTerm = '') {
+  const tbody = document.getElementById('crm-tbody');
+  if (!tbody) return;
+  let list = allCRMCustomers;
+  if (searchTerm) {
+    const q = searchTerm.toLowerCase();
+    list = list.filter(c => (c.email || '').toLowerCase().includes(q) || (c.name || '').toLowerCase().includes(q));
+  }
+  setText('crm-count', `${list.length}`);
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">${window.t('empty.no-customers')}</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(c => `
+    <tr>
+      <td style="font-size:0.82rem;">${escapeHtml(c.email)}</td>
+      <td class="td-primary">${escapeHtml(c.name || '—')}</td>
+      <td style="text-align:center;">${c.total_orders || 0}</td>
+      <td style="color:var(--teal);">${formatCurrency(c.total_spent)}</td>
+      <td style="white-space:nowrap;font-size:0.82rem;">${c.last_visit ? new Date(c.last_visit).toLocaleDateString('sk-SK') : '—'}</td>
+      <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:0.78rem;color:var(--text-muted);">${escapeHtml(c.notes || '—')}</td>
+      <td>
+        <div style="display:flex;gap:0.4rem;">
+          <button class="btn btn-ghost btn-sm" onclick="openCRMHistory('${escapeHtml(c.email)}')" data-i18n="crm.view-history">${window.t('crm.view-history')}</button>
+          <button class="btn btn-ghost btn-sm" onclick="openCRMNotes('${escapeHtml(c.email)}')" data-i18n="crm.edit-notes">${window.t('crm.edit-notes')}</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function openCRMHistory(email) {
+  const titleEl = document.getElementById('modal-crm-history-title');
+  if (titleEl) titleEl.textContent = email;
+  const contentEl = document.getElementById('crm-history-content');
+  if (contentEl) contentEl.innerHTML = '<div class="loading-spinner"></div>';
+  openModal('modal-crm-history');
+  try {
+    const res = await authFetch(`${API}/api/admin/crm/customers/${encodeURIComponent(email)}/history`);
+    if (!res.ok) throw new Error((await res.json()).error);
+    const history = await res.json();
+    if (!history.length) {
+      contentEl.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:1rem;">${window.t('empty.no-appts')}</div>`;
+      return;
+    }
+    contentEl.innerHTML = `
+      <table class="data-table" style="width:100%;">
+        <thead><tr>
+          <th>#</th><th>Device</th><th>Service</th><th>Status</th><th>Date</th><th>Price</th>
+        </tr></thead>
+        <tbody>
+          ${history.map(a => `
+            <tr>
+              <td class="td-mono">#${a.id}</td>
+              <td>${escapeHtml(a.device_model)}</td>
+              <td>${escapeHtml(a.service_name || '—')}</td>
+              <td>${statusBadge(a.status)}</td>
+              <td style="white-space:nowrap;font-size:0.8rem;">${formatDate(a.created_at)}</td>
+              <td style="color:var(--teal);">${a.quoted_price != null ? formatCurrency(a.quoted_price) : '—'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch (err) {
+    if (contentEl) contentEl.innerHTML = `<div style="color:var(--danger);">${escapeHtml(err.message)}</div>`;
+  }
+}
+
+async function openCRMNotes(email) {
+  document.getElementById('crm-notes-email').value = email;
+  const titleEl = document.getElementById('modal-crm-notes-email');
+  if (titleEl) titleEl.textContent = email;
+  document.getElementById('crm-notes-text').value = '';
+  document.getElementById('crm-loyalty-repairs').value = '0';
+  openModal('modal-crm-notes');
+  try {
+    const res = await authFetch(`${API}/api/admin/crm/customers/${encodeURIComponent(email)}/notes`);
+    if (!res.ok) return;
+    const data = await res.json();
+    document.getElementById('crm-notes-text').value = data.notes || '';
+    document.getElementById('crm-loyalty-repairs').value = data.loyalty_repairs || 0;
+  } catch (_) {}
+}
+
+async function saveCRMNotes() {
+  const email = document.getElementById('crm-notes-email').value;
+  const notes = document.getElementById('crm-notes-text').value.trim();
+  const loyalty_repairs = parseInt(document.getElementById('crm-loyalty-repairs').value, 10) || 0;
+  try {
+    const res = await authFetch(`${API}/api/admin/crm/customers/${encodeURIComponent(email)}/notes`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ notes, loyalty_repairs }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    closeModal('modal-crm-notes');
+    showToast('success', window.t('admin.toast.notes-saved'), '');
+    loadCRM();
+  } catch (err) {
+    showToast('error', window.t('admin.toast.save-failed'), err.message);
+  }
+}
+
+// ─── Calendar ─────────────────────────────────────────────
+function getWeekStart(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday first
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+async function loadCalendar() {
+  const weekStart = getWeekStart(calendarDate);
+  const dateStr = weekStart.toISOString().slice(0, 10);
+
+  // Update week label
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+  const labelEl = document.getElementById('cal-week-label');
+  if (labelEl) {
+    labelEl.textContent = `${weekStart.toLocaleDateString('sk-SK', { month: 'short', day: 'numeric' })} – ${weekEnd.toLocaleDateString('sk-SK', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+  }
+
+  const grid = document.getElementById('calendar-grid');
+  if (!grid) return;
+  grid.innerHTML = '<div class="loading-spinner"></div>';
+
+  try {
+    const res = await authFetch(`${API}/api/admin/calendar?date=${dateStr}`);
+    if (!res.ok) throw new Error((await res.json()).error);
+    const calData = await res.json();
+    const appointments = Array.isArray(calData) ? calData : (calData.appointments || []);
+
+    // Group by day
+    const dayMap = {};
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      dayMap[d.toISOString().slice(0, 10)] = [];
+    }
+    appointments.forEach(a => {
+      const key = (a.appointment_date || a.created_at || '').slice(0, 10);
+      if (dayMap[key]) dayMap[key].push(a);
+    });
+
+    // Derive day abbreviations from the locale for i18n
+    const locale = window.currentLang() === 'sk' ? 'sk-SK' : 'en-US';
+    grid.innerHTML = `
+      <div class="cal-week-grid">
+        ${Object.entries(dayMap).map(([date, appts]) => {
+          const d = new Date(date + 'T12:00:00'); // noon to avoid DST issues
+          const isToday = date === new Date().toISOString().slice(0, 10);
+          const dayName = d.toLocaleDateString(locale, { weekday: 'short' });
+          return `
+            <div class="cal-day ${isToday ? 'cal-day-today' : ''}">
+              <div class="cal-day-header">
+                <span class="cal-day-name">${escapeHtml(dayName)}</span>
+                <span class="cal-day-date">${d.getDate()}</span>
+                ${appts.length ? `<span class="cal-day-count">${appts.length}</span>` : ''}
+              </div>
+              <div class="cal-day-appts">
+                ${appts.slice(0, 5).map(a => `
+                  <div class="cal-appt-item" onclick="openOrderModal(${a.id})" title="#${a.id} ${escapeHtml(a.customer_name)}">
+                    <span style="color:var(--teal);font-size:0.7rem;">#${a.id}</span>
+                    <span style="font-size:0.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(a.customer_name)}</span>
+                  </div>
+                `).join('')}
+                ${appts.length > 5 ? `<div style="font-size:0.72rem;color:var(--text-muted);text-align:center;">+${appts.length - 5} more</div>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  } catch (err) {
+    grid.innerHTML = `<div style="color:var(--danger);padding:1rem;">${escapeHtml(err.message)}</div>`;
+  }
+}
+
+// ─── Time Slots ───────────────────────────────────────────
+async function loadSlots() {
+  const container = document.getElementById('slots-container');
+  if (!container) return;
+  try {
+    const res = await authFetch(`${API}/api/admin/slots`);
+    if (!res.ok) throw new Error((await res.json()).error);
+    const slots = await res.json();
+    if (!slots.length) {
+      container.innerHTML = `<div style="color:var(--text-muted);font-size:0.85rem;">No slots configured.</div>`;
+      return;
+    }
+    // day_of_week uses Date.getDay() convention: 0=Sunday, 1=Monday, ..., 6=Saturday
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    container.innerHTML = `
+      <div id="slots-data" data-slots='${JSON.stringify(slots)}'>
+        ${slots.map(s => `
+          <div style="display:flex;align-items:center;gap:1rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
+            <span style="min-width:100px;font-size:0.85rem;color:var(--text-secondary);">${days[s.day_of_week] || s.day_of_week}</span>
+            <span style="min-width:60px;font-weight:700;">${escapeHtml(s.slot_time)}</span>
+            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;">
+              <input type="checkbox" data-slot-id="${s.id}" ${s.is_active ? 'checked' : ''} style="accent-color:var(--teal);" />
+              Active
+            </label>
+            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;">
+              Capacity:
+              <input type="number" data-slot-cap="${s.id}" value="${s.capacity}" min="1" max="20" style="width:60px;" class="form-input" />
+            </label>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } catch (err) {
+    container.innerHTML = `<div style="color:var(--danger);">${escapeHtml(err.message)}</div>`;
+  }
+}
+
+async function saveSlots() {
+  const container = document.getElementById('slots-container');
+  if (!container) return;
+  const dataEl = document.getElementById('slots-data');
+  if (!dataEl) return;
+  const slots = JSON.parse(dataEl.dataset.slots);
+
+  const updated = slots.map(s => {
+    const activeEl = container.querySelector(`input[data-slot-id="${s.id}"]`);
+    const capEl = container.querySelector(`input[data-slot-cap="${s.id}"]`);
+    return {
+      id: s.id,
+      day_of_week: s.day_of_week,
+      slot_time: s.slot_time,
+      capacity: capEl ? parseInt(capEl.value, 10) : s.capacity,
+      is_active: activeEl ? activeEl.checked : s.is_active,
+    };
+  });
+
+  try {
+    const res = await authFetch(`${API}/api/admin/slots`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated),
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    showToast('success', window.t('admin.toast.slots-saved'), '');
+  } catch (err) {
+    showToast('error', window.t('admin.toast.save-failed'), err.message);
+  }
+}
+
+// ─── Staff Accounts ───────────────────────────────────────
+async function loadStaffAccounts() {
+  const section = document.getElementById('staff-accounts-section');
+  if (section) section.style.display = 'block';
+  const tbody = document.getElementById('staff-accounts-tbody');
+  if (!tbody) return;
+  try {
+    const res = await authFetch(`${API}/api/admin/staff-accounts`);
+    if (!res.ok) throw new Error((await res.json()).error);
+    const accounts = await res.json();
+    if (!accounts.length) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-state-text">No staff accounts yet</div></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = accounts.map(a => `
+      <tr>
+        <td class="td-mono">${escapeHtml(a.username)}</td>
+        <td class="td-primary">${escapeHtml(a.display_name)}</td>
+        <td><span class="badge ${a.role === 'owner' ? 'badge-completed' : 'badge-confirmed'}">${window.t(a.role === 'owner' ? 'staff.role.owner' : 'staff.role.staff')}</span></td>
+        <td><span class="badge ${a.is_active ? 'badge-in-stock' : 'badge-out-of-stock'}">${a.is_active ? '✅' : '❌'}</span></td>
+        <td>
+          <div style="display:flex;gap:0.4rem;">
+            <button class="btn btn-ghost btn-sm btn-icon" onclick="openStaffAccountModal(${a.id})" title="${window.t('admin.action.edit')}">✏️</button>
+            <button class="btn btn-danger btn-sm btn-icon" onclick="deleteStaffAccount(${a.id},'${escapeHtml(a.display_name)}')" title="${window.t('admin.action.delete')}">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="color:var(--danger);">${escapeHtml(err.message)}</td></tr>`;
+  }
+}
+
+function openStaffAccountModal(id = null) {
+  const titleEl = document.getElementById('modal-staff-account-title');
+  document.getElementById('staff-account-id').value = id || '';
+  document.getElementById('staff-account-username').value = '';
+  document.getElementById('staff-account-display-name').value = '';
+  document.getElementById('staff-account-password').value = '';
+  document.getElementById('staff-account-role').value = 'staff';
+  document.getElementById('staff-account-active').value = '1';
+
+  const usernameInput = document.getElementById('staff-account-username');
+
+  if (id) {
+    if (titleEl) titleEl.textContent = window.t('modal.edit-staff');
+    if (usernameInput) usernameInput.disabled = true;
+    // Fetch current staff data from server
+    authFetch(`${API}/api/admin/staff-accounts`).then(r => r.json()).then(accounts => {
+      const acct = accounts.find(a => a.id === id);
+      if (acct) {
+        document.getElementById('staff-account-username').value = acct.username || '';
+        document.getElementById('staff-account-display-name').value = acct.display_name || '';
+        document.getElementById('staff-account-role').value = acct.role || 'staff';
+        document.getElementById('staff-account-active').value = acct.is_active ? '1' : '0';
+      }
+    }).catch(() => {});
+  } else {
+    if (titleEl) titleEl.textContent = window.t('modal.add-staff');
+    if (usernameInput) usernameInput.disabled = false;
+  }
+  openModal('modal-staff-account');
+}
+
+async function saveStaffAccount() {
+  const id           = document.getElementById('staff-account-id').value;
+  const username     = document.getElementById('staff-account-username').value.trim();
+  const display_name = document.getElementById('staff-account-display-name').value.trim();
+  const password     = document.getElementById('staff-account-password').value;
+  const role         = document.getElementById('staff-account-role').value;
+  const is_active    = parseInt(document.getElementById('staff-account-active').value, 10) === 1;
+
+  const body = { display_name, role, is_active };
+  if (!id) { body.username = username; }
+  if (password) body.password = password;
+
+  try {
+    const url    = id ? `${API}/api/admin/staff-accounts/${id}` : `${API}/api/admin/staff-accounts`;
+    const method = id ? 'PUT' : 'POST';
+    const res    = await authFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error((await res.json()).error);
+    closeModal('modal-staff-account');
+    loadStaffAccounts();
+    showToast('success', window.t(id ? 'admin.toast.staff-updated' : 'admin.toast.staff-created'), '');
+  } catch (err) {
+    showToast('error', window.t('admin.toast.save-failed'), err.message);
+  }
+}
+
+async function deleteStaffAccount(id, name) {
+  if (!confirm(window.t('confirm.delete-staff', { name }))) return;
+  try {
+    const res = await authFetch(`${API}/api/admin/staff-accounts/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error((await res.json()).error);
+    loadStaffAccounts();
+    showToast('success', window.t('admin.toast.staff-deleted'), `"${name}"`);
+  } catch (err) {
+    showToast('error', window.t('admin.toast.delete-failed'), err.message);
+  }
+}
+
+// ─── Audit Log ────────────────────────────────────────────
+async function loadAuditLog() {
+  const tbody = document.getElementById('audit-log-tbody');
+  if (!tbody) return;
+  try {
+    const res = await authFetch(`${API}/api/admin/audit-log?limit=50`);
+    if (!res.ok) throw new Error((await res.json()).error);
+    const logs = await res.json();
+    if (!logs.length) {
+      tbody.innerHTML = `<tr><td colspan="3"><div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">${window.t('empty.no-audit')}</div></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = logs.map(l => `
+      <tr>
+        <td class="td-mono">${escapeHtml(l.admin_username)}</td>
+        <td style="font-size:0.82rem;">
+          <span style="color:var(--teal);">${escapeHtml(l.action)}</span>
+          ${l.entity_type ? `<span style="color:var(--text-muted);"> on ${escapeHtml(l.entity_type)} #${l.entity_id || ''}</span>` : ''}
+          ${l.details ? `<div style="color:var(--text-muted);font-size:0.75rem;">${escapeHtml(l.details)}</div>` : ''}
+        </td>
+        <td style="white-space:nowrap;font-size:0.8rem;">${formatDate(l.created_at)}</td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="3" style="color:var(--danger);">${escapeHtml(err.message)}</td></tr>`;
+  }
+}
+
 // ─── Receipt ──────────────────────────────────────────────
+function viewInvoice() {
+  const id = parseInt(document.getElementById('order-id').value, 10);
+  if (!id) return;
+  window.open(`/api/admin/appointments/${id}/invoice`, '_blank');
+}
 function printReceipt() {
   const id = parseInt(document.getElementById('order-id').value, 10);
   if (!id) return;
@@ -1290,6 +1920,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('save-repair-type-btn')?.addEventListener('click', saveRepairType);
   document.getElementById('save-inventory-btn')?.addEventListener('click', saveInventory);
   document.getElementById('print-receipt-btn')?.addEventListener('click', printReceipt);
+  document.getElementById('view-invoice-btn')?.addEventListener('click', viewInvoice);
+  document.getElementById('save-staff-account-btn')?.addEventListener('click', saveStaffAccount);
+  document.getElementById('save-crm-notes-btn')?.addEventListener('click', saveCRMNotes);
+  document.getElementById('save-slots-btn')?.addEventListener('click', saveSlots);
+  document.getElementById('add-staff-account-btn')?.addEventListener('click', () => openStaffAccountModal());
 
   // Admin message send
   document.getElementById('admin-send-msg-btn')?.addEventListener('click', sendAdminMessage);
@@ -1328,6 +1963,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // CRM search
+  const crmSearch = document.getElementById('crm-search');
+  if (crmSearch) {
+    crmSearch.addEventListener('input', e => {
+      renderCRM(e.target.value);
+    });
+  }
+
+  // Reviews filter buttons
+  document.querySelectorAll('.reviews-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.reviews-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentReviewFilter = btn.dataset.filter;
+      renderReviews();
+    });
+  });
+
+  // Calendar navigation
+  document.getElementById('cal-prev-btn')?.addEventListener('click', () => {
+    calendarDate.setDate(calendarDate.getDate() - 7);
+    loadCalendar();
+  });
+  document.getElementById('cal-next-btn')?.addEventListener('click', () => {
+    calendarDate.setDate(calendarDate.getDate() + 7);
+    loadCalendar();
+  });
+  document.getElementById('cal-today-btn')?.addEventListener('click', () => {
+    calendarDate = new Date();
+    loadCalendar();
+  });
+
   // Language toggle
   document.querySelectorAll('.lang-toggle').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1339,6 +2006,8 @@ document.addEventListener('DOMContentLoaded', () => {
       renderRepairTypes();
       renderInventory();
       renderStaffTab();
+      renderReviews();
+      renderCRM();
     });
   });
 
@@ -1349,6 +2018,17 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     updateUserDisplay();
     loadAllData();
+  }
+
+  // Real-time updates via Socket.io
+  if (typeof io !== 'undefined') {
+    const socket = io();
+    socket.on('new-appointment', () => { loadAllData(); });
+    socket.on('appointment-updated', () => { loadAllData(); });
+    socket.on('new-message', (data) => {
+      const openId = parseInt(document.getElementById('order-id')?.value, 10);
+      if (data.appointment_id === openId) loadOrderMessages(openId);
+    });
   }
 });
 

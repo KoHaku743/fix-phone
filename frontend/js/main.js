@@ -343,6 +343,7 @@ function formatDate(dateStr) {
 // ─── Init ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   loadServices();
+  loadPublicReviews();
 
   const form = document.getElementById('booking-form');
   if (form) form.addEventListener('submit', handleBooking);
@@ -356,3 +357,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// ─── Public Reviews ───────────────────────────────────────
+async function loadPublicReviews() {
+  const listEl = document.getElementById('reviews-list');
+  if (!listEl) return;
+  try {
+    const res = await fetch(`${API}/api/reviews/public`);
+    if (!res.ok) return;
+    const reviews = await res.json();
+    if (!reviews.length) {
+      listEl.style.display = 'none';
+      return;
+    }
+    listEl.innerHTML = reviews.map(r => `
+      <div class="review-card">
+        <div class="review-stars">${'⭐'.repeat(Math.min(5, Math.max(1, r.rating)))}</div>
+        <p class="review-text">"${escapeHtml(r.review_text)}"</p>
+        <div class="review-author">— ${escapeHtml(r.customer_name || 'Customer')}</div>
+      </div>
+    `).join('');
+  } catch (_) {}
+}

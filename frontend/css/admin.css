@@ -918,3 +918,125 @@ button.sidebar-footer-link {
   text-align: center;
   margin-bottom: 1.5rem;
 }
+
+/* ===== Analytics Tab ===== */
+.analytics-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ===== Reviews Tab ===== */
+.badge-in-stock  { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+.badge-out-of-stock { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+
+/* ===== Calendar Grid ===== */
+.cal-week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  overflow-x: auto;
+}
+
+.cal-day {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  min-height: 120px;
+  overflow: hidden;
+}
+
+.cal-day-today {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 1px var(--teal);
+}
+
+.cal-day-header {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--bg-secondary);
+}
+
+.cal-day-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.cal-day-date {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.cal-day-today .cal-day-date {
+  color: var(--teal);
+}
+
+.cal-day-count {
+  margin-left: auto;
+  background: var(--teal);
+  color: #0a0e1a;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+}
+
+.cal-day-appts {
+  padding: 0.4rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cal-appt-item {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  background: rgba(0,212,255,0.06);
+  border: 1px solid rgba(0,212,255,0.1);
+  border-radius: 4px;
+  padding: 2px 5px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 0.15s;
+}
+
+.cal-appt-item:hover {
+  background: rgba(0,212,255,0.12);
+}
+
+@media (max-width: 768px) {
+  .cal-week-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ===== Payment Badges ===== */
+.payment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.payment-paid {
+  background: rgba(16,185,129,0.15);
+  color: #10b981;
+  border: 1px solid rgba(16,185,129,0.3);
+}
+
+.payment-unpaid {
+  background: rgba(245,158,11,0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245,158,11,0.2);
+}
