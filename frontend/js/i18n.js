@@ -15,18 +15,18 @@ const TRANSLATIONS = {
     'services.price-on-request': 'Price on request',
 
     /* ── Hero ── */
-    'hero.badge':            '⚡ Professional Phone Repair Service',
+    'hero.badge':            '⚡ SSS-rank quality service',
     'hero.title1':           'Expert Phone Repairs',
-    'hero.title2':           'Professional Quality',
-    'hero.subtitle':         "We get your phone working again. Bring your device in person – fast, reliable and hassle-free.",
+    'hero.title2':           'SSS-rank Style',
+    'hero.subtitle':         "We return SSS-rank charging to your phone. Bring your device in person – fast, convenient.",
     'hero.cta-book':         '🛠️ Book a Repair',
     'hero.cta-services':     '🔍 View Services',
-    'hero.stat1-label':      'Quality repairs',
+    'hero.stat1-label':      'SSS-rank quality',
     'hero.stat2-label':      'Certified technicians',
     'hero.stat3-label':      'Fast turnaround',
     'hero.phone-warranty':   '🛡️ 90-Day Warranty',
     'hero.phone-title':      'Repair in Progress',
-    'hero.phone-subtitle':   'Professional service...',
+    'hero.phone-subtitle':   'SSS-rank service...',
     'hero.phone-ready':      '🤝 Hand to hand',
 
     /* ── Services section ── */
@@ -71,7 +71,7 @@ const TRANSLATIONS = {
     'booking.change':           'Change',
 
     /* ── Footer ── */
-    'footer.desc':            'Professional phone repairs with satisfaction guarantee. We service all major brands.',
+    'footer.desc':            'We return SSS-rank charging to your phone. Professional repairs with satisfaction guarantee.',
     'footer.quick-links':     'Quick Links',
     'footer.svc-heading':     'Services',
     'footer.book-appt':       'Book a Repair',
@@ -336,18 +336,18 @@ const TRANSLATIONS = {
     'nav.book-now':    'Rezervovať',
 
     /* ── Hero ── */
-    'hero.badge':            '⚡ Profesionálny servis telefónov',
+    'hero.badge':            '⚡ SSS-rank kvalitný servis',
     'hero.title1':           'Odborné opravy telefónov',
-    'hero.title2':           'Profesionálna kvalita',
-    'hero.subtitle':         'Vrátime vášmu mobilu plnú funkčnosť. Prineste zariadenie osobne – rýchlo, spoľahlivo a bez komplikácií.',
+    'hero.title2':           'SSS-rank štýl',
+    'hero.subtitle':         'Vrátime vášmu mobilu štýlové SSS-rank nabíjanie. Prineste zariadenie osobne – rýchlo, pohodlne.',
     'hero.cta-book':         '🛠️ Rezervovať opravu',
     'hero.cta-services':     '🔍 Zobraziť služby',
-    'hero.stat1-label':      'Kvalitné opravy',
+    'hero.stat1-label':      'SSS-rank kvality',
     'hero.stat2-label':      'Certifikovaní technici',
     'hero.stat3-label':      'Rýchle vybavenie',
     'hero.phone-warranty':   '🛡️ 90-dňová záruka',
     'hero.phone-title':      'Oprava prebieha',
-    'hero.phone-subtitle':   'Profesionálny servis...',
+    'hero.phone-subtitle':   'SSS-rank servis...',
     'hero.phone-ready':      '🤝 Z ruky do ruky',
 
     /* ── Services section ── */
@@ -395,7 +395,7 @@ const TRANSLATIONS = {
     'booking.change':           'Zmeniť',
 
     /* ── Footer ── */
-    'footer.desc':            'Profesionálne opravy telefónov so zárukou spokojnosti. Opravujeme všetky hlavné značky.',
+    'footer.desc':            'Vrátime vášmu mobilu štýlové SSS-rank nabíjanie. Opravujeme všetky hlavné značky so zárukou spokojnosti.',
     'footer.quick-links':     'Rýchle odkazy',
     'footer.svc-heading':     'Služby',
     'footer.book-appt':       'Rezervovať opravu',
