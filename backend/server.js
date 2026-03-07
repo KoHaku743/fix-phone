@@ -1,11 +1,22 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const http = require('http');
 const rateLimit = require('express-rate-limit');
+const { Server: SocketIOServer } = require('socket.io');
 const { initDb } = require('./database');
 
 const app  = express();
 const PORT = parseInt(process.env.PORT, 10) || 3000;
+
+// Create HTTP server and attach socket.io
+const httpServer = http.createServer(app);
+const io = new SocketIOServer(httpServer, {
+  cors: { origin: process.env.CORS_ORIGIN || '*' },
+});
+// Make io accessible in route handlers via req.app.locals.io
+app.locals.io = io;
+module.exports.io = io;
 
 // When ADMIN_PORT is set (and differs from PORT), admin routes are served on a
 // separate Express server so the admin panel is only reachable on that port.
@@ -66,6 +77,15 @@ app.use('/api/services',      require('./routes/services'));
 app.use('/api/appointments',  appointmentLimiter, require('./routes/appointments'));
 app.use('/api/track',         require('./routes/track'));
 app.use('/api/conversations', require('./routes/messages'));
+app.use('/api/reviews',       require('./routes/reviews'));
+
+// GET /sitemap.xml
+app.get('/sitemap.xml', (req, res) => {
+  const base = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+  const urls = ['/', '/track'];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url><loc>${base}${u}</loc></url>`).join('\n')}\n</urlset>`;
+  res.type('application/xml').send(xml);
+});
 
 // ─── Admin API + HTML routes ──────────────────────────────
 // When ADMIN_PORT is configured these are mounted on the separate admin server
@@ -136,7 +156,7 @@ initDb().then(() => {
   if (!process.env.JWT_SECRET) {
     console.warn('⚠️  WARNING: JWT_SECRET environment variable is not set. Using an insecure default – set it before deploying to production.');
   }
-  app.listen(PORT, '0.0.0.0', () => {
+  httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`Fix-Phone server running on http://localhost:${PORT}`);
   });
   if (adminApp) {

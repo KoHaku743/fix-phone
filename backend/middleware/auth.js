@@ -66,4 +66,26 @@ function requireAuth(req, res, next) {
   next();
 }
 
-module.exports = { createToken, verifyToken, requireAuth };
+/** Look up the role of a username in the staff_accounts table. Returns null if not found. */
+function getUserRole(username) {
+  try {
+    const { getDb } = require('../database');
+    const { prepare } = getDb();
+    const row = prepare('SELECT role FROM staff_accounts WHERE username = ? AND is_active = 1').get(username);
+    return row ? row.role : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Express middleware – allows only owner-role users. */
+function requireOwner(req, res, next) {
+  const username = req.adminUser && req.adminUser.username;
+  if (!username) return res.status(401).json({ error: 'Unauthorized' });
+  if (username === 'owner') return next();
+  const role = getUserRole(username);
+  if (role === 'owner') return next();
+  return res.status(403).json({ error: 'Forbidden: owner access required' });
+}
+
+module.exports = { createToken, verifyToken, requireAuth, requireOwner, getUserRole };

@@ -99,6 +99,7 @@ function initializeSchema() {
   // Migrate: add price_from / price_to if upgrading from old schema
   try { db.run(`ALTER TABLE services ADD COLUMN price_from REAL`); } catch (_) {}
   try { db.run(`ALTER TABLE services ADD COLUMN price_to REAL`); } catch (_) {}
+  try { db.run(`ALTER TABLE services ADD COLUMN warranty_days INTEGER DEFAULT 0`); } catch (_) {}
   // Make price nullable on existing DBs (SQLite cannot DROP NOT NULL, so we just allow nulls by default)
 
   db.run(`
@@ -124,6 +125,10 @@ function initializeSchema() {
   try { db.run(`ALTER TABLE appointments ADD COLUMN conversation_token TEXT`); } catch (_) {}
   try { db.run(`ALTER TABLE appointments ADD COLUMN assigned_to TEXT`); } catch (_) {}
   try { db.run(`ALTER TABLE appointments ADD COLUMN customer_lang TEXT DEFAULT 'sk'`); } catch (_) {}
+  try { db.run(`ALTER TABLE appointments ADD COLUMN payment_status TEXT DEFAULT 'unpaid'`); } catch (_) {}
+  try { db.run(`ALTER TABLE appointments ADD COLUMN payment_method TEXT`); } catch (_) {}
+  try { db.run(`ALTER TABLE appointments ADD COLUMN warranty_expiry TEXT`); } catch (_) {}
+  try { db.run(`ALTER TABLE appointments ADD COLUMN slot_time TEXT`); } catch (_) {}
 
   // Migrate: remove NOT NULL constraint from appointment_date if present (old schema)
   try {
@@ -182,6 +187,81 @@ function initializeSchema() {
       quantity INTEGER DEFAULT 0,
       min_quantity INTEGER DEFAULT 1,
       unit_price REAL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // Migrate: add supplier columns to inventory
+  try { db.run(`ALTER TABLE inventory ADD COLUMN supplier_name TEXT`); } catch (_) {}
+  try { db.run(`ALTER TABLE inventory ADD COLUMN supplier_contact TEXT`); } catch (_) {}
+  try { db.run(`ALTER TABLE inventory ADD COLUMN supplier_notes TEXT`); } catch (_) {}
+  try { db.run(`ALTER TABLE inventory ADD COLUMN cost_price REAL`); } catch (_) {}
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS reviews (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      appointment_id INTEGER NOT NULL,
+      conversation_token TEXT NOT NULL,
+      rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+      review_text TEXT,
+      customer_name TEXT,
+      status TEXT DEFAULT 'pending' CHECK(status IN ('pending','approved','hidden')),
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (appointment_id) REFERENCES appointments(id)
+    );
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS time_slots (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      day_of_week INTEGER NOT NULL CHECK(day_of_week BETWEEN 0 AND 6),
+      slot_time TEXT NOT NULL,
+      capacity INTEGER DEFAULT 3,
+      is_active INTEGER DEFAULT 1,
+      UNIQUE(day_of_week, slot_time)
+    );
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS slot_bookings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      appointment_id INTEGER NOT NULL,
+      slot_date TEXT NOT NULL,
+      slot_time TEXT NOT NULL,
+      FOREIGN KEY (appointment_id) REFERENCES appointments(id)
+    );
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS customer_notes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      customer_email TEXT NOT NULL UNIQUE,
+      notes TEXT,
+      loyalty_repairs INTEGER DEFAULT 0,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS staff_accounts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL UNIQUE,
+      display_name TEXT NOT NULL,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'staff' CHECK(role IN ('owner','staff')),
+      is_active INTEGER DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS audit_log (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      admin_username TEXT NOT NULL,
+      action TEXT NOT NULL,
+      entity_type TEXT,
+      entity_id INTEGER,
+      details TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);

@@ -46,7 +46,45 @@ router.post('/', async (req, res) => {
       lang,
     }).catch(err => console.warn('⚠️  Could not send confirmation email:', err.message));
 
+    // Emit socket.io event
+    try { req.app.locals.io.emit('new-appointment', appointment); } catch (_) {}
+
     res.status(201).json(appointment);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/appointments/available-slots?date=YYYY-MM-DD
+router.get('/available-slots', (req, res) => {
+  try {
+    const { prepare } = getDb();
+    const { date } = req.query;
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({ error: 'date query parameter required (YYYY-MM-DD)' });
+    }
+    const dayOfWeek = new Date(date).getDay();
+    const slots = prepare(`
+      SELECT ts.id, ts.slot_time, ts.capacity,
+             COALESCE(b.booked, 0) as booked
+      FROM time_slots ts
+      LEFT JOIN (
+        SELECT slot_time, COUNT(*) as booked
+        FROM slot_bookings WHERE slot_date = ?
+        GROUP BY slot_time
+      ) b ON ts.slot_time = b.slot_time
+      WHERE ts.day_of_week = ? AND ts.is_active = 1
+      ORDER BY ts.slot_time
+    `).all(date, dayOfWeek);
+
+    const available = slots
+      .filter(s => s.booked < s.capacity)
+      .map(s => ({
+        slot_time: s.slot_time,
+        capacity: s.capacity,
+        available: s.capacity - s.booked,
+      }));
+    res.json(available);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
