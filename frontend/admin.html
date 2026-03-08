@@ -228,6 +228,7 @@
             <div class="section-title" data-i18n="admin.all-appts">All Appointments</div>
             <div class="section-count" id="orders-count"></div>
           </div>
+          <button class="btn btn-ghost btn-sm" onclick="exportOrdersCSV()" data-i18n="export.orders">Export Orders CSV</button>
         </div>
         <div class="table-container">
           <div class="table-toolbar">
@@ -324,7 +325,10 @@
             <div class="section-title" data-i18n="admin.inventory">Inventory</div>
             <div class="section-count" id="inventory-count"></div>
           </div>
-          <button class="btn btn-primary btn-sm" id="add-inventory-btn" data-i18n="admin.add-inventory">+ Add Part</button>
+          <div style="display:flex;gap:0.5rem;">
+            <button class="btn btn-ghost btn-sm" onclick="exportInventoryCSV()" data-i18n="export.inventory">Export Inventory CSV</button>
+            <button class="btn btn-primary btn-sm" id="add-inventory-btn" data-i18n="admin.add-inventory">+ Add Part</button>
+          </div>
         </div>
         <div class="table-container">
           <table class="data-table">
@@ -488,6 +492,7 @@
             <div class="section-title" data-i18n="admin.crm">Customers</div>
             <div class="section-count" id="crm-count"></div>
           </div>
+          <button class="btn btn-ghost btn-sm" onclick="exportCRMCSV()" data-i18n="export.crm">Export Customers CSV</button>
         </div>
         <div class="table-container">
           <div class="table-toolbar">
@@ -576,6 +581,31 @@
             <div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;">
               <button class="btn btn-primary" id="save-settings-btn" data-i18n="admin.save-settings">Save Settings</button>
               <button class="btn btn-ghost" id="test-smtp-btn" data-i18n="admin.test-smtp">Send Test E-mail</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div style="margin-top:2rem;">
+          <div class="section-header">
+            <div>
+              <div class="section-title" data-i18n="settings.change-password">Change Password</div>
+              <div class="section-count" data-i18n="settings.change-password-subtitle">Update the password for your admin account</div>
+            </div>
+          </div>
+          <div class="table-container" style="padding:1.5rem;">
+            <div style="max-width:400px;">
+              <div class="form-group">
+                <label class="form-label" data-i18n="settings.current-password">Current Password</label>
+                <input class="form-input" type="password" id="change-pw-current" autocomplete="current-password" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" data-i18n="settings.new-password">New Password</label>
+                <input class="form-input" type="password" id="change-pw-new" autocomplete="new-password" />
+              </div>
+              <div style="margin-top:1rem;">
+                <button class="btn btn-primary" id="change-pw-btn" data-i18n="settings.change-pw-btn">Update Password</button>
+              </div>
             </div>
           </div>
         </div>

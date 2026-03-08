@@ -231,7 +231,7 @@
 
             <div class="form-group">
               <label class="form-label" for="customer_phone"><span data-i18n="booking.phone-label">Telefónne číslo</span> <span>*</span></label>
-              <input class="form-input" type="tel" id="customer_phone" name="customer_phone" data-i18n-placeholder="booking.phone-ph" placeholder="+421 900 000 000" required />
+              <input class="form-input" type="tel" id="customer_phone" name="customer_phone" data-i18n-placeholder="booking.phone-ph" placeholder="+421 900 000 000" pattern="^\+?[\d\s\-()\u202F]{7,20}$" required />
             </div>
 
             <div class="form-group">

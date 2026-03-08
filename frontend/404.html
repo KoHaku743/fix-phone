@@ -48,13 +48,54 @@
       transition: opacity .2s;
     }
     .btn:hover { opacity: .85; }
+    .lang-btn {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
+  <button class="lang-btn" id="lang-btn">SK</button>
   <div class="code">404</div>
   <div class="icon">🔧</div>
-  <h1>Page Not Found</h1>
-  <p>Looks like this page needs a repair too. Let's get you back on track.</p>
-  <a class="btn" href="/">← Back to Home</a>
+  <h1 id="err-title">Page Not Found</h1>
+  <p id="err-desc">Looks like this page needs a repair too. Let's get you back on track.</p>
+  <a class="btn" href="/" id="err-btn">← Back to Home</a>
+
+  <script>
+    const STRINGS = {
+      en: { title: 'Page Not Found', desc: "Looks like this page needs a repair too. Let's get you back on track.", btn: '← Back to Home' },
+      sk: { title: 'Stránka nenájdená', desc: 'Zdá sa, že táto stránka tiež potrebuje opravu. Vráťme vás späť.', btn: '← Späť na hlavnú stránku' },
+    };
+    let lang = 'en';
+    try { lang = localStorage.getItem('fixphone-lang') || 'en'; } catch (_) {}
+    if (!STRINGS[lang]) lang = 'en';
+
+    function applyLang() {
+      const s = STRINGS[lang];
+      document.getElementById('err-title').textContent = s.title;
+      document.getElementById('err-desc').textContent  = s.desc;
+      document.getElementById('err-btn').textContent   = s.btn;
+      document.getElementById('lang-btn').textContent  = lang === 'en' ? 'SK' : 'EN';
+      document.documentElement.lang = lang;
+    }
+
+    document.getElementById('lang-btn').addEventListener('click', () => {
+      lang = lang === 'en' ? 'sk' : 'en';
+      try { localStorage.setItem('fixphone-lang', lang); } catch (_) {}
+      applyLang();
+    });
+
+    applyLang();
+  </script>
 </body>
 </html>

@@ -16,6 +16,9 @@ router.post('/', async (req, res) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer_email)) {
       return res.status(400).json({ error: 'Invalid email address' });
     }
+    if (!/^\+?[\d\s\-()\u202F]{7,20}$/.test(customer_phone.trim())) {
+      return res.status(400).json({ error: 'Invalid phone number format' });
+    }
 
     const lang = customer_lang === 'en' ? 'en' : 'sk';
 

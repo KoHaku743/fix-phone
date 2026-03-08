@@ -546,7 +546,10 @@ function renderOrders() {
       </td>
       <td>${statusBadge(a.status)}</td>
       <td>
-        <button class="btn btn-ghost btn-sm btn-icon" title="${window.t('admin.action.edit')}" onclick="openOrderModal(${a.id})">✏️</button>
+        <div style="display:flex;gap:0.4rem;">
+          <button class="btn btn-ghost btn-sm btn-icon" title="${window.t('admin.action.edit')}" onclick="openOrderModal(${a.id})">✏️</button>
+          <button class="btn btn-danger btn-sm btn-icon" title="${window.t('admin.action.delete')}" onclick="deleteAppointment(${a.id},'${escapeHtml(a.customer_name)}')">🗑️</button>
+        </div>
       </td>
     </tr>
   `).join('');
@@ -1100,7 +1103,10 @@ function renderStaffTab() {
           <td>${escapeHtml(a.service_name || '—')}</td>
           <td>${statusBadge(a.status)}</td>
           <td>
-            <button class="btn btn-ghost btn-sm btn-icon" title="${window.t('admin.action.edit')}" onclick="openOrderModal(${a.id})">✏️</button>
+            <div style="display:flex;gap:0.4rem;">
+              <button class="btn btn-ghost btn-sm btn-icon" title="${window.t('admin.action.edit')}" onclick="openOrderModal(${a.id})">✏️</button>
+              <button class="btn btn-danger btn-sm btn-icon" title="${window.t('admin.action.delete')}" onclick="deleteAppointment(${a.id},'${escapeHtml(a.customer_name)}')">🗑️</button>
+            </div>
           </td>
         </tr>
       `).join('');
@@ -1478,7 +1484,12 @@ async function openCRMHistory(email) {
     contentEl.innerHTML = `
       <table class="data-table" style="width:100%;">
         <thead><tr>
-          <th>#</th><th>Device</th><th>Service</th><th>Status</th><th>Date</th><th>Price</th>
+          <th>${window.t('crm.history.col.num')}</th>
+          <th>${window.t('crm.history.col.device')}</th>
+          <th>${window.t('crm.history.col.service')}</th>
+          <th>${window.t('crm.history.col.status')}</th>
+          <th>${window.t('crm.history.col.date')}</th>
+          <th>${window.t('crm.history.col.price')}</th>
         </tr></thead>
         <tbody>
           ${history.map(a => `
@@ -1600,7 +1611,7 @@ async function loadCalendar() {
                     <span style="font-size:0.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(a.customer_name)}</span>
                   </div>
                 `).join('')}
-                ${appts.length > 5 ? `<div style="font-size:0.72rem;color:var(--text-muted);text-align:center;">+${appts.length - 5} more</div>` : ''}
+                ${appts.length > 5 ? `<div style="font-size:0.72rem;color:var(--text-muted);text-align:center;">${window.t('calendar.more', { n: appts.length - 5 })}</div>` : ''}
               </div>
             </div>
           `;
@@ -1621,23 +1632,23 @@ async function loadSlots() {
     if (!res.ok) throw new Error((await res.json()).error);
     const slots = await res.json();
     if (!slots.length) {
-      container.innerHTML = `<div style="color:var(--text-muted);font-size:0.85rem;">No slots configured.</div>`;
+      container.innerHTML = `<div style="color:var(--text-muted);font-size:0.85rem;">${window.t('slots.no-slots')}</div>`;
       return;
     }
     // day_of_week uses Date.getDay() convention: 0=Sunday, 1=Monday, ..., 6=Saturday
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayKeys = ['days.sunday', 'days.monday', 'days.tuesday', 'days.wednesday', 'days.thursday', 'days.friday', 'days.saturday'];
     container.innerHTML = `
       <div id="slots-data" data-slots='${JSON.stringify(slots)}'>
         ${slots.map(s => `
           <div style="display:flex;align-items:center;gap:1rem;padding:0.5rem 0;border-bottom:1px solid var(--border);">
-            <span style="min-width:100px;font-size:0.85rem;color:var(--text-secondary);">${days[s.day_of_week] || s.day_of_week}</span>
+            <span style="min-width:100px;font-size:0.85rem;color:var(--text-secondary);">${window.t(dayKeys[s.day_of_week] || 'days.sunday')}</span>
             <span style="min-width:60px;font-weight:700;">${escapeHtml(s.slot_time)}</span>
             <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;">
               <input type="checkbox" data-slot-id="${s.id}" ${s.is_active ? 'checked' : ''} style="accent-color:var(--teal);" />
-              Active
+              ${window.t('slots.active')}
             </label>
             <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;">
-              Capacity:
+              ${window.t('slots.capacity')}
               <input type="number" data-slot-cap="${s.id}" value="${s.capacity}" min="1" max="20" style="width:60px;" class="form-input" />
             </label>
           </div>
@@ -1692,7 +1703,7 @@ async function loadStaffAccounts() {
     if (!res.ok) throw new Error((await res.json()).error);
     const accounts = await res.json();
     if (!accounts.length) {
-      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-state-text">No staff accounts yet</div></div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-state-text">${window.t('empty.no-staff-accounts')}</div></div></td></tr>`;
       return;
     }
     tbody.innerHTML = accounts.map(a => `
@@ -1884,6 +1895,94 @@ function printReceipt() {
   if (w) { w.document.write(html); w.document.close(); }
 }
 
+// ─── Delete Appointment ───────────────────────────────────
+async function deleteAppointment(id, name) {
+  if (!confirm(window.t('confirm.delete-appointment', { id, name }))) return;
+  try {
+    const res = await authFetch(`${API}/api/admin/appointments/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error((await res.json()).error);
+    allAppointments = allAppointments.filter(a => a.id !== id);
+    renderOrders();
+    loadDashboard();
+    showToast('success', window.t('admin.toast.appt-deleted'), `#${id}`);
+  } catch (err) {
+    showToast('error', window.t('admin.toast.delete-failed'), err.message);
+  }
+}
+
+// ─── CSV Export ───────────────────────────────────────────
+function downloadCSV(filename, rows, headers) {
+  const escape = v => {
+    const s = v == null ? '' : String(v);
+    return s.includes(',') || s.includes('"') || s.includes('\n')
+      ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const lines = [headers.map(escape).join(',')];
+  rows.forEach(r => lines.push(r.map(escape).join(',')));
+  const blob = new Blob([lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function exportOrdersCSV() {
+  const headers = ['#', 'Customer', 'Email', 'Phone', 'Device', 'Service', 'Status', 'Quoted Price', 'Payment', 'Date'];
+  const rows = allAppointments.map(a => [
+    a.id, a.customer_name, a.customer_email, a.customer_phone, a.device_model,
+    a.service_name || '', a.status, a.quoted_price ?? '', a.payment_status || '',
+    a.created_at ? a.created_at.slice(0, 10) : '',
+  ]);
+  downloadCSV('orders.csv', rows, headers);
+}
+
+function exportCRMCSV() {
+  const headers = ['Email', 'Name', 'Orders', 'Total Spent', 'Last Visit'];
+  const rows = allCRMCustomers.map(c => [
+    c.email, c.customer_name, c.order_count, c.total_spent ?? 0,
+    c.last_order_date ? c.last_order_date.slice(0, 10) : '',
+  ]);
+  downloadCSV('customers.csv', rows, headers);
+}
+
+function exportInventoryCSV() {
+  const headers = ['#', 'Part Name', 'Device Model', 'Quantity', 'Min Qty', 'Unit Price', 'Supplier'];
+  const rows = allInventory.map(i => [
+    i.id, i.part_name, i.device_model, i.quantity, i.min_quantity ?? '',
+    i.unit_price ?? '', i.supplier_name || '',
+  ]);
+  downloadCSV('inventory.csv', rows, headers);
+}
+
+// ─── Change Password ──────────────────────────────────────
+async function changePassword() {
+  const currentPw = document.getElementById('change-pw-current')?.value || '';
+  const newPw     = document.getElementById('change-pw-new')?.value || '';
+  if (!currentPw || !newPw) {
+    showToast('error', window.t('admin.toast.pw-change-failed'), 'Both fields are required.');
+    return;
+  }
+  if (newPw.length < 6) {
+    showToast('error', window.t('admin.toast.pw-change-failed'), 'New password must be at least 6 characters.');
+    return;
+  }
+  try {
+    const res = await authFetch(`${API}/api/admin/change-password`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current_password: currentPw, new_password: newPw }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    document.getElementById('change-pw-current').value = '';
+    document.getElementById('change-pw-new').value = '';
+    showToast('success', window.t('admin.toast.pw-changed'), '');
+  } catch (err) {
+    showToast('error', window.t('admin.toast.pw-change-failed'), err.message);
+  }
+}
+
 // ─── Event Listeners ──────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   // Login form
@@ -1959,6 +2058,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Settings
   document.getElementById('save-settings-btn')?.addEventListener('click', saveSettings);
   document.getElementById('test-smtp-btn')?.addEventListener('click', testSmtp);
+  document.getElementById('change-pw-btn')?.addEventListener('click', changePassword);
 
   // Orders filter buttons
   document.querySelectorAll('.filter-btn').forEach(btn => {
