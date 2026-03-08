@@ -146,6 +146,10 @@ router.delete('/appointments/:id', requireOwner, (req, res) => {
     const { prepare } = getDb();
     const appt = prepare('SELECT * FROM appointments WHERE id = ?').get(req.params.id);
     if (!appt) return res.status(404).json({ error: 'Appointment not found' });
+    // Clean up related records
+    prepare('DELETE FROM messages WHERE appointment_id = ?').run(req.params.id);
+    prepare('DELETE FROM reviews WHERE appointment_id = ?').run(req.params.id);
+    prepare('DELETE FROM slot_bookings WHERE appointment_id = ?').run(req.params.id);
     prepare('DELETE FROM appointments WHERE id = ?').run(req.params.id);
     auditLog(req.adminUser.username, 'delete', 'appointment', req.params.id,
       { customer: appt.customer_name, device: appt.device_model });

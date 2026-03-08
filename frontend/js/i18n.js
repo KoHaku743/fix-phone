@@ -455,7 +455,6 @@ const TRANSLATIONS = {
     'track.review-err-rating':'Please select a rating (1–5 stars).',
     'track.review-err-token':'Cannot submit review – missing order identifier.',
     'track.review-success':  '✅ Thank you for your review!',
-    'track.err-no-token':    'Cannot submit review – missing order token.',
     'crm.search-ph':       'Search by email or name...',
     'crm.col.email':       'Email',
     'crm.col.name':        'Name',
@@ -973,7 +972,6 @@ const TRANSLATIONS = {
     'track.review-err-rating':'Vyberte prosím hodnotenie (1–5 hviezdičiek).',
     'track.review-err-token':'Nemôžeme odoslať recenziu – chýba identifikátor zákazky.',
     'track.review-success':  '✅ Ďakujeme za vaše hodnotenie!',
-    'track.err-no-token':    'Nemôžeme odoslať recenziu – chýba token zákazky.',
 
     /* ── Reviews public ── */
     'crm.search-ph':       'Hľadať podľa e-mailu alebo mena...',

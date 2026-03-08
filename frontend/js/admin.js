@@ -548,7 +548,7 @@ function renderOrders() {
       <td>
         <div style="display:flex;gap:0.4rem;">
           <button class="btn btn-ghost btn-sm btn-icon" title="${window.t('admin.action.edit')}" onclick="openOrderModal(${a.id})">✏️</button>
-          <button class="btn btn-danger btn-sm btn-icon" title="${window.t('admin.action.delete')}" onclick="deleteAppointment(${a.id},'${escapeHtml(a.customer_name)}')">🗑️</button>
+          <button class="btn btn-danger btn-sm btn-icon" title="${window.t('admin.action.delete')}" onclick="deleteAppointment(${a.id},${JSON.stringify(a.customer_name)})">🗑️</button>
         </div>
       </td>
     </tr>
@@ -1105,7 +1105,7 @@ function renderStaffTab() {
           <td>
             <div style="display:flex;gap:0.4rem;">
               <button class="btn btn-ghost btn-sm btn-icon" title="${window.t('admin.action.edit')}" onclick="openOrderModal(${a.id})">✏️</button>
-              <button class="btn btn-danger btn-sm btn-icon" title="${window.t('admin.action.delete')}" onclick="deleteAppointment(${a.id},'${escapeHtml(a.customer_name)}')">🗑️</button>
+              <button class="btn btn-danger btn-sm btn-icon" title="${window.t('admin.action.delete')}" onclick="deleteAppointment(${a.id},${JSON.stringify(a.customer_name)})">🗑️</button>
             </div>
           </td>
         </tr>
