@@ -82,6 +82,11 @@ const EMAIL_I18N = {
     },
     status_hint:      'You can follow the full progress via your conversation.',
     price_offer:      (p) => `💰 Price quote from technician: ${p} €`,
+    // Review prompt (completed orders)
+    review_heading:   '⭐ Share Your Experience',
+    review_intro:     'We hope your repair went smoothly! We\'d love to hear your feedback.',
+    review_btn:       '⭐ Leave a Review',
+    review_hint:      'It only takes a minute and helps us improve our service.',
   },
   sk: {
     tagline:          'Vrátime vášmu mobilu štýlové SSS-rank nabíjanie',
@@ -124,11 +129,16 @@ const EMAIL_I18N = {
     },
     status_hint:      'Celý priebeh môžete sledovať cez svoju konverzáciu.',
     price_offer:      (p) => `💰 Cenová ponuka technika: ${p} €`,
+    // Review prompt (completed orders)
+    review_heading:   '⭐ Ohodnoťte opravu',
+    review_intro:     'Dúfame, že ste s opravou spokojní! Vaša spätná väzba je pre nás veľmi cenná.',
+    review_btn:       '⭐ Napísať recenziu',
+    review_hint:      'Zaberá to iba chvíľu a pomáha nám zlepšovať naše služby.',
   },
 };
 
 /* ── Branded HTML email template ───────────────────────────── */
-function buildEmailHtml({ subject, preheader, bodyHtml, conversationUrl, lang = 'sk' }) {
+function buildEmailHtml({ subject, preheader, bodyHtml, conversationUrl, reviewUrl, lang = 'sk' }) {
   const t = EMAIL_I18N[lang] || EMAIL_I18N.sk;
   const year = new Date().getFullYear();
   return `<!DOCTYPE html>
@@ -142,24 +152,24 @@ function buildEmailHtml({ subject, preheader, bodyHtml, conversationUrl, lang = 
   <!-- Preheader (hidden) -->
   <span style="display:none;max-height:0;overflow:hidden;">${preheader}</span>
 
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0a0e1a;padding:32px 16px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0a0e1a;padding:40px 16px;">
     <tr>
       <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#131a2e;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#131a2e;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);">
 
           <!-- Header -->
           <tr>
-            <td style="background:linear-gradient(135deg,#0d1535 0%,#1a103a 100%);padding:32px 40px;text-align:center;border-bottom:1px solid rgba(0,212,255,0.2);">
-              <div style="font-size:28px;font-weight:800;color:#e8eaf0;letter-spacing:-0.5px;">
+            <td style="background:linear-gradient(135deg,#0d1535 0%,#1a103a 100%);padding:36px 48px;text-align:center;border-bottom:2px solid rgba(0,212,255,0.25);">
+              <div style="font-size:30px;font-weight:800;color:#e8eaf0;letter-spacing:-0.5px;margin-bottom:6px;">
                 <span style="color:#00d4ff;">SSS</span>tylish <span style="background:linear-gradient(135deg,#00d4ff,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Repair</span>
               </div>
-              <div style="font-size:12px;color:#8892a4;margin-top:6px;letter-spacing:1px;text-transform:uppercase;">${t.tagline}</div>
+              <div style="font-size:12px;color:#8892a4;letter-spacing:1.5px;text-transform:uppercase;">${t.tagline}</div>
             </td>
           </tr>
 
           <!-- Body -->
           <tr>
-            <td style="padding:36px 40px;color:#e8eaf0;font-size:15px;line-height:1.7;">
+            <td style="padding:40px 48px;color:#e8eaf0;font-size:16px;line-height:1.75;">
               ${bodyHtml}
             </td>
           </tr>
@@ -167,20 +177,36 @@ function buildEmailHtml({ subject, preheader, bodyHtml, conversationUrl, lang = 
           <!-- CTA button (conversation link) -->
           ${conversationUrl ? `
           <tr>
-            <td style="padding:0 40px 32px;text-align:center;">
+            <td style="padding:0 48px 32px;text-align:center;">
               <a href="${conversationUrl}"
-                 style="display:inline-block;background:linear-gradient(135deg,#00d4ff,#7c3aed);color:#0a0e1a;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;letter-spacing:0.3px;">
+                 style="display:inline-block;background:linear-gradient(135deg,#00d4ff,#7c3aed);color:#0a0e1a;font-size:16px;font-weight:700;text-decoration:none;padding:16px 36px;border-radius:10px;letter-spacing:0.3px;">
                 ${t.btn_open_conv}
               </a>
-              <div style="margin-top:12px;font-size:12px;color:#4a5568;">
-                ${t.btn_copy} <span style="color:#00d4ff;">${conversationUrl}</span>
+              <div style="margin-top:14px;font-size:12px;color:#4a5568;">
+                ${t.btn_copy} <span style="color:#00d4ff;word-break:break-all;">${conversationUrl}</span>
+              </div>
+            </td>
+          </tr>` : ''}
+
+          <!-- Review CTA (completed orders) -->
+          ${reviewUrl ? `
+          <tr>
+            <td style="padding:0 48px 36px;text-align:center;">
+              <div style="background:#0f1629;border:1px solid rgba(250,204,21,0.25);border-radius:12px;padding:24px 28px;">
+                <div style="font-size:18px;font-weight:700;color:#fbbf24;margin-bottom:8px;">${t.review_heading}</div>
+                <div style="font-size:14px;color:#c4cdd8;margin-bottom:18px;line-height:1.6;">${t.review_intro}</div>
+                <a href="${reviewUrl}"
+                   style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-size:15px;font-weight:700;text-decoration:none;padding:14px 32px;border-radius:10px;">
+                  ${t.review_btn}
+                </a>
+                <div style="margin-top:12px;font-size:12px;color:#4a5568;">${t.review_hint}</div>
               </div>
             </td>
           </tr>` : ''}
 
           <!-- Footer -->
           <tr>
-            <td style="background:#0f1629;padding:20px 40px;border-top:1px solid rgba(255,255,255,0.07);">
+            <td style="background:#0a0e1a;padding:24px 48px;border-top:1px solid rgba(255,255,255,0.07);">
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="font-size:12px;color:#4a5568;text-align:center;">
@@ -188,7 +214,7 @@ function buildEmailHtml({ subject, preheader, bodyHtml, conversationUrl, lang = 
                   </td>
                 </tr>
                 <tr>
-                  <td style="font-size:11px;color:#2d3748;text-align:center;padding-top:6px;">
+                  <td style="font-size:11px;color:#2d3748;text-align:center;padding-top:8px;line-height:1.6;">
                     ${t.footer_auto}
                   </td>
                 </tr>
@@ -222,47 +248,47 @@ async function sendBookingConfirmation({ to, customerName, deviceModel, serviceN
   const subject = t.booking_subject(orderNumber);
   const preheader = t.booking_preheader(deviceModel);
   const bodyHtml = `
-    <p>${t.booking_greeting(escHtml(customerName))}</p>
-    <p>${t.booking_intro}</p>
+    <p style="margin:0 0 20px;font-size:17px;">${t.booking_greeting(escHtml(customerName))}</p>
+    <p style="margin:0 0 24px;color:#c4cdd8;">${t.booking_intro}</p>
 
-    <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);">
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);">
       <tr style="background:#0f1629;">
-        <td style="padding:12px 16px;font-size:13px;color:#8892a4;width:40%;">${t.order_number}</td>
-        <td style="padding:12px 16px;font-size:13px;color:#e8eaf0;font-weight:700;">#${orderNumber}</td>
+        <td style="padding:14px 20px;font-size:13px;color:#8892a4;text-transform:uppercase;letter-spacing:0.5px;width:42%;">${t.order_number}</td>
+        <td style="padding:14px 20px;font-size:15px;color:#00d4ff;font-weight:700;">#${orderNumber}</td>
       </tr>
-      <tr>
-        <td style="padding:12px 16px;font-size:13px;color:#8892a4;">${t.device}</td>
-        <td style="padding:12px 16px;font-size:13px;color:#e8eaf0;">${escHtml(deviceModel)}</td>
+      <tr style="background:#1a2240;">
+        <td style="padding:14px 20px;font-size:13px;color:#8892a4;text-transform:uppercase;letter-spacing:0.5px;">${t.device}</td>
+        <td style="padding:14px 20px;font-size:15px;color:#e8eaf0;font-weight:600;">${escHtml(deviceModel)}</td>
       </tr>
       <tr style="background:#0f1629;">
-        <td style="padding:12px 16px;font-size:13px;color:#8892a4;">${t.repair_type}</td>
-        <td style="padding:12px 16px;font-size:13px;color:#e8eaf0;">${escHtml(serviceName || t.unknown_repair)}</td>
+        <td style="padding:14px 20px;font-size:13px;color:#8892a4;text-transform:uppercase;letter-spacing:0.5px;">${t.repair_type}</td>
+        <td style="padding:14px 20px;font-size:15px;color:#e8eaf0;">${escHtml(serviceName || t.unknown_repair)}</td>
       </tr>
       ${customerCity ? `
-      <tr>
-        <td style="padding:12px 16px;font-size:13px;color:#8892a4;">${t.city || 'City'}</td>
-        <td style="padding:12px 16px;font-size:13px;color:#e8eaf0;">${escHtml(customerCity)}</td>
+      <tr style="background:#1a2240;">
+        <td style="padding:14px 20px;font-size:13px;color:#8892a4;text-transform:uppercase;letter-spacing:0.5px;">${t.city || 'City'}</td>
+        <td style="padding:14px 20px;font-size:15px;color:#e8eaf0;">${escHtml(customerCity)}</td>
       </tr>` : ''}
-      <tr style="background:#0f1629;">
-        <td style="padding:12px 16px;font-size:13px;color:#8892a4;">${t.status_label}</td>
-        <td style="padding:12px 16px;font-size:13px;"><span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">${t.status_pending}</span></td>
+      <tr style="${customerCity ? 'background:#0f1629;' : 'background:#1a2240;'}">
+        <td style="padding:14px 20px;font-size:13px;color:#8892a4;text-transform:uppercase;letter-spacing:0.5px;">${t.status_label}</td>
+        <td style="padding:14px 20px;"><span style="background:rgba(245,158,11,0.18);color:#f59e0b;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;border:1px solid rgba(245,158,11,0.3);">${t.status_pending}</span></td>
       </tr>
     </table>
 
-    <p>${t.booking_info}</p>
+    <p style="margin:0 0 24px;color:#c4cdd8;line-height:1.75;">${t.booking_info}</p>
     ${mapsLink ? `
-    <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 8px;">
       <tr>
-        <td style="background:#0f1629;border-left:3px solid #00d4ff;border-radius:0 8px 8px 0;padding:16px 20px;">
-          <p style="margin:0 0 8px;font-size:13px;color:#8892a4;text-transform:uppercase;letter-spacing:0.5px;">${t.booking_maps_label}</p>
-          <p style="margin:0 0 10px;font-size:14px;color:#e8eaf0;font-weight:600;">${escHtml(shopAddress)}</p>
-          <a href="${mapsLink}" style="display:inline-block;background:linear-gradient(135deg,#00d4ff,#7c3aed);color:#0a0e1a;font-size:13px;font-weight:700;text-decoration:none;padding:9px 20px;border-radius:8px;">
+        <td style="background:#0f1629;border-left:4px solid #00d4ff;border-radius:0 10px 10px 0;padding:18px 22px;">
+          <p style="margin:0 0 6px;font-size:12px;color:#8892a4;text-transform:uppercase;letter-spacing:0.5px;">${t.booking_maps_label}</p>
+          <p style="margin:0 0 14px;font-size:15px;color:#e8eaf0;font-weight:600;">${escHtml(shopAddress)}</p>
+          <a href="${mapsLink}" style="display:inline-block;background:linear-gradient(135deg,#00d4ff,#7c3aed);color:#0a0e1a;font-size:14px;font-weight:700;text-decoration:none;padding:10px 22px;border-radius:8px;">
             ${t.booking_maps_btn}
           </a>
         </td>
       </tr>
     </table>
-    ` : `<p>${t.booking_no_addr}</p>`}
+    ` : `<p style="margin:0;color:#c4cdd8;">${t.booking_no_addr}</p>`}
   `;
 
   const transport = createTransport(cfg);
@@ -286,18 +312,18 @@ async function sendMessageNotification({ to, customerName, orderNumber, adminMes
   const subject = t.msg_subject(orderNumber);
   const preheader = t.msg_preheader(orderNumber);
   const bodyHtml = `
-    <p>${t.msg_greeting(escHtml(customerName))}</p>
-    <p>${t.msg_intro(orderNumber)}</p>
+    <p style="margin:0 0 20px;font-size:17px;">${t.msg_greeting(escHtml(customerName))}</p>
+    <p style="margin:0 0 20px;color:#c4cdd8;">${t.msg_intro(orderNumber)}</p>
 
-    <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
       <tr>
-        <td style="background:#0f1629;border-left:3px solid #00d4ff;border-radius:0 8px 8px 0;padding:16px 20px;font-size:14px;color:#e8eaf0;line-height:1.6;">
+        <td style="background:#0f1629;border-left:4px solid #00d4ff;border-radius:0 10px 10px 0;padding:18px 22px;font-size:15px;color:#e8eaf0;line-height:1.75;">
           ${escHtml(adminMessage)}
         </td>
       </tr>
     </table>
 
-    <p>${t.msg_reply_hint}</p>
+    <p style="margin:0;color:#c4cdd8;">${t.msg_reply_hint}</p>
   `;
 
   const transport = createTransport(cfg);
@@ -313,7 +339,7 @@ async function sendMessageNotification({ to, customerName, orderNumber, adminMes
 /**
  * Notify customer that admin updated the appointment status.
  */
-async function sendStatusUpdateNotification({ to, customerName, orderNumber, newStatus, quotedPrice, conversationUrl, lang = 'sk' }) {
+async function sendStatusUpdateNotification({ to, customerName, orderNumber, newStatus, quotedPrice, conversationUrl, customerEmail, lang = 'sk' }) {
   const cfg = getSmtpSettings();
   if (!cfg) return;
 
@@ -330,40 +356,55 @@ async function sendStatusUpdateNotification({ to, customerName, orderNumber, new
   }[newStatus] || '#8892a4';
 
   const statusBg = {
-    pending:       'rgba(245,158,11,0.15)',
-    confirmed:     'rgba(59,130,246,0.15)',
-    diagnostics:   'rgba(168,85,247,0.15)',
-    waiting_parts: 'rgba(245,158,11,0.15)',
-    completed:     'rgba(16,185,129,0.15)',
-    cancelled:     'rgba(239,68,68,0.15)',
-  }[newStatus] || 'rgba(136,146,164,0.15)';
+    pending:       'rgba(245,158,11,0.18)',
+    confirmed:     'rgba(59,130,246,0.18)',
+    diagnostics:   'rgba(168,85,247,0.18)',
+    waiting_parts: 'rgba(245,158,11,0.18)',
+    completed:     'rgba(16,185,129,0.18)',
+    cancelled:     'rgba(239,68,68,0.18)',
+  }[newStatus] || 'rgba(136,146,164,0.18)';
+
+  const statusBorder = {
+    pending:       'rgba(245,158,11,0.3)',
+    confirmed:     'rgba(59,130,246,0.3)',
+    diagnostics:   'rgba(168,85,247,0.3)',
+    waiting_parts: 'rgba(245,158,11,0.3)',
+    completed:     'rgba(16,185,129,0.3)',
+    cancelled:     'rgba(239,68,68,0.3)',
+  }[newStatus] || 'rgba(136,146,164,0.3)';
+
+  // Build review URL for completed orders
+  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+  const reviewUrl = (newStatus === 'completed' && customerEmail)
+    ? `${baseUrl}/track?id=${orderNumber}&email=${encodeURIComponent(customerEmail)}`
+    : null;
 
   const subject = t.status_subject(orderNumber);
   const preheader = t.status_preheader(orderNumber);
   const bodyHtml = `
-    <p>${t.status_greeting(escHtml(customerName))}</p>
-    <p>${t.status_intro(orderNumber)}</p>
+    <p style="margin:0 0 20px;font-size:17px;">${t.status_greeting(escHtml(customerName))}</p>
+    <p style="margin:0 0 24px;color:#c4cdd8;">${t.status_intro(orderNumber)}</p>
 
-    <table width="100%" cellpadding="0" cellspacing="0" style="margin:20px 0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.07);">
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.1);">
       <tr style="background:#0f1629;">
-        <td style="padding:12px 16px;font-size:13px;color:#8892a4;width:40%;">${t.order_number}</td>
-        <td style="padding:12px 16px;font-size:13px;color:#e8eaf0;font-weight:700;">#${orderNumber}</td>
+        <td style="padding:14px 20px;font-size:13px;color:#8892a4;text-transform:uppercase;letter-spacing:0.5px;width:42%;">${t.order_number}</td>
+        <td style="padding:14px 20px;font-size:15px;color:#00d4ff;font-weight:700;">#${orderNumber}</td>
       </tr>
-      <tr>
-        <td style="padding:12px 16px;font-size:13px;color:#8892a4;">${t.status_label}</td>
-        <td style="padding:12px 16px;font-size:13px;">
-          <span style="background:${statusBg};color:${statusColor};padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">${statusLabel}</span>
+      <tr style="background:#1a2240;">
+        <td style="padding:14px 20px;font-size:13px;color:#8892a4;text-transform:uppercase;letter-spacing:0.5px;">${t.status_label}</td>
+        <td style="padding:14px 20px;">
+          <span style="background:${statusBg};color:${statusColor};padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700;border:1px solid ${statusBorder};">${statusLabel}</span>
         </td>
       </tr>
       ${quotedPrice != null ? `
       <tr style="background:#0f1629;">
-        <td colspan="2" style="padding:12px 16px;font-size:14px;color:#00d4ff;font-weight:600;">
+        <td colspan="2" style="padding:16px 20px;font-size:15px;color:#00d4ff;font-weight:700;">
           ${t.price_offer(Number(quotedPrice).toFixed(2))}
         </td>
       </tr>` : ''}
     </table>
 
-    <p>${t.status_hint}</p>
+    <p style="margin:0;color:#c4cdd8;">${t.status_hint}</p>
   `;
 
   const transport = createTransport(cfg);
@@ -372,7 +413,7 @@ async function sendStatusUpdateNotification({ to, customerName, orderNumber, new
     replyTo: 'support@ssstyle.store',
     to,
     subject,
-    html: buildEmailHtml({ subject, preheader, bodyHtml, conversationUrl, lang }),
+    html: buildEmailHtml({ subject, preheader, bodyHtml, conversationUrl, reviewUrl, lang }),
   });
 }
 
