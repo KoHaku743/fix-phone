@@ -1,4 +1,4 @@
-# SSStylish Repair – Phone Repair Service Platform
+# SSStyle Repair – Phone Repair Service Platform
 
 A full-stack web application for managing a phone repair shop. Customers can book repairs, track order status, and chat with technicians. Admins manage orders, services, inventory, staff, analytics, and more.
 
