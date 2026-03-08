@@ -363,10 +363,15 @@
       const form = document.getElementById('track-form');
       if (form) form.addEventListener('submit', trackOrder);
 
-      // Pre-fill from URL params if any
+      // Pre-fill from URL params if any, and auto-submit when both id and email are provided
       const params = new URLSearchParams(location.search);
       if (params.get('id')) document.getElementById('track-id').value = params.get('id');
       if (params.get('email')) document.getElementById('track-email').value = params.get('email');
+      if (params.get('id') && params.get('email')) {
+        // Auto-submit to immediately show order status and review form.
+        // Brief delay allows the DOM and i18n to fully initialise before submit.
+        setTimeout(() => form && form.dispatchEvent(new Event('submit', { cancelable: true })), 100);
+      }
     });
 
     const STEP_KEYS = [

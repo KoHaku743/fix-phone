@@ -128,6 +128,7 @@ router.put('/appointments/:id', async (req, res) => {
         newStatus: status,
         quotedPrice: newQuotedPrice,
         conversationUrl,
+        customerEmail: appointment.customer_email,
         lang: appointment.customer_lang || 'sk',
       }).catch(err => console.warn('⚠️  Could not send status update email:', err.message));
     }
