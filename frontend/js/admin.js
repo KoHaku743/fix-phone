@@ -2,6 +2,12 @@
    admin.js – SSStyle Repair Admin Panel
    ============================================================ */
 
+// Safety fallback: i18n.js exposes window.t; if it failed to load
+// (e.g. network error) fall back to returning the translation key itself.
+if (typeof window.t !== 'function') {
+  window.t = k => k;
+}
+
 const API = '';
 
 // ─── Auth helpers ─────────────────────────────────────────
