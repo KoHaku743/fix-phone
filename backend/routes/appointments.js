@@ -3,12 +3,13 @@ const router = express.Router();
 const crypto = require('crypto');
 const { getDb } = require('../database');
 const { sendBookingConfirmation } = require('../mailer');
+const ioc = require('../ioc');
 
 // POST /api/appointments
 router.post('/', async (req, res) => {
   try {
     const { prepare } = getDb();
-    const { customer_name, customer_email, customer_phone, device_model, service_id, notes, customer_lang } = req.body;
+    const { customer_name, customer_email, customer_phone, device_model, service_id, notes, customer_lang, customer_city } = req.body;
 
     if (!customer_name || !customer_email || !customer_phone || !device_model || !service_id) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -26,9 +27,9 @@ router.post('/', async (req, res) => {
     const conversation_token = crypto.randomBytes(24).toString('hex');
 
     const result = prepare(`
-      INSERT INTO appointments (customer_name, customer_email, customer_phone, device_model, service_id, notes, status, conversation_token, customer_lang)
-      VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?)
-    `).run(customer_name.trim(), customer_email.trim(), customer_phone.trim(), device_model.trim(), service_id, notes?.trim() || null, conversation_token, lang);
+      INSERT INTO appointments (customer_name, customer_email, customer_phone, device_model, service_id, notes, status, conversation_token, customer_lang, customer_city)
+      VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)
+    `).run(customer_name.trim(), customer_email.trim(), customer_phone.trim(), device_model.trim(), service_id, notes?.trim() || null, conversation_token, lang, customer_city?.trim() || null);
 
     const appointment = prepare(`
       SELECT a.*, s.name as service_name FROM appointments a
@@ -47,10 +48,11 @@ router.post('/', async (req, res) => {
       orderNumber: appointment.id,
       conversationUrl,
       lang,
+      customerCity: customer_city?.trim() || null,
     }).catch(err => console.warn('⚠️  Could not send confirmation email:', err.message));
 
-    // Emit socket.io event
-    try { req.app.locals.io.emit('new-appointment', appointment); } catch (_) {}
+    // Emit socket.io event to all connected servers
+    ioc.emit('new-appointment', appointment);
 
     res.status(201).json(appointment);
   } catch (err) {

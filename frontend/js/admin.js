@@ -32,9 +32,28 @@ function clearCurrentUser() {
   try { localStorage.removeItem(USER_KEY); } catch (_) {}
 }
 
+const ROLE_KEY = 'fixphone-admin-role';
+
+function getUserRole() {
+  try { return localStorage.getItem(ROLE_KEY) || 'owner'; } catch { return 'owner'; }
+}
+
+function saveUserRole(role) {
+  try { localStorage.setItem(ROLE_KEY, role || 'staff'); } catch (_) {}
+}
+
+function clearUserRole() {
+  try { localStorage.removeItem(ROLE_KEY); } catch (_) {}
+}
+
+function isOwner() {
+  return getUserRole() === 'owner';
+}
+
 function logout() {
   clearToken();
   clearCurrentUser();
+  clearUserRole();
   loadLoginUsers();
   showLoginOverlay();
 }
@@ -47,6 +66,28 @@ function updateUserDisplay() {
     avatar.textContent = username === 'staff' ? 'S' : 'O';
     avatar.title = username === 'staff' ? window.t('login.staff-label') : window.t('login.owner-label');
   }
+  applyRoleVisibility();
+}
+
+/** Show/hide UI elements based on the logged-in user's role. */
+function applyRoleVisibility() {
+  const owner = isOwner();
+  // Sidebar tabs: settings and staff accounts section are owner-only
+  const ownerOnlyTabs = ['settings'];
+  document.querySelectorAll('.sidebar-item[data-tab]').forEach(item => {
+    if (ownerOnlyTabs.includes(item.dataset.tab)) {
+      item.style.display = owner ? '' : 'none';
+    }
+  });
+  // Staff Accounts section inside staff tab
+  const staffAccountsSection = document.getElementById('staff-accounts-section');
+  if (staffAccountsSection) {
+    staffAccountsSection.style.display = owner ? '' : 'none';
+  }
+  // Delete appointment buttons (owner only)
+  document.querySelectorAll('[onclick^="deleteAppointment"]').forEach(btn => {
+    btn.style.display = owner ? '' : 'none';
+  });
 }
 
 /** Authenticated fetch wrapper – adds Bearer token header. */
@@ -184,6 +225,7 @@ async function handleLogin(e) {
 
     saveToken(data.token);
     saveCurrentUser(data.username || username);
+    saveUserRole(data.role || (username === 'owner' ? 'owner' : 'staff'));
     hideLoginOverlay();
     document.getElementById('admin-password').value = '';
     updateUserDisplay();
@@ -548,7 +590,7 @@ function renderOrders() {
       <td>
         <div style="display:flex;gap:0.4rem;">
           <button class="btn btn-ghost btn-sm btn-icon" title="${window.t('admin.action.edit')}" onclick="openOrderModal(${a.id})">✏️</button>
-          <button class="btn btn-danger btn-sm btn-icon" title="${window.t('admin.action.delete')}" onclick="deleteAppointment(${a.id},${JSON.stringify(a.customer_name)})">🗑️</button>
+          ${isOwner() ? `<button class="btn btn-danger btn-sm btn-icon" title="${window.t('admin.action.delete')}" onclick="deleteAppointment(${a.id},${JSON.stringify(a.customer_name)})">🗑️</button>` : ''}
         </div>
       </td>
     </tr>
@@ -656,7 +698,7 @@ function openOrderModal(id) {
     }
   }
   document.getElementById('order-customer-info').innerHTML =
-    `<strong>${escapeHtml(appt.customer_name)}</strong> &bull; ${escapeHtml(appt.device_model)} &bull; ${escapeHtml(appt.customer_email)}`;
+    `<strong>${escapeHtml(appt.customer_name)}</strong> &bull; ${escapeHtml(appt.device_model)} &bull; ${escapeHtml(appt.customer_email)}${appt.customer_city ? ` &bull; 📍 ${escapeHtml(appt.customer_city)}` : ''}`;
 
   // Payment fields
   const payStatusEl = document.getElementById('order-payment-status');
@@ -1695,6 +1737,10 @@ async function saveSlots() {
 // ─── Staff Accounts ───────────────────────────────────────
 async function loadStaffAccounts() {
   const section = document.getElementById('staff-accounts-section');
+  if (!isOwner()) {
+    if (section) section.style.display = 'none';
+    return;
+  }
   if (section) section.style.display = 'block';
   const tbody = document.getElementById('staff-accounts-tbody');
   if (!tbody) return;
@@ -1735,10 +1781,12 @@ function openStaffAccountModal(id = null) {
   document.getElementById('staff-account-active').value = '1';
 
   const usernameInput = document.getElementById('staff-account-username');
+  const pwLabel = document.querySelector('label[for="staff-account-password"]');
 
   if (id) {
     if (titleEl) titleEl.textContent = window.t('modal.edit-staff');
     if (usernameInput) usernameInput.disabled = true;
+    if (pwLabel) pwLabel.setAttribute('data-i18n', 'modal.staff-password');
     // Fetch current staff data from server
     authFetch(`${API}/api/admin/staff-accounts`).then(r => r.json()).then(accounts => {
       const acct = accounts.find(a => a.id === id);
@@ -1752,6 +1800,12 @@ function openStaffAccountModal(id = null) {
   } else {
     if (titleEl) titleEl.textContent = window.t('modal.add-staff');
     if (usernameInput) usernameInput.disabled = false;
+    if (pwLabel) pwLabel.setAttribute('data-i18n', 'modal.staff-password-new');
+  }
+  // Apply translated label text immediately
+  if (pwLabel) {
+    const key = id ? 'modal.staff-password' : 'modal.staff-password-new';
+    pwLabel.textContent = window.t(key);
   }
   openModal('modal-staff-account');
 }
@@ -1763,6 +1817,12 @@ async function saveStaffAccount() {
   const password     = document.getElementById('staff-account-password').value;
   const role         = document.getElementById('staff-account-role').value;
   const is_active    = parseInt(document.getElementById('staff-account-active').value, 10) === 1;
+
+  // For new accounts, password is required
+  if (!id && !password) {
+    showToast('error', window.t('admin.toast.save-failed'), window.t('modal.staff-password-new'));
+    return;
+  }
 
   const body = { display_name, role, is_active };
   if (!id) { body.username = username; }
@@ -1822,10 +1882,18 @@ async function loadAuditLog() {
 }
 
 // ─── Receipt ──────────────────────────────────────────────
-function viewInvoice() {
+async function viewInvoice() {
   const id = parseInt(document.getElementById('order-id').value, 10);
   if (!id) return;
-  window.open(`/api/admin/appointments/${id}/invoice`, '_blank');
+  try {
+    const res = await authFetch(`${API}/api/admin/appointments/${id}/invoice`);
+    if (!res.ok) throw new Error((await res.json()).error);
+    const html = await res.text();
+    const w = window.open('', '_blank');
+    if (w) { w.document.write(html); w.document.close(); }
+  } catch (err) {
+    showToast('error', window.t('admin.toast.load-error'), err.message);
+  }
 }
 function printReceipt() {
   const id = parseInt(document.getElementById('order-id').value, 10);
@@ -1883,7 +1951,7 @@ function printReceipt() {
   <div class="row"><div class="label">Prevzaté</div><div class="value">${fmtDate(appt.created_at)}</div></div>
 </div>
 <div class="footer">
-  <p>SSStyle Repair · info@ssstyle.store</p>
+  <p>SSStyle Repair · support@ssstyle.store</p>
   <p>Zariadenie bolo prevzaté na opravu. Zákazník bude kontaktovaný e-mailom po diagnostike.</p>
 </div>
 <br/><div style="text-align:center;">

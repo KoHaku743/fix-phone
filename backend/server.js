@@ -5,9 +5,10 @@ const http = require('http');
 const rateLimit = require('express-rate-limit');
 const { Server: SocketIOServer } = require('socket.io');
 const { initDb } = require('./database');
+const ioc = require('./ioc');
 
 const app  = express();
-const PORT = parseInt(process.env.PORT, 10) || 3000;
+const PORT = parseInt(process.env.PORT, 10) || 3534;
 
 // Create HTTP server and attach socket.io
 const httpServer = http.createServer(app);
@@ -16,6 +17,7 @@ const io = new SocketIOServer(httpServer, {
 });
 // Make io accessible in route handlers via req.app.locals.io
 app.locals.io = io;
+ioc.addIo(io);
 module.exports.io = io;
 
 // When ADMIN_PORT is set (and differs from PORT), admin routes are served on a
@@ -146,6 +148,17 @@ if (useAdminServer) {
       res.status(404).json({ error: 'Not found' });
     }
   });
+  // Attach socket.io to the admin HTTP server so admin panel clients can
+  // receive real-time events even when running on a separate port.
+  const adminHttpServer = http.createServer(adminApp);
+  const adminIo = new SocketIOServer(adminHttpServer, {
+    cors: { origin: process.env.CORS_ORIGIN || '*' },
+  });
+  adminApp.locals.io = adminIo;
+  ioc.addIo(adminIo);
+  adminHttpServer.listen(ADMIN_PORT, '0.0.0.0', () => {
+    console.log(`Fix-Phone admin panel running on http://localhost:${ADMIN_PORT}`);
+  });
 }
 
 // ─── Initialize DB then start ─────────────────────────────
@@ -159,11 +172,6 @@ initDb().then(() => {
   httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`Fix-Phone server running on http://localhost:${PORT}`);
   });
-  if (adminApp) {
-    adminApp.listen(ADMIN_PORT, '0.0.0.0', () => {
-      console.log(`Fix-Phone admin panel running on http://localhost:${ADMIN_PORT}`);
-    });
-  }
 }).catch(err => {
   console.error('Failed to initialize database:', err);
   process.exit(1);

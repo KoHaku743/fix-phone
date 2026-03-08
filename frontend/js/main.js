@@ -259,6 +259,7 @@ async function handleBooking(e) {
     service_id:       form.service_id.value || null,
     notes:            form.notes.value.trim() || null,
     customer_lang:    (window.currentLang ? window.currentLang() : null) || localStorage.getItem('fixphone-lang') || 'sk',
+    customer_city:    form.customer_city?.value.trim() || null,
   };
 
   const errors = validateForm(data);
