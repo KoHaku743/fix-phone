@@ -1324,13 +1324,27 @@ async function loadAnalytics() {
 }
 
 // ─── Reviews ──────────────────────────────────────────────
+function updateReviewsBadge() {
+  const pending = allReviews.filter(r => r.status === 'pending').length;
+  const badge = document.getElementById('reviews-badge');
+  if (!badge) return;
+  if (pending > 0) {
+    badge.textContent = pending;
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
 async function loadReviews() {
   try {
     const res = await authFetch(`${API}/api/admin/reviews`);
     if (!res.ok) throw new Error((await res.json()).error);
     allReviews = await res.json();
     renderReviews();
+    updateReviewsBadge();
   } catch (err) {
+    renderReviews();
     showToast('error', window.t('admin.toast.load-error'), err.message);
   }
 }
@@ -1383,6 +1397,7 @@ async function updateReview(id, status) {
     const idx = allReviews.findIndex(r => r.id === id);
     if (idx !== -1) allReviews[idx].status = status;
     renderReviews();
+    updateReviewsBadge();
     showToast('success', window.t('admin.toast.review-updated'), '');
   } catch (err) {
     showToast('error', window.t('admin.toast.update-failed'), err.message);
@@ -1396,6 +1411,7 @@ async function deleteReview(id) {
     if (!res.ok) throw new Error((await res.json()).error);
     allReviews = allReviews.filter(r => r.id !== id);
     renderReviews();
+    updateReviewsBadge();
     showToast('success', window.t('admin.toast.review-deleted'), '');
   } catch (err) {
     showToast('error', window.t('admin.toast.delete-failed'), err.message);
