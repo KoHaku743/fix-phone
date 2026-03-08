@@ -129,6 +129,7 @@ function initializeSchema() {
   try { db.run(`ALTER TABLE appointments ADD COLUMN payment_method TEXT`); } catch (_) {}
   try { db.run(`ALTER TABLE appointments ADD COLUMN warranty_expiry TEXT`); } catch (_) {}
   try { db.run(`ALTER TABLE appointments ADD COLUMN slot_time TEXT`); } catch (_) {}
+  try { db.run(`ALTER TABLE appointments ADD COLUMN customer_city TEXT`); } catch (_) {}
 
   // Migrate: remove NOT NULL constraint from appointment_date if present (old schema)
   try {

@@ -478,7 +478,8 @@
       const socket = io();
       socket.on('new-message', (data) => {
         if (!appointmentId || data.appointment_id !== appointmentId) return;
-        if (data.sender === 'admin') {
+        const msg = data.message || data;
+        if ((msg.sender || data.sender) === 'admin') {
           const list = document.getElementById('messages-list');
           if (!list) return;
           const emptyMsg = list.querySelector('.conv-empty-msgs');
@@ -486,11 +487,30 @@
           const div = document.createElement('div');
           div.className = 'conv-msg conv-msg-admin';
           div.innerHTML = `
-            <div class="conv-msg-bubble">${escHtml(data.content)}</div>
-            <div class="conv-msg-meta">${t('msg_by_admin')} · ${formatTime(data.created_at)}</div>
+            <div class="conv-msg-bubble">${escHtml(msg.content || data.content)}</div>
+            <div class="conv-msg-meta">${t('msg_by_admin')} · ${formatTime(msg.created_at || data.created_at)}</div>
           `;
           list.appendChild(div);
           list.scrollTop = list.scrollHeight;
+        }
+      });
+      // Real-time appointment status/price updates
+      socket.on('appointment-updated', (data) => {
+        if (!appointmentId || data.id !== appointmentId) return;
+        // Update status badge
+        const statusLabels = (CONV_I18N[LANG] || CONV_I18N.sk).status_labels;
+        const statusBadge = document.getElementById('order-status-badge');
+        if (statusBadge && data.status) {
+          statusBadge.textContent = statusLabels[data.status] || data.status;
+          statusBadge.className = 'conv-status ' + (STATUS_CLASSES[data.status] || 'conv-status-pending');
+        }
+        // Update quoted price
+        if (data.quoted_price != null) {
+          const qp = document.getElementById('order-quoted-price');
+          if (qp) {
+            qp.style.display = 'block';
+            qp.textContent = `${t('price_label')} ${Number(data.quoted_price).toFixed(2)} €`;
+          }
         }
       });
     }

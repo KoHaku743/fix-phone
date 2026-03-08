@@ -5,10 +5,9 @@ services:
     env_file:
       - .env
     ports:
-      - "${PORT:-3000}:${PORT:-3000}"
-      # Uncomment if ADMIN_PORT is set in .env to expose the admin panel on a
-      # separate port (e.g. ADMIN_PORT=3001):
-      # - "${ADMIN_PORT:-3001}:${ADMIN_PORT:-3001}"
+      - "${PORT:-3534}:${PORT:-3534}"
+      # Admin panel on a separate port (set ADMIN_PORT in .env):
+      - "${ADMIN_PORT:-3535}:${ADMIN_PORT:-3535}"
     volumes:
       - db-data:/app/backend/data
     restart: unless-stopped

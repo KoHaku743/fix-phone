@@ -49,6 +49,7 @@ const EMAIL_I18N = {
     order_number:     'Order Number',
     device:           'Device',
     repair_type:      'Repair Type',
+    city:             'City',
     status_label:     'Status',
     // Booking confirmation
     booking_subject:  (n) => `Booking Confirmation #${n} – SSStyle Repair`,
@@ -90,6 +91,7 @@ const EMAIL_I18N = {
     order_number:     'Číslo objednávky',
     device:           'Zariadenie',
     repair_type:      'Typ opravy',
+    city:             'Mesto',
     status_label:     'Stav',
     // Booking confirmation
     booking_subject:  (n) => `Potvrdenie rezervácie #${n} – SSStyle Repair`,
@@ -207,7 +209,7 @@ function buildEmailHtml({ subject, preheader, bodyHtml, conversationUrl, lang = 
 /**
  * Send booking confirmation to customer.
  */
-async function sendBookingConfirmation({ to, customerName, deviceModel, serviceName, orderNumber, conversationUrl, lang = 'sk' }) {
+async function sendBookingConfirmation({ to, customerName, deviceModel, serviceName, orderNumber, conversationUrl, lang = 'sk', customerCity = null }) {
   const cfg = getSmtpSettings();
   if (!cfg) return;
 
@@ -236,7 +238,12 @@ async function sendBookingConfirmation({ to, customerName, deviceModel, serviceN
         <td style="padding:12px 16px;font-size:13px;color:#8892a4;">${t.repair_type}</td>
         <td style="padding:12px 16px;font-size:13px;color:#e8eaf0;">${escHtml(serviceName || t.unknown_repair)}</td>
       </tr>
+      ${customerCity ? `
       <tr>
+        <td style="padding:12px 16px;font-size:13px;color:#8892a4;">${t.city || 'City'}</td>
+        <td style="padding:12px 16px;font-size:13px;color:#e8eaf0;">${escHtml(customerCity)}</td>
+      </tr>` : ''}
+      <tr${customerCity ? ' style="background:#0f1629;"' : ''}>
         <td style="padding:12px 16px;font-size:13px;color:#8892a4;">${t.status_label}</td>
         <td style="padding:12px 16px;font-size:13px;"><span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">${t.status_pending}</span></td>
       </tr>
@@ -261,6 +268,7 @@ async function sendBookingConfirmation({ to, customerName, deviceModel, serviceN
   const transport = createTransport(cfg);
   await transport.sendMail({
     from: cfg.smtp_from || cfg.smtp_user,
+    replyTo: 'support@ssstyle.store',
     to,
     subject,
     html: buildEmailHtml({ subject, preheader, bodyHtml, conversationUrl, lang }),
@@ -295,6 +303,7 @@ async function sendMessageNotification({ to, customerName, orderNumber, adminMes
   const transport = createTransport(cfg);
   await transport.sendMail({
     from: cfg.smtp_from || cfg.smtp_user,
+    replyTo: 'support@ssstyle.store',
     to,
     subject,
     html: buildEmailHtml({ subject, preheader, bodyHtml, conversationUrl, lang }),
@@ -360,6 +369,7 @@ async function sendStatusUpdateNotification({ to, customerName, orderNumber, new
   const transport = createTransport(cfg);
   await transport.sendMail({
     from: cfg.smtp_from || cfg.smtp_user,
+    replyTo: 'support@ssstyle.store',
     to,
     subject,
     html: buildEmailHtml({ subject, preheader, bodyHtml, conversationUrl, lang }),

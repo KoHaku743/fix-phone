@@ -47,7 +47,8 @@ router.post('/login', (req, res) => {
     if (!valid) {
       return res.status(401).json({ error: 'Invalid password' });
     }
-    return res.json({ token: createToken(username), username });
+    const role = username === 'owner' ? 'owner' : 'staff';
+    return res.json({ token: createToken(username), username, role });
   }
 
   // If no env-var match, check staff_accounts table
@@ -60,7 +61,7 @@ router.post('/login', (req, res) => {
         .update(typeof password === 'string' ? password : '')
         .digest('hex');
       if (givenHash === account.password_hash) {
-        return res.json({ token: createToken(username), username });
+        return res.json({ token: createToken(username), username, role: account.role || 'staff' });
       }
       return res.status(401).json({ error: 'Invalid password' });
     }

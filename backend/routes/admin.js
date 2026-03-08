@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const { getDb } = require('../database');
 const { requireAuth, requireOwner } = require('../middleware/auth');
 const { sendMessageNotification, sendStatusUpdateNotification } = require('../mailer');
+const ioc = require('../ioc');
 
 // All admin routes require a valid token
 router.use(requireAuth);
@@ -131,8 +132,8 @@ router.put('/appointments/:id', async (req, res) => {
       }).catch(err => console.warn('⚠️  Could not send status update email:', err.message));
     }
 
-    // Emit socket.io event
-    try { req.app.locals.io && req.app.locals.io.emit('appointment-updated', appointment); } catch (_) {}
+    // Emit socket.io event to all connected servers
+    ioc.emit('appointment-updated', appointment);
 
     res.json(appointment);
   } catch (err) {
@@ -196,6 +197,7 @@ router.get('/appointments/:id/invoice', (req, res) => {
   <tr><td>Customer Name</td><td>${escHtml(appt.customer_name)}</td></tr>
   <tr><td>Email</td><td>${escHtml(appt.customer_email)}</td></tr>
   <tr><td>Phone</td><td>${escHtml(appt.customer_phone)}</td></tr>
+  ${appt.customer_city ? `<tr><td>City</td><td>${escHtml(appt.customer_city)}</td></tr>` : ''}
   <tr><td>Device</td><td>${escHtml(appt.device_model)}</td></tr>
   <tr><td>Service</td><td>${escHtml(appt.service_name || '')}</td></tr>
   <tr><td>Status</td><td>${escHtml(appt.status)}</td></tr>
@@ -294,8 +296,8 @@ router.post('/appointments/:id/messages', async (req, res) => {
       }).catch(err => console.warn('⚠️  Could not send message notification:', err.message));
     }
 
-    // Emit socket.io event
-    try { req.app.locals.io && req.app.locals.io.emit('new-message', { appointment_id: appt.id, message: msg }); } catch (_) {}
+    // Emit socket.io event to all connected servers
+    ioc.emit('new-message', { appointment_id: appt.id, message: msg });
 
     res.status(201).json(msg);
   } catch (err) {
@@ -785,8 +787,8 @@ router.get('/calendar', (req, res) => {
       SELECT a.*, s.name as service_name
       FROM appointments a
       LEFT JOIN services s ON a.service_id = s.id
-      WHERE date(a.appointment_date) BETWEEN ? AND ?
-      ORDER BY a.appointment_date ASC
+      WHERE date(COALESCE(a.appointment_date, a.created_at)) BETWEEN ? AND ?
+      ORDER BY COALESCE(a.appointment_date, a.created_at) ASC
     `).all(fmt(monday), fmt(sunday));
     res.json({ week_start: fmt(monday), week_end: fmt(sunday), appointments });
   } catch (err) {

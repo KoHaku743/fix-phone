@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const { getDb } = require('../database');
+const ioc = require('../ioc');
 
 // GET /api/conversations/:token  – fetch appointment + messages
 router.get('/:token', (req, res) => {
@@ -13,7 +14,8 @@ router.get('/:token', (req, res) => {
     const { prepare } = getDb();
     const appt = prepare(`
       SELECT a.id, a.customer_name, a.customer_email, a.device_model, a.status, a.quoted_price,
-             a.notes, a.created_at, a.customer_lang, s.name as service_name
+             a.notes, a.created_at, a.customer_lang, a.appointment_date, a.customer_city,
+             s.name as service_name
       FROM appointments a
       LEFT JOIN services s ON a.service_id = s.id
       WHERE a.conversation_token = ?
@@ -52,6 +54,10 @@ router.post('/:token/messages', (req, res) => {
     `).run(appt.id, content.trim());
 
     const msg = prepare('SELECT * FROM messages WHERE id = ?').get(result.lastInsertRowid);
+
+    // Notify admin panel in real time
+    ioc.emit('new-message', { appointment_id: appt.id, message: msg });
+
     res.status(201).json(msg);
   } catch (err) {
     res.status(500).json({ error: err.message });
