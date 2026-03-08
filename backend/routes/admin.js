@@ -541,7 +541,7 @@ router.post('/settings/test-smtp', async (req, res) => {
     await transport.sendMail({
       from: cfg.smtp_from || cfg.smtp_user,
       to: cfg.smtp_user,
-      subject: 'SSStylish Repair – SMTP test',
+      subject: 'SSStylie Repair – SMTP test',
       text: 'SMTP nastavenia fungujú správne! ✅',
     });
     res.json({ ok: true });

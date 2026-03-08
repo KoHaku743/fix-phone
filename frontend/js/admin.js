@@ -1872,7 +1872,7 @@ function printReceipt() {
   <div class="row"><div class="label">Prevzaté</div><div class="value">${fmtDate(appt.created_at)}</div></div>
 </div>
 <div class="footer">
-  <p>SSStylish Repair · info@ssstylish.sk</p>
+  <p>SSStyle Repair · info@ssstyle.store</p>
   <p>Zariadenie bolo prevzaté na opravu. Zákazník bude kontaktovaný e-mailom po diagnostike.</p>
 </div>
 <br/><div style="text-align:center;">

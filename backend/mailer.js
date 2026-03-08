@@ -1,5 +1,5 @@
 /* ============================================================
-   mailer.js – SSStylish Repair e-mail sender
+   mailer.js – SSStyle Repair e-mail sender
    Uses nodemailer with admin-configured SMTP (Gmail).
    ============================================================ */
 
@@ -51,7 +51,7 @@ const EMAIL_I18N = {
     repair_type:      'Repair Type',
     status_label:     'Status',
     // Booking confirmation
-    booking_subject:  (n) => `Booking Confirmation #${n} – SSStylish Repair`,
+    booking_subject:  (n) => `Booking Confirmation #${n} – SSStyle Repair`,
     booking_preheader:(d) => `Your repair request for ${d} has been received.`,
     booking_greeting: (name) => `Hello <strong style="color:#00d4ff;">${name}</strong>,`,
     booking_intro:    'Your repair request has been successfully received. Here are your order details:',
@@ -61,13 +61,13 @@ const EMAIL_I18N = {
     booking_maps_btn:   '🗺️ Open in Google Maps',
     status_pending:   '⏳ Pending',
     // Message notification
-    msg_subject:      (n) => `New message on order #${n} – SSStylish Repair`,
+    msg_subject:      (n) => `New message on order #${n} – SSStyle Repair`,
     msg_preheader:    (n) => `Your technician replied to order #${n}.`,
     msg_greeting:     (name) => `Hello <strong style="color:#00d4ff;">${name}</strong>,`,
     msg_intro:        (n) => `A new message was posted on your order <strong style="color:#00d4ff;">#${n}</strong> by our technician:`,
     msg_reply_hint:   'Click the button below to open the conversation directly in your browser.',
     // Status update
-    status_subject:   (n) => `Order #${n} status update – SSStylish Repair`,
+    status_subject:   (n) => `Order #${n} status update – SSStyle Repair`,
     status_preheader: (n) => `Your order #${n} has been updated.`,
     status_greeting:  (name) => `Hello <strong style="color:#00d4ff;">${name}</strong>,`,
     status_intro:     (n) => `The status of your order <strong style="color:#00d4ff;">#${n}</strong> has been updated:`,
@@ -92,7 +92,7 @@ const EMAIL_I18N = {
     repair_type:      'Typ opravy',
     status_label:     'Stav',
     // Booking confirmation
-    booking_subject:  (n) => `Potvrdenie rezervácie #${n} – SSStylish Repair`,
+    booking_subject:  (n) => `Potvrdenie rezervácie #${n} – SSStyle Repair`,
     booking_preheader:(d) => `Vaša oprava zariadenia ${d} bola prijatá.`,
     booking_greeting: (name) => `Dobrý deň <strong style="color:#00d4ff;">${name}</strong>,`,
     booking_intro:    'Vaša žiadosť o opravu bola úspešne prijatá. Tu sú detaily vašej objednávky:',
@@ -102,13 +102,13 @@ const EMAIL_I18N = {
     booking_maps_btn:   '🗺️ Otvoriť v Google Maps',
     status_pending:   '⏳ Čaká na spracovanie',
     // Message notification
-    msg_subject:      (n) => `Nová správa k objednávke #${n} – SSStylish Repair`,
+    msg_subject:      (n) => `Nová správa k objednávke #${n} – SSStyle Repair`,
     msg_preheader:    (n) => `Technik vám odpovedal na vašu objednávku #${n}.`,
     msg_greeting:     (name) => `Dobrý deň <strong style="color:#00d4ff;">${name}</strong>,`,
     msg_intro:        (n) => `K vašej objednávke <strong style="color:#00d4ff;">#${n}</strong> pribudla nová správa od nášho technika:`,
     msg_reply_hint:   'Pre odpoveď kliknite na tlačidlo nižšie a otvorte konverzáciu priamo v prehliadači.',
     // Status update
-    status_subject:   (n) => `Aktualizácia objednávky #${n} – SSStylish Repair`,
+    status_subject:   (n) => `Aktualizácia objednávky #${n} – SSStyle Repair`,
     status_preheader: (n) => `Vaša objednávka #${n} bola aktualizovaná.`,
     status_greeting:  (name) => `Dobrý deň <strong style="color:#00d4ff;">${name}</strong>,`,
     status_intro:     (n) => `Stav vašej objednávky <strong style="color:#00d4ff;">#${n}</strong> bol aktualizovaný:`,
@@ -182,7 +182,7 @@ function buildEmailHtml({ subject, preheader, bodyHtml, conversationUrl, lang = 
               <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                   <td style="font-size:12px;color:#4a5568;text-align:center;">
-                    © ${year} SSStylish Repair · ${t.tagline}
+                    © ${year} SSStyle Repair · ${t.tagline}
                   </td>
                 </tr>
                 <tr>
