@@ -1,5 +1,5 @@
 /* ============================================================
-   main.js – SSStylish Repair customer-facing page
+   main.js – SSStyle Repair customer-facing page
    ============================================================ */
 
 const API = '';  // Same-origin: backend serves frontend

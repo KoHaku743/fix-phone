@@ -1,5 +1,5 @@
 /* ============================================================
-   admin.js – SSStylish Repair Admin Panel
+   admin.js – SSStyle Repair Admin Panel
    ============================================================ */
 
 const API = '';
