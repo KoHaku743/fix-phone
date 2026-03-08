@@ -1928,7 +1928,7 @@ function printReceipt() {
   @media print{button{display:none!important;}}
 </style></head><body>
 <div class="header">
-  <div class="logo">⚡ <span>SSS</span>tylish Repair</div>
+  <div class="logo">⚡ <span>SSS</span>tyle Repair</div>
   <div class="receipt-title">Potvrdenka o prevzatí zariadenia do opravy</div>
   <div class="receipt-id">Zákazka #${appt.id}</div>
 </div>
