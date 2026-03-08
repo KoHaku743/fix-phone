@@ -1781,7 +1781,7 @@ function openStaffAccountModal(id = null) {
   document.getElementById('staff-account-active').value = '1';
 
   const usernameInput = document.getElementById('staff-account-username');
-  const pwLabel = document.querySelector('label[for="staff-account-password"], label[data-i18n="modal.staff-password"]');
+  const pwLabel = document.querySelector('label[for="staff-account-password"]');
 
   if (id) {
     if (titleEl) titleEl.textContent = window.t('modal.edit-staff');

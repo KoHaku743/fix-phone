@@ -133,7 +133,6 @@ app.use((req, res) => {
 // ─── Optional separate admin server ───────────────────────
 let adminApp = null;
 if (useAdminServer) {
-  const adminHttpServer = http.createServer();
   adminApp = express();
   applyCommonMiddleware(adminApp);
   adminApp.use(limiter);
@@ -151,7 +150,7 @@ if (useAdminServer) {
   });
   // Attach socket.io to the admin HTTP server so admin panel clients can
   // receive real-time events even when running on a separate port.
-  adminHttpServer.on('request', adminApp);
+  const adminHttpServer = http.createServer(adminApp);
   const adminIo = new SocketIOServer(adminHttpServer, {
     cors: { origin: process.env.CORS_ORIGIN || '*' },
   });
