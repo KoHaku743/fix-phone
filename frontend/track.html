@@ -18,6 +18,7 @@
       padding: 1rem 2rem;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 1rem;
     }
     .track-navbar-logo {
@@ -298,23 +299,24 @@
 
   <nav class="track-navbar">
     <a href="/" class="track-navbar-logo">⚡ <span style="color:var(--teal);">SSS</span>tylish Repair</a>
+    <button class="lang-toggle" id="lang-toggle" aria-label="Switch language">EN</button>
   </nav>
 
   <div class="track-container">
     <div class="track-heading">
-      <h1>📦 Sledovanie zákazky</h1>
-      <p>Zadajte číslo objednávky a e-mailovú adresu na sledovanie stavu opravy.</p>
+      <h1 id="track-page-title">📦 Sledovanie zákazky</h1>
+      <p id="track-page-subtitle">Zadajte číslo objednávky a e-mailovú adresu na sledovanie stavu opravy.</p>
     </div>
 
     <div class="track-form-card">
       <form class="track-form" id="track-form">
         <div class="form-row-track">
           <div class="form-group">
-            <label class="form-label" for="track-id">Číslo zákazky *</label>
+            <label class="form-label" for="track-id" id="track-id-label">Číslo zákazky *</label>
             <input class="form-input" type="number" id="track-id" placeholder="napr. 42" min="1" required />
           </div>
           <div class="form-group">
-            <label class="form-label" for="track-email">Váš e-mail *</label>
+            <label class="form-label" for="track-email" id="track-email-label">Váš e-mail *</label>
             <input class="form-input" type="email" id="track-email" placeholder="jan@priklad.sk" required />
           </div>
         </div>
@@ -331,13 +333,48 @@
 
   <div class="toast-container" id="toast-container"></div>
 
+  <script src="/js/i18n.js"></script>
   <script>
-    const STEPS_INFO = [
-      { key: 'pending',       label: 'Prijaté',           desc: 'Vaše zariadenie bolo prijaté do opravovne.' },
-      { key: 'confirmed',     label: 'Potvrdené',          desc: 'Oprava bola potvrdená, čoskoro začneme.' },
-      { key: 'diagnostics',   label: 'Diagnostika',        desc: 'Technik diagnostikuje váš prístroj.' },
-      { key: 'waiting_parts', label: 'Čaká na diely',      desc: 'Čakáme na dodanie náhradných dielov.' },
-      { key: 'completed',     label: 'Opravené',           desc: 'Oprava dokončená, zariadenie bude odoslané.' },
+    // Apply i18n to track-specific static text
+    function applyTrackI18n() {
+      const tl = window.t || (k => k);
+      document.getElementById('track-page-title').textContent  = tl('track.title');
+      document.getElementById('track-page-subtitle').textContent = tl('track.subtitle');
+      document.getElementById('track-id-label').textContent    = tl('track.id-label');
+      document.getElementById('track-email-label').textContent = tl('track.email-label');
+      document.getElementById('track-id').placeholder          = tl('track.id-ph');
+      document.getElementById('track-email').placeholder       = tl('track.email-ph');
+      document.getElementById('track-btn-text').textContent    = tl('track.btn');
+      document.getElementById('track-btn-loading').textContent = tl('track.loading');
+    }
+
+    // Language toggle
+    document.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('lang-toggle');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const next = window.currentLang() === 'en' ? 'sk' : 'en';
+          window.setLanguage(next);
+          applyTrackI18n();
+        });
+      }
+      applyTrackI18n();
+
+      const form = document.getElementById('track-form');
+      if (form) form.addEventListener('submit', trackOrder);
+
+      // Pre-fill from URL params if any
+      const params = new URLSearchParams(location.search);
+      if (params.get('id')) document.getElementById('track-id').value = params.get('id');
+      if (params.get('email')) document.getElementById('track-email').value = params.get('email');
+    });
+
+    const STEP_KEYS = [
+      { key: 'pending' },
+      { key: 'confirmed' },
+      { key: 'diagnostics' },
+      { key: 'waiting_parts' },
+      { key: 'completed' },
     ];
 
     function escHtml(str) {
@@ -346,12 +383,13 @@
     }
 
     function renderResult(data) {
+      const tl = window.t || (k => k);
       const container = document.getElementById('track-result');
       const isCancelled = data.status === 'cancelled';
       const isCompleted = data.status === 'completed';
       const stepIndex = data.current_step_index;
 
-      const stepsHtml = STEPS_INFO.map((s, i) => {
+      const stepsHtml = STEP_KEYS.map((s, i) => {
         let cls = '';
         if (i < stepIndex) cls = 'step-done';
         else if (i === stepIndex) cls = 'step-active';
@@ -360,8 +398,8 @@
           <div class="step-item ${cls}">
             <div class="step-circle">${icon}</div>
             <div class="step-content">
-              <div class="step-label">${escHtml(s.label)}</div>
-              <div class="step-desc">${i <= stepIndex || cls === 'step-done' ? escHtml(s.desc) : ''}</div>
+              <div class="step-label">${escHtml(tl('track.step.' + s.key))}</div>
+              <div class="step-desc">${i <= stepIndex || cls === 'step-done' ? escHtml(tl('track.step.' + s.key + '.desc')) : ''}</div>
             </div>
           </div>
         `;
@@ -373,9 +411,8 @@
         const expDate = new Date(data.warranty_expiry);
         const expired = expDate < new Date();
         const cls = expired ? 'warranty-expired' : 'warranty-valid';
-        const icon = expired ? '⚠️' : '🛡️';
-        const label = expired ? 'Záruka vypršala' : 'Záruka platí do';
-        warrantyHtml = `<div class="warranty-banner ${cls}">${icon} ${label}: ${expDate.toLocaleDateString('sk-SK')}</div>`;
+        const label = expired ? tl('track.warranty-expired') : tl('track.warranty-valid');
+        warrantyHtml = `<div class="warranty-banner ${cls}">${label}: ${expDate.toLocaleDateString(window.currentLang() === 'en' ? 'en-GB' : 'sk-SK')}</div>`;
       }
 
       // Review form (only for completed orders, without existing review)
@@ -383,7 +420,7 @@
       if (isCompleted && !data.has_review) {
         reviewHtml = `
           <div class="review-form-card" id="review-form-card">
-            <div class="review-form-title">⭐ Ohodnoťte opravu</div>
+            <div class="review-form-title">${tl('track.review-title')}</div>
             <div class="star-rating" id="star-rating">
               <span class="star" data-val="1">⭐</span>
               <span class="star" data-val="2">⭐</span>
@@ -391,42 +428,42 @@
               <span class="star" data-val="4">⭐</span>
               <span class="star" data-val="5">⭐</span>
             </div>
-            <textarea id="review-text" class="form-input" rows="3" placeholder="Napíšte recenziu (voliteľné)..." style="width:100%;resize:vertical;"></textarea>
+            <textarea id="review-text" class="form-input" rows="3" placeholder="${escHtml(tl('track.review-ph'))}" style="width:100%;resize:vertical;"></textarea>
             <div id="review-error" style="color:var(--danger);font-size:0.85rem;margin-top:0.5rem;display:none;"></div>
-            <button class="review-submit-btn" id="review-submit-btn" onclick="submitReview('${escHtml(data.conversation_token || '')}')">Odoslať hodnotenie</button>
+            <button class="review-submit-btn" id="review-submit-btn" onclick="submitReview('${escHtml(data.conversation_token || '')}')">${tl('track.review-submit')}</button>
           </div>
         `;
       }
 
       container.innerHTML = `
         <div class="track-result-header">
-          <div class="track-order-title">📦 Zákazka #${data.id}</div>
+          <div class="track-order-title">${tl('track.order-title')} #${data.id}</div>
         </div>
         <div class="track-meta">
           <div class="track-meta-item">
-            <div class="track-meta-label">Zákazník</div>
+            <div class="track-meta-label">${tl('track.meta.customer')}</div>
             <div class="track-meta-value">${escHtml(data.customer_name)}</div>
           </div>
           <div class="track-meta-item">
-            <div class="track-meta-label">Zariadenie</div>
+            <div class="track-meta-label">${tl('track.meta.device')}</div>
             <div class="track-meta-value">${escHtml(data.device_model)}</div>
           </div>
           <div class="track-meta-item">
-            <div class="track-meta-label">Oprava</div>
+            <div class="track-meta-label">${tl('track.meta.repair')}</div>
             <div class="track-meta-value">${escHtml(data.service_name || '—')}</div>
           </div>
         </div>
-        ${data.quoted_price != null ? `<div class="track-price" style="margin:1rem 1.5rem 0;">💰 Cenová ponuka: ${Number(data.quoted_price).toFixed(2)} €</div>` : ''}
+        ${data.quoted_price != null ? `<div class="track-price" style="margin:1rem 1.5rem 0;">${tl('track.price-label')} ${Number(data.quoted_price).toFixed(2)} €</div>` : ''}
         ${warrantyHtml}
         ${isCancelled
-          ? `<div class="cancelled-banner">❌ Táto zákazka bola zrušená.</div>`
+          ? `<div class="cancelled-banner">${tl('track.cancelled')}</div>`
           : `<div class="track-progress">
-              <div class="track-progress-title">Priebeh opravy</div>
+              <div class="track-progress-title">${tl('track.progress-title')}</div>
               <div class="stepper">${stepsHtml}</div>
             </div>`
         }
         <div class="track-actions">
-          <a href="/" style="font-size:0.85rem;color:var(--teal);text-decoration:none;">← Späť na hlavnú stránku</a>
+          <a href="/" style="font-size:0.85rem;color:var(--teal);text-decoration:none;">${tl('track.back-home')}</a>
         </div>
         ${reviewHtml}
       `;
@@ -462,19 +499,20 @@
     }
 
     async function submitReview(conversationToken) {
+      const tl = window.t || (k => k);
       const btn = document.getElementById('review-submit-btn');
       const errEl = document.getElementById('review-error');
       const text = document.getElementById('review-text')?.value.trim() || '';
       errEl.style.display = 'none';
 
       if (!_selectedRating) {
-        errEl.textContent = 'Vyberte prosím hodnotenie (1–5 hviezdičiek).';
+        errEl.textContent = tl('track.review-err-rating');
         errEl.style.display = 'block';
         return;
       }
 
       if (!conversationToken) {
-        errEl.textContent = 'Nemôžeme odoslať recenziu – chýba identifikátor zákazky.';
+        errEl.textContent = tl('track.review-err-token');
         errEl.style.display = 'block';
         return;
       }
@@ -488,10 +526,10 @@
         });
         if (!res.ok) {
           const d = await res.json();
-          throw new Error(d.error || 'Odoslanie zlyhalo.');
+          throw new Error(d.error || tl('track.err-generic'));
         }
         const card = document.getElementById('review-form-card');
-        if (card) card.innerHTML = '<div style="color:var(--success);font-weight:700;padding:1rem 0;">✅ Ďakujeme za vaše hodnotenie!</div>';
+        if (card) card.innerHTML = `<div style="color:var(--success);font-weight:700;padding:1rem 0;">${tl('track.review-success')}</div>`;
       } catch (err) {
         errEl.textContent = err.message;
         errEl.style.display = 'block';
@@ -501,6 +539,7 @@
 
     async function trackOrder(e) {
       e.preventDefault();
+      const tl = window.t || (k => k);
       const idVal    = document.getElementById('track-id').value.trim();
       const emailVal = document.getElementById('track-email').value.trim();
       const errEl    = document.getElementById('track-error');
@@ -512,7 +551,7 @@
       document.getElementById('track-result').style.display = 'none';
 
       if (!idVal || !emailVal) {
-        errEl.textContent = 'Vyplňte prosím všetky polia.';
+        errEl.textContent = tl('track.err-fields');
         errEl.style.display = 'block';
         return;
       }
@@ -524,10 +563,10 @@
       try {
         const res = await fetch(`/api/track/${encodeURIComponent(idVal)}?email=${encodeURIComponent(emailVal)}`);
         const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Zákazka sa nenašla.');
+        if (!res.ok) throw new Error(data.error || tl('track.err-generic'));
         renderResult(data);
       } catch (err) {
-        errEl.textContent = '❌ ' + (err.message || 'Nastala chyba. Skúste to znova.');
+        errEl.textContent = '❌ ' + (err.message || tl('track.err-generic'));
         errEl.style.display = 'block';
       } finally {
         btn.disabled = false;
@@ -535,16 +574,6 @@
         btnLoad.style.display = 'none';
       }
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('track-form');
-      if (form) form.addEventListener('submit', trackOrder);
-
-      // Pre-fill from URL params if any
-      const params = new URLSearchParams(location.search);
-      if (params.get('id')) document.getElementById('track-id').value = params.get('id');
-      if (params.get('email')) document.getElementById('track-email').value = params.get('email');
-    });
   </script>
 </body>
 </html>

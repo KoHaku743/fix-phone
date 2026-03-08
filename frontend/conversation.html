@@ -252,6 +252,7 @@
 
   <div class="toast-container" id="toast-container"></div>
 
+  <script src="/socket.io/socket.io.js"></script>
   <script>
     const token = location.pathname.split('/conversation/')[1];
     let appointmentId = null;
@@ -471,6 +472,28 @@
       }
       loadConversation();
     });
+
+    // Real-time incoming messages via Socket.IO
+    if (typeof io !== 'undefined') {
+      const socket = io();
+      socket.on('new-message', (data) => {
+        if (!appointmentId || data.appointment_id !== appointmentId) return;
+        if (data.sender === 'admin') {
+          const list = document.getElementById('messages-list');
+          if (!list) return;
+          const emptyMsg = list.querySelector('.conv-empty-msgs');
+          if (emptyMsg) emptyMsg.remove();
+          const div = document.createElement('div');
+          div.className = 'conv-msg conv-msg-admin';
+          div.innerHTML = `
+            <div class="conv-msg-bubble">${escHtml(data.content)}</div>
+            <div class="conv-msg-meta">${t('msg_by_admin')} · ${formatTime(data.created_at)}</div>
+          `;
+          list.appendChild(div);
+          list.scrollTop = list.scrollHeight;
+        }
+      });
+    }
 
     function showToast(type, title, message) {
       const container = document.getElementById('toast-container');

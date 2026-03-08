@@ -88,6 +88,7 @@ const TRANSLATIONS = {
     'val.email-required':   'Email address is required.',
     'val.email-invalid':    'Please enter a valid email address.',
     'val.phone-required':   'Phone number is required.',
+    'val.phone-invalid':    'Phone number must be 7–20 digits (spaces, +, -, () allowed).',
     'val.device-required':  'Device model is required.',
     'val.service-required': 'Please select a repair type.',
 
@@ -290,10 +291,11 @@ const TRANSLATIONS = {
     'admin.toast.slots-saved':      'Time Slots Saved',
 
     /* ── Admin confirm dialogs ── */
-    'confirm.delete-service':    'Delete service "{name}"? This action cannot be undone.',
-    'confirm.delete-type':       'Delete repair type "{name}"? This action cannot be undone.',
-    'confirm.delete-inventory':  'Delete part "{name}"? This action cannot be undone.',
-    'confirm.delete-review':     'Delete review #{id}? This action cannot be undone.',
+    'confirm.delete-service':      'Delete service "{name}"? This action cannot be undone.',
+    'confirm.delete-type':         'Delete repair type "{name}"? This action cannot be undone.',
+    'confirm.delete-inventory':    'Delete part "{name}"? This action cannot be undone.',
+    'confirm.delete-review':       'Delete review #{id}? This action cannot be undone.',
+    'confirm.delete-appointment':  'Delete appointment #{id} for {name}? This action cannot be undone.',
 
     /* ── Admin service description placeholders ── */
     'admin.svc-name-ph':    'e.g. iPhone 15 Screen Replacement',
@@ -370,8 +372,89 @@ const TRANSLATIONS = {
     'empty.no-reviews':        'No reviews yet',
     'admin.toast.review-updated': 'Review Updated',
     'admin.toast.review-deleted': 'Review Deleted',
+    'admin.toast.appt-deleted':   'Appointment Deleted',
 
-    /* ── CRM ── */
+    /* ── CRM History modal ── */
+    'crm.history.col.num':     '#',
+    'crm.history.col.device':  'Device',
+    'crm.history.col.service': 'Service',
+    'crm.history.col.status':  'Status',
+    'crm.history.col.date':    'Date',
+    'crm.history.col.price':   'Price',
+
+    /* ── Calendar ── */
+    'calendar.prev-week': '← Prev',
+    'calendar.next-week': 'Next →',
+    'calendar.today':     'Today',
+    'calendar.more':      '+{n} more',
+
+    /* ── Time slots ── */
+    'slots.active':        'Active',
+    'slots.capacity':      'Capacity:',
+    'slots.no-slots':      'No slots configured.',
+    'days.sunday':    'Sunday',
+    'days.monday':    'Monday',
+    'days.tuesday':   'Tuesday',
+    'days.wednesday': 'Wednesday',
+    'days.thursday':  'Thursday',
+    'days.friday':    'Friday',
+    'days.saturday':  'Saturday',
+
+    /* ── Empty states ── */
+    'empty.no-staff-accounts': 'No staff accounts yet',
+
+    /* ── Change password ── */
+    'settings.change-password':         'Change Password',
+    'settings.change-password-subtitle':'Update the password for your admin account',
+    'settings.current-password':        'Current Password',
+    'settings.new-password':            'New Password',
+    'settings.change-pw-btn':           'Update Password',
+    'admin.toast.pw-changed':           'Password Changed',
+    'admin.toast.pw-change-failed':     'Password Change Failed',
+
+    /* ── Export ── */
+    'export.csv':        '⬇ Export CSV',
+    'export.orders':     'Export Orders CSV',
+    'export.crm':        'Export Customers CSV',
+    'export.inventory':  'Export Inventory CSV',
+
+    /* ── Track page ── */
+    'track.title':       '📦 Track Order',
+    'track.subtitle':    'Enter your order number and email to track your repair status.',
+    'track.id-label':    'Order Number *',
+    'track.id-ph':       'e.g. 42',
+    'track.email-label': 'Your Email *',
+    'track.email-ph':    'john@example.com',
+    'track.btn':         '🔍 Track Order',
+    'track.loading':     '⏳ Searching...',
+    'track.err-fields':  'Please fill in all fields.',
+    'track.err-generic': 'Order not found.',
+    'track.back-home':   '← Back to Home',
+    'track.order-title': '📦 Order',
+    'track.progress-title': 'Repair Progress',
+    'track.cancelled':   '❌ This order has been cancelled.',
+    'track.step.pending':       'Received',
+    'track.step.pending.desc':  'Your device has been received at the repair shop.',
+    'track.step.confirmed':     'Confirmed',
+    'track.step.confirmed.desc':'Repair confirmed, we will start soon.',
+    'track.step.diagnostics':   'Diagnostics',
+    'track.step.diagnostics.desc':'Technician is diagnosing your device.',
+    'track.step.waiting_parts': 'Awaiting Parts',
+    'track.step.waiting_parts.desc':'Waiting for replacement parts to arrive.',
+    'track.step.completed':     'Repaired',
+    'track.step.completed.desc':'Repair complete, device will be returned.',
+    'track.meta.customer':   'Customer',
+    'track.meta.device':     'Device',
+    'track.meta.repair':     'Repair',
+    'track.price-label':     '💰 Price quote:',
+    'track.warranty-valid':  '🛡️ Warranty valid until',
+    'track.warranty-expired':'⚠️ Warranty expired',
+    'track.review-title':    '⭐ Rate the Repair',
+    'track.review-ph':       'Write a review (optional)...',
+    'track.review-submit':   'Submit Rating',
+    'track.review-err-rating':'Please select a rating (1–5 stars).',
+    'track.review-err-token':'Cannot submit review – missing order identifier.',
+    'track.review-success':  '✅ Thank you for your review!',
     'crm.search-ph':       'Search by email or name...',
     'crm.col.email':       'Email',
     'crm.col.name':        'Name',
@@ -385,11 +468,6 @@ const TRANSLATIONS = {
     'crm.loyalty-repairs': 'Loyalty Repairs Count',
     'empty.no-customers':  'No customers yet',
     'admin.toast.notes-saved': 'Notes Saved',
-
-    /* ── Calendar ── */
-    'calendar.prev-week': '← Prev',
-    'calendar.next-week': 'Next →',
-    'calendar.today':     'Today',
 
     /* ── Payment ── */
     'modal.payment-status':  'Payment Status',
@@ -527,6 +605,7 @@ const TRANSLATIONS = {
     'val.email-required':   'E-mailová adresa je povinná.',
     'val.email-invalid':    'Zadajte platnú e-mailovú adresu.',
     'val.phone-required':   'Telefónne číslo je povinné.',
+    'val.phone-invalid':    'Telefónne číslo musí mať 7–20 číslic (povolené: medzery, +, -, ()).',
     'val.device-required':  'Model zariadenia je povinný.',
     'val.service-required': 'Vyberte prosím typ opravy.',
 
@@ -733,6 +812,7 @@ const TRANSLATIONS = {
     'confirm.delete-type':    'Odstrániť typ opravy „{name}"? Túto akciu nie je možné vrátiť späť.',
     'confirm.delete-inventory': 'Odstrániť diel „{name}"? Túto akciu nie je možné vrátiť späť.',
     'confirm.delete-review':  'Odstrániť recenziu #{id}? Túto akciu nie je možné vrátiť späť.',
+    'confirm.delete-appointment': 'Odstrániť rezerváciu #{id} pre {name}? Túto akciu nie je možné vrátiť späť.',
 
     /* ── Admin placeholders ── */
     'admin.svc-name-ph':     'napr. Výmena obrazovky iPhone 15',
@@ -809,8 +889,91 @@ const TRANSLATIONS = {
     'empty.no-reviews':        'Zatiaľ žiadne recenzie',
     'admin.toast.review-updated': 'Recenzia aktualizovaná',
     'admin.toast.review-deleted': 'Recenzia odstránená',
+    'admin.toast.appt-deleted':   'Rezervácia odstránená',
 
-    /* ── CRM ── */
+    /* ── CRM History modal ── */
+    'crm.history.col.num':     '#',
+    'crm.history.col.device':  'Zariadenie',
+    'crm.history.col.service': 'Oprava',
+    'crm.history.col.status':  'Stav',
+    'crm.history.col.date':    'Dátum',
+    'crm.history.col.price':   'Cena',
+
+    /* ── Calendar ── */
+    'calendar.prev-week': '← Predch.',
+    'calendar.next-week': 'Ďalší →',
+    'calendar.today':     'Dnes',
+    'calendar.more':      '+{n} ďalší',
+
+    /* ── Time slots ── */
+    'slots.active':        'Aktívny',
+    'slots.capacity':      'Kapacita:',
+    'slots.no-slots':      'Žiadne sloty nie sú nakonfigurované.',
+    'days.sunday':    'Nedeľa',
+    'days.monday':    'Pondelok',
+    'days.tuesday':   'Utorok',
+    'days.wednesday': 'Streda',
+    'days.thursday':  'Štvrtok',
+    'days.friday':    'Piatok',
+    'days.saturday':  'Sobota',
+
+    /* ── Empty states ── */
+    'empty.no-staff-accounts': 'Zatiaľ žiadne účty pracovníkov',
+
+    /* ── Change password ── */
+    'settings.change-password':         'Zmena hesla',
+    'settings.change-password-subtitle':'Aktualizujte heslo pre váš admin účet',
+    'settings.current-password':        'Aktuálne heslo',
+    'settings.new-password':            'Nové heslo',
+    'settings.change-pw-btn':           'Zmeniť heslo',
+    'admin.toast.pw-changed':           'Heslo zmenené',
+    'admin.toast.pw-change-failed':     'Zmena hesla zlyhala',
+
+    /* ── Export ── */
+    'export.csv':        '⬇ Exportovať CSV',
+    'export.orders':     'Exportovať zákazky CSV',
+    'export.crm':        'Exportovať zákazníkov CSV',
+    'export.inventory':  'Exportovať sklad CSV',
+
+    /* ── Track page ── */
+    'track.title':       '📦 Sledovanie zákazky',
+    'track.subtitle':    'Zadajte číslo objednávky a e-mailovú adresu na sledovanie stavu opravy.',
+    'track.id-label':    'Číslo zákazky *',
+    'track.id-ph':       'napr. 42',
+    'track.email-label': 'Váš e-mail *',
+    'track.email-ph':    'jan@priklad.sk',
+    'track.btn':         '🔍 Sledovať zákazku',
+    'track.loading':     '⏳ Hľadám...',
+    'track.err-fields':  'Vyplňte prosím všetky polia.',
+    'track.err-generic': 'Zákazka sa nenašla.',
+    'track.back-home':   '← Späť na hlavnú stránku',
+    'track.order-title': '📦 Zákazka',
+    'track.progress-title': 'Priebeh opravy',
+    'track.cancelled':   '❌ Táto zákazka bola zrušená.',
+    'track.step.pending':       'Prijaté',
+    'track.step.pending.desc':  'Vaše zariadenie bolo prijaté do opravovne.',
+    'track.step.confirmed':     'Potvrdené',
+    'track.step.confirmed.desc':'Oprava bola potvrdená, čoskoro začneme.',
+    'track.step.diagnostics':   'Diagnostika',
+    'track.step.diagnostics.desc':'Technik diagnostikuje váš prístroj.',
+    'track.step.waiting_parts': 'Čaká na diely',
+    'track.step.waiting_parts.desc':'Čakáme na dodanie náhradných dielov.',
+    'track.step.completed':     'Opravené',
+    'track.step.completed.desc':'Oprava dokončená, zariadenie bude odovzdané.',
+    'track.meta.customer':   'Zákazník',
+    'track.meta.device':     'Zariadenie',
+    'track.meta.repair':     'Oprava',
+    'track.price-label':     '💰 Cenová ponuka:',
+    'track.warranty-valid':  '🛡️ Záruka platí do',
+    'track.warranty-expired':'⚠️ Záruka vypršala',
+    'track.review-title':    '⭐ Ohodnoťte opravu',
+    'track.review-ph':       'Napíšte recenziu (voliteľné)...',
+    'track.review-submit':   'Odoslať hodnotenie',
+    'track.review-err-rating':'Vyberte prosím hodnotenie (1–5 hviezdičiek).',
+    'track.review-err-token':'Nemôžeme odoslať recenziu – chýba identifikátor zákazky.',
+    'track.review-success':  '✅ Ďakujeme za vaše hodnotenie!',
+
+    /* ── Reviews public ── */
     'crm.search-ph':       'Hľadať podľa e-mailu alebo mena...',
     'crm.col.email':       'E-mail',
     'crm.col.name':        'Meno',
@@ -824,11 +987,6 @@ const TRANSLATIONS = {
     'crm.loyalty-repairs': 'Počet opráv (vernosť)',
     'empty.no-customers':  'Zatiaľ žiadni zákazníci',
     'admin.toast.notes-saved': 'Poznámky uložené',
-
-    /* ── Calendar ── */
-    'calendar.prev-week': '← Predch.',
-    'calendar.next-week': 'Ďalší →',
-    'calendar.today':     'Dnes',
 
     /* ── Payment ── */
     'modal.payment-status':  'Stav platby',

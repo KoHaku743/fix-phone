@@ -140,6 +140,25 @@ router.put('/appointments/:id', async (req, res) => {
   }
 });
 
+// DELETE /api/admin/appointments/:id
+router.delete('/appointments/:id', requireOwner, (req, res) => {
+  try {
+    const { prepare } = getDb();
+    const appt = prepare('SELECT * FROM appointments WHERE id = ?').get(req.params.id);
+    if (!appt) return res.status(404).json({ error: 'Appointment not found' });
+    // Clean up related records
+    prepare('DELETE FROM messages WHERE appointment_id = ?').run(req.params.id);
+    prepare('DELETE FROM reviews WHERE appointment_id = ?').run(req.params.id);
+    prepare('DELETE FROM slot_bookings WHERE appointment_id = ?').run(req.params.id);
+    prepare('DELETE FROM appointments WHERE id = ?').run(req.params.id);
+    auditLog(req.adminUser.username, 'delete', 'appointment', req.params.id,
+      { customer: appt.customer_name, device: appt.device_model });
+    res.json({ message: 'Appointment deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/admin/appointments/:id/invoice
 router.get('/appointments/:id/invoice', (req, res) => {
   try {
@@ -941,6 +960,60 @@ router.delete('/staff-accounts/:id', requireOwner, (req, res) => {
 });
 
 // ── Audit Log ─────────────────────────────────────────────
+
+// PUT /api/admin/change-password
+router.put('/change-password', async (req, res) => {
+  try {
+    const { prepare } = getDb();
+    const { current_password, new_password } = req.body;
+    if (!current_password || !new_password) {
+      return res.status(400).json({ error: 'current_password and new_password are required' });
+    }
+    if (new_password.length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    }
+
+    const username = req.adminUser.username;
+
+    // For DB-based staff accounts, verify the stored hash
+    const dbAccount = prepare('SELECT * FROM staff_accounts WHERE username = ?').get(username);
+    if (dbAccount) {
+      const currentHash = crypto.createHash('sha256').update(current_password).digest('hex');
+      if (dbAccount.password_hash !== currentHash) {
+        return res.status(401).json({ error: 'Current password is incorrect' });
+      }
+      const newHash = crypto.createHash('sha256').update(new_password).digest('hex');
+      prepare('UPDATE staff_accounts SET password_hash = ? WHERE id = ?').run(newHash, dbAccount.id);
+      auditLog(username, 'change_password', 'staff_account', dbAccount.id, {});
+      return res.json({ message: 'Password updated successfully' });
+    }
+
+    // For env-based accounts (owner / staff), verify against env vars
+    const envPassword = username === 'staff' ? process.env.STAFF_PASSWORD : process.env.ADMIN_PASSWORD;
+    if (!envPassword || current_password !== envPassword) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    // Store a DB override so the new password persists without restarting
+    const existingOverride = prepare('SELECT * FROM staff_accounts WHERE username = ?').get(username);
+    const newHash = crypto.createHash('sha256').update(new_password).digest('hex');
+    if (existingOverride) {
+      prepare('UPDATE staff_accounts SET password_hash = ? WHERE username = ?').run(newHash, username);
+    } else {
+      const displayName = username === 'owner'
+        ? (process.env.OWNER_NAME || 'Owner')
+        : (process.env.STAFF_NAME || 'Staff');
+      prepare(`
+        INSERT INTO staff_accounts (username, display_name, password_hash, role, is_active)
+        VALUES (?, ?, ?, ?, 1)
+      `).run(username, displayName, newHash, username === 'owner' ? 'owner' : 'staff');
+    }
+    auditLog(username, 'change_password', 'staff_account', null, { username });
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // GET /api/admin/audit-log?limit=100
 router.get('/audit-log', (req, res) => {

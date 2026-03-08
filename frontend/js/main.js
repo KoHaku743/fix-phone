@@ -237,6 +237,7 @@ function validateForm(data) {
   if (!data.customer_email?.trim()) errors.push(window.t('val.email-required'));
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.customer_email)) errors.push(window.t('val.email-invalid'));
   if (!data.customer_phone?.trim()) errors.push(window.t('val.phone-required'));
+  else if (!/^\+?[\d\s\-()\u202F]{7,20}$/.test(data.customer_phone.trim())) errors.push(window.t('val.phone-invalid'));
   if (!data.device_model?.trim())   errors.push(window.t('val.device-required'));
   if (!data.service_id)             errors.push(window.t('val.service-required'));
   return errors;
