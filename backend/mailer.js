@@ -376,7 +376,7 @@ async function sendStatusUpdateNotification({ to, customerName, orderNumber, new
   // Build review URL for completed orders
   const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
   const reviewUrl = (newStatus === 'completed' && customerEmail)
-    ? `${baseUrl}/track?id=${orderNumber}&email=${encodeURIComponent(customerEmail)}`
+    ? `${baseUrl}/track?id=${encodeURIComponent(orderNumber)}&email=${encodeURIComponent(customerEmail)}`
     : null;
 
   const subject = t.status_subject(orderNumber);
